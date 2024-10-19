@@ -1,0 +1,15 @@
+.link-camera {
+  background: rgb(131, 58, 180);
+  background: linear-gradient(
+    90deg,
+    rgba(57, 22, 64) 0%,
+    rgba(21, 21, 57) 50%,
+    rgba(19, 56, 72) 100%
+  );
+}
+.link-trakt {
+  background: rgb(24, 27, 29);
+}
+.link-furtrack {
+  background: rgb(45, 14, 76);  
+}

@@ -1,0 +1,32 @@
+theme = "github.com/jpanther/lynx"
+title = "Hyper"
+
+enableEmoji = true
+disableKinds = ["taxonomy", "term"]
+
+[params.author]
+  name = "Hyper"
+  headline = ""
+  image = "author.jpg"
+  links = [
+    { camera = { href = "https://photo.felle.me", text = "Photography", icon = "camera" } },
+    { telegram = "https://t.me/jordanfelle" },
+    { furtrack = { href = "https://www.furtrack.com/user/Hyper", text = "Furtrack", icon = "furtrack" } },
+    { kofi = { href = "https://ko-fi.com/jordanfelle  ", text = "Kofi", icon = "kofi" } },
+    { github = "https://github.com/jordanfelle" },
+    { facebook = "https://www.facebook.com/hyper123" },
+    { twitter = "https://twitter.com/jordanfelle" },
+    { bluesky = "https://bsky.app/profile/hypercat.me" },
+    { instagram = "https://www.instagram.com/hyper123" },
+    { lastfm = "https://www.last.fm/user/hyper123123" },
+    { steam = "https://steamcommunity.com/id/hyper123" },
+    { discord = "https://discord.com/users/307919782961872897" },
+    { trakt = { href = "https://trakt.tv/users/hyper123", text = "Trakt", icon = "trakt" } },
+  ]
+
+[markup.highlight]
+  noClasses = false
+
+[markup.goldmark]
+[markup.goldmark.renderer]
+  unsafe = true
