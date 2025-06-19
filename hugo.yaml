@@ -70,7 +70,7 @@ params:
   ShowPageNums: true
   ShowToc: true
   # comments: false
-  images: ["images/hyper.png"]
+  # images: ["images/hyper.png"]
 
   profileMode:
     enabled: true
