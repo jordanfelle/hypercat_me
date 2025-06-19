@@ -77,7 +77,6 @@ params:
     title: hyper
     imageUrl: "images/hyper.png"
     imageTitle: Hyper
-    relative: true
     # imageWidth: 120
     # imageHeight: 120
     buttons:
