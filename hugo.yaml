@@ -78,8 +78,8 @@ params:
     title: hyper
     imageUrl: "images/profile/hyper.webp"
     imageTitle: Hyper
-    # imageWidth: 120
-    # imageHeight: 120
+    imageWidth: 400
+    imageHeight: 509
     buttons:
       - name: Photography
         url: https://photo.felle.me/
@@ -151,6 +151,7 @@ params:
     hiddenInSingle: false # hide on single page
     relative: true
     linkFullImages: true
+    responsiveImages: true
 
   # fuseOpts:
   #     isCaseSensitive: false
