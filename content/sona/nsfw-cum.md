@@ -2,7 +2,7 @@
 title: "NSFW Cum"
 hidemeta: true
 cover:
-  image: "images/sona/Ref25NSFWCum.png"
+  image: "images/sona/Ref25NSFWCum.webp"
   linkFullImages: true
   relative: true
 ---
