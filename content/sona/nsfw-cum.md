@@ -7,3 +7,4 @@ cover:
   relative: true
 ---
 
+Click for full resolution

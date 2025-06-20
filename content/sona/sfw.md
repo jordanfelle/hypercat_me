@@ -6,3 +6,5 @@ cover:
   linkFullImages: true
   relative: true
 ---
+
+Click for full resolution
