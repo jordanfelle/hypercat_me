@@ -16,6 +16,7 @@ jobs:
         id: compress-images
         uses: cadamsdev/image-optimizer-action@v1
         with:
+          export-webp: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create New Pull Request If Needed

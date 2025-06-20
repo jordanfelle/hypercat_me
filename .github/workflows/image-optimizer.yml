@@ -26,3 +26,4 @@ jobs:
         uses: cadamsdev/image-optimizer-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          export-webp: true
