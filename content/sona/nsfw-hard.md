@@ -1,8 +1,9 @@
 ---
-title: "SFW Ref"
+title: "NSFW Hard"
 hidemeta: true
 cover:
-  image: "images/sona/Ref25SFW.png"
+  image: "images/sona/Ref25NSFWHard.png"
   linkFullImages: true
   relative: true
 ---
+

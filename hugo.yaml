@@ -71,6 +71,7 @@ params:
   ShowToc: true
   # comments: false
   # images: ["images/hyper.png"]
+  ShowRssButtonInSectionTermList: false
 
   profileMode:
     enabled: true
@@ -145,11 +146,11 @@ params:
   #     safari_pinned_tab: "<link / abs url>"
 
   cover:
-    # hidden: true # hide everywhere but not in structured data
-    # hiddenInList: true # hide on list pages and home
-    # hiddenInSingle: true # hide on single page
-    # relative: true
-    # linkFullImages: true
+    hidden: false # hide everywhere but not in structured data
+    hiddenInList: true # hide on list pages and home
+    hiddenInSingle: false # hide on single page
+    relative: true
+    linkFullImages: true
 
   # fuseOpts:
   #     isCaseSensitive: false

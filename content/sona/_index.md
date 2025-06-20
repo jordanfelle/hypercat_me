@@ -1,7 +1,4 @@
 ---
-title: "Hyper"
-layout: "single"
+title: "Sona Ref Sheets"
 hidemeta: true
-linkFullImages: true
 ---
-Testing 123
