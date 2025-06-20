@@ -2,7 +2,7 @@
 # contain http (as opposeed to https) URLs. This would affect Google indexing of your URLs.
 baseURL: "https://hypercat.me/"
 title: Hyper
-copyright: ""
+copyright: "CC BY-NC 4.0"
 theme: [hugo-PaperMod]
 
 enableInlineShortcodes: true
@@ -63,7 +63,7 @@ params:
   # disableSpecial1stPost: true
   displayFullLangName: true
   ShowPostNavLinks: true
-  ShowBreadCrumbs: false
+  ShowBreadCrumbs: true
   ShowCodeCopyButtons: true
   ShowRssButtonInSectionTermList: true
   ShowAllPagesInArchive: true
@@ -85,10 +85,6 @@ params:
         url: https://photo.felle.me/
       - name: Furtrack
         url: https://www.furtrack.com/user/Hyper
-
-  homeInfoParams:
-    Title:
-    Content:
 
   socialIcons:
     - name: telegram
@@ -153,14 +149,14 @@ params:
     linkFullImages: true
     responsiveImages: true
 
-  # fuseOpts:
-  #     isCaseSensitive: false
-  #     shouldSort: true
-  #     location: 0
-  #     distance: 1000
-  #     threshold: 0.4
-  #     minMatchCharLength: 0
-  #     keys: ["title", "permalink", "summary", "content"]
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content"]
 
 markup:
   goldmark:
