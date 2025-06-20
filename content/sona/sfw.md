@@ -2,7 +2,7 @@
 title: "SFW Ref"
 hidemeta: true
 cover:
-  image: "images/sona/Ref25SFW.png"
+  image: "images/sona/Ref25SFW.webp"
   linkFullImages: true
   relative: true
 ---
