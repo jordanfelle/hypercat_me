@@ -51,7 +51,7 @@ outputs:
     - JSON
 
 params:
-  env: production # to enable google analytics, opengraph, twitter-cards and schema.
+  env: production
   description: "Hyper"
   author: Hyper
   # author: ["Me", "You"] # multiple authors

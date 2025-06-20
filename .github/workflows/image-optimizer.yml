@@ -3,13 +3,13 @@ name: Compress Images
 on:
   pull_request:
     paths:
-      - '**/*.svg'
-      - '**/*.png'
-      - '**/*.jpg'
-      - '**/*.jpeg'
-      - '**/*.gif'
-      - '**/*.webp'
-      - '**/*.avif'
+      - "**/*.svg"
+      - "**/*.png"
+      - "**/*.jpg"
+      - "**/*.jpeg"
+      - "**/*.gif"
+      - "**/*.webp"
+      - "**/*.avif"
 
 jobs:
   build:
