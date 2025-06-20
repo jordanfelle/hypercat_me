@@ -76,6 +76,7 @@ params:
   profileMode:
     enabled: true
     title: hyper
+    subtitle: "{{< myAge >}} | Photographer | Nerd | Big Cat"    
     imageUrl: "images/profile/hyper.webp"
     imageTitle: Hyper
     imageWidth: 400
