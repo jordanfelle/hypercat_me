@@ -1,5 +1,5 @@
 ---
-title: "SFW Ref"
+title: "SFW Ref Sheet"
 hidemeta: true
 hideSummary: true
 cover:
