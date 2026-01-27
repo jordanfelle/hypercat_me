@@ -55,8 +55,6 @@ params:
   author: Hyper
   # author: ["Me", "You"] # multiple authors
 
-  defaultTheme: auto
-  # disableThemeToggle: true
   ShowShareButtons: false
   ShowReadingTime: false
   # disableSpecial1stPost: true
