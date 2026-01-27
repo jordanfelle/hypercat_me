@@ -1,0 +1,26 @@
+{{- if eq .Kind "page" }}
+<nav aria-label="breadcrumb">
+    <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="/" itemprop="item">
+                <span itemprop="name">{{ i18n "home" | default "Home" }}</span>
+            </a>
+            <meta itemprop="position" content="1" />
+        </li>
+        {{- $current := . }}
+        {{- range (getdigest .Sections) }}
+        {{- $subsections := (where $current.Pages "Section" (i18n . | default .)) }}
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="{{ .Permalink }}" itemprop="item">
+                <span itemprop="name">{{ i18n . | default . }}</span>
+            </a>
+            <meta itemprop="position" content="{{ add 2 (index (seq (len (getdigest .Sections))) 0) }}" />
+        </li>
+        {{- end }}
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span itemprop="name">{{ .Title }}</span>
+            <meta itemprop="position" content="{{ add (len (getdigest .Sections)) 2 }}" />
+        </li>
+    </ol>
+</nav>
+{{- end }}
