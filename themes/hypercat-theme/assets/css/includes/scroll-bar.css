@@ -9,10 +9,6 @@
     border-radius: var(--radius);
 }
 
-[data-theme="light"] .list::-webkit-scrollbar-thumb {
-    border: 5px solid var(--code-bg);
-}
-
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary);
 }
