@@ -16,32 +16,12 @@
         {{- if not $compareMonth }}
         {{- $compareMonth = (.Date.Format "2006-01") }}
         {{- end }}
-        {{- /* Convert month name to comparable format if needed */}}
-        {{- if (strings.Contains $compareMonth " ") }}
-        {{- $parts := split $compareMonth " " }}
-        {{- $monthName := index $parts 0 }}
-        {{- $year := index $parts 1 }}
-        {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October"
-        "November" "December" }}
-        {{- $monthNum := 0 }}
-        {{- range $idx, $m := $monthNames }}
-        {{- if eq $monthName $m }}
-        {{- $monthNum = add $idx 1 }}
-        {{- end }}
-        {{- end }}
-        {{- $compareMonth = printf "%s-%02d" $year $monthNum }}
-        {{- else if (not (in $compareMonth "-")) }}
-        {{- /* Just month name, assume current year */}}
-        {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October"
-        "November" "December" }}
-        {{- $monthNum := 0 }}
-        {{- range $idx, $m := $monthNames }}
-        {{- if eq $compareMonth $m }}
-        {{- $monthNum = add $idx 1 }}
-        {{- end }}
-        {{- end }}
-        {{- $compareMonth = printf "%d-%02d" $now.Year $monthNum }}
-        {{- end }}
+        {{- /* Convert month name to comparable YYYY-MM format */}}
+        {{- $compareMonth = partial "parse-month.html" (dict "monthStr" $compareMonth "now" $now) }}
+        {{- /* Categorize as upcoming or past based on month
+              Note: Conventions are categorized by month only. A convention in the current month
+              is considered "past" even if it occurs later in the month, since we don't have
+              day-level granularity in the month field. */}}
         {{- if gt $compareMonth $nowMonth }}
         {{- $upcoming = $upcoming | append . }}
         {{- else }}
@@ -58,30 +38,7 @@
         {{- if not $monthStr }}
         {{- $monthStr = (.Date.Format "2006-01") }}
         {{- end }}
-        {{- if (strings.Contains $monthStr " ") }}
-        {{- $parts := split $monthStr " " }}
-        {{- $monthName := index $parts 0 }}
-        {{- $year := index $parts 1 }}
-        {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October"
-        "November" "December" }}
-        {{- $monthNum := 0 }}
-        {{- range $idx, $m := $monthNames }}
-        {{- if eq $monthName $m }}
-        {{- $monthNum = add $idx 1 }}
-        {{- end }}
-        {{- end }}
-        {{- $monthStr = printf "%s-%02d" $year $monthNum }}
-        {{- else if (not (in $monthStr "-")) }}
-        {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October"
-        "November" "December" }}
-        {{- $monthNum := 0 }}
-        {{- range $idx, $m := $monthNames }}
-        {{- if eq $monthStr $m }}
-        {{- $monthNum = add $idx 1 }}
-        {{- end }}
-        {{- end }}
-        {{- $monthStr = printf "%d-%02d" $now.Year $monthNum }}
-        {{- end }}
+        {{- $monthStr = partial "parse-month.html" (dict "monthStr" $monthStr "now" $now) }}
         {{- $upcomingWithMonth = $upcomingWithMonth | append (dict "page" . "month" $monthStr) }}
         {{- end }}
 
@@ -101,30 +58,7 @@
         {{- if not $monthStr }}
         {{- $monthStr = (.Date.Format "2006-01") }}
         {{- end }}
-        {{- if (strings.Contains $monthStr " ") }}
-        {{- $parts := split $monthStr " " }}
-        {{- $monthName := index $parts 0 }}
-        {{- $year := index $parts 1 }}
-        {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October"
-        "November" "December" }}
-        {{- $monthNum := 0 }}
-        {{- range $idx, $m := $monthNames }}
-        {{- if eq $monthName $m }}
-        {{- $monthNum = add $idx 1 }}
-        {{- end }}
-        {{- end }}
-        {{- $monthStr = printf "%s-%02d" $year $monthNum }}
-        {{- else if (not (in $monthStr "-")) }}
-        {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October"
-        "November" "December" }}
-        {{- $monthNum := 0 }}
-        {{- range $idx, $m := $monthNames }}
-        {{- if eq $monthStr $m }}
-        {{- $monthNum = add $idx 1 }}
-        {{- end }}
-        {{- end }}
-        {{- $monthStr = printf "%d-%02d" $now.Year $monthNum }}
-        {{- end }}
+        {{- $monthStr = partial "parse-month.html" (dict "monthStr" $monthStr "now" $now) }}
         {{- $pastWithMonth = $pastWithMonth | append (dict "page" . "month" $monthStr) }}
         {{- end }}
 
