@@ -26,6 +26,7 @@ _testmain.go
 .DS_Store
 .hugo_build.lock
 resources/_gen/
+*.tar.gz
 
 # Hugo installation files
 hugo_extended_*.tar.gz
