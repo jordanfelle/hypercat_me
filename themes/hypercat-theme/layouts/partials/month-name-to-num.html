@@ -1,6 +1,6 @@
 {{- /* Convert month name to month number (1-12) */}}
 {{- /* Input: . (string month name like "January") */}}
-{{- /* Returns: int month number */}}
+{{- /* Returns: int month number (0 if invalid) */}}
 
 {{- $monthName := . }}
 {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December" }}
@@ -10,4 +10,10 @@
         {{- $monthNum = add $idx 1 }}
     {{- end }}
 {{- end }}
+
+{{- /* Validate that a valid month was found */}}
+{{- if eq $monthNum 0 }}
+    {{- warnf "Invalid month name '%s' provided to month-name-to-num.html. Expected one of: January, February, March, April, May, June, July, August, September, October, November, December. Returning 0." $monthName }}
+{{- end }}
+
 {{- return $monthNum }}
