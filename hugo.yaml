@@ -33,10 +33,10 @@ languages:
     menu:
       main:
         - name: Sona
-          url: sona
+          url: /sona/
           weight: 5
         - name: Conventions
-          url: cons
+          url: /cons/
           weight: 10
         # - name: Search
         #   url: search/
