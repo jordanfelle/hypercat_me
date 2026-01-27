@@ -25,4 +25,4 @@ _testmain.go
 /public
 .DS_Store
 .hugo_build.lock
-resources/_gen/
+resources/_gen/*.tar.gz
