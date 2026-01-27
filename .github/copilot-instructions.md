@@ -2,27 +2,21 @@
 
 ## Repository Overview
 
-**hypercat_me** is a static website built with Hugo (v0.146.0+) using the PaperMod theme. It's a small personal portfolio/profile site (~22 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
+**hypercat_me** is a static website built with Hugo (v0.146.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
 
 **Tech Stack:**
 - Static Site Generator: Hugo v0.146.0+ (extended version required)
-- Theme: hugo-PaperMod (git submodule)
+- Theme: hypercat-theme (customized PaperMod theme, included in repository)
 - Languages: Hugo templates (.html), Markdown (.md), YAML configuration
 - No backend, no Node.js, no Python - pure Hugo site
 
 ## Critical Setup Requirements
 
-### 1. Theme Submodule (REQUIRED)
+### 1. Theme (INCLUDED)
 
-**ALWAYS initialize git submodules before any Hugo commands:**
+The theme is a customized version of PaperMod located at `themes/hypercat-theme/`. It is **not a git submodule** and is included directly in the repository, so no special initialization is required.
 
-```bash
-git submodule update --init --recursive
-```
-
-Without the theme submodule, Hugo will build but produce warnings like "found no layout file for html" and generate an incomplete site. This is the #1 cause of build issues.
-
-### 2. Hugo Installation
+## Hugo Installation
 
 Install Hugo v0.146.0 or higher (extended version):
 
@@ -47,8 +41,8 @@ hugo
 - Takes ~10-11 seconds (first build or clean build)
 - Takes ~50-100ms (incremental builds)
 - Output directory: `public/`
-- Processes 21 images, generates 22 pages
-- **Always succeeds** even with theme issues (will just have warnings)
+- Processes 21 images, generates 37 pages
+- **Note:** Minified builds (`hugo --minify`) may encounter JSON errors in some cons pages. This is a known issue with certain content files and does not affect basic builds.
 
 ### Development Server
 
@@ -80,26 +74,26 @@ Clean these artifacts when:
 
 ```
 ├── .github/
-│   └── workflows/           # GitHub Actions (image optimization)
+│   ├── copilot-instructions.md  # Copilot instructions for this repo
+│   └── workflows/               # GitHub Actions (image optimization)
 ├── archetypes/
-│   └── default.md           # Template for new content
+│   └── default.md               # Template for new content
 ├── assets/
-│   ├── css/extended/        # Custom CSS overrides
-│   └── images/              # Source images (sona refs, profile)
-├── content/                 # All site content (Markdown)
-│   ├── cons/                # Convention information
-│   └── sona/                # Sona reference sheets
+│   ├── css/extended/            # Custom CSS overrides
+│   └── images/                  # Source images (sona refs, profile)
+├── content/                     # All site content (Markdown)
+│   ├── cons/                    # Convention information
+│   └── sona/                    # Sona reference sheets
 │       ├── sfw.md
 │       └── nsfw/
 ├── layouts/
 │   └── shortcodes/
-│       └── myAge.html       # Custom shortcode for age calculation
-├── static/                  # Static files (favicons, icons)
+│       └── myAge.html           # Custom shortcode for age calculation
+├── static/                      # Static files (favicons, icons)
 ├── themes/
-│   └── hugo-PaperMod/       # Git submodule - MUST be initialized
-├── hugo.yaml                # Main configuration file
+│   └── hypercat-theme/          # Customized PaperMod theme (included in repo)
+├── hugo.yaml                    # Main configuration file
 ├── .gitignore
-├── .gitmodules              # Defines theme submodule
 └── README.md
 ```
 
@@ -110,8 +104,8 @@ Clean these artifacts when:
 
 ## Configuration Details
 
-- **Main config:** `hugo.yaml` (197 lines)
-- **Theme:** hugo-PaperMod (submodule - check `.gitmodules` for URL)
+- **Main config:** `hugo.yaml` (159 lines)
+- **Theme:** hypercat-theme (customized PaperMod - see `themes/hypercat-theme/README.md`)
 - **Base URL:** https://hypercat.me/
 - **Profile mode:** Enabled with custom image and social links
 - **Custom shortcode:** `{{< myAge >}}` - calculates age from birthdate (1988-11-02)
@@ -193,45 +187,44 @@ Shows Hugo version, Go version, libsass version, libwebp version.
 
 ## Known Issues and Gotchas
 
-1. **Missing Theme = Broken Site**
-   - Symptoms: Warnings about "no layout file for html"
-   - Fix: `git submodule update --init --recursive`
+1. **Minify Build Errors**
+   - Symptoms: JSON parsing errors in cons pages when using `hugo --minify`
+   - Impact: Basic `hugo` command works fine, but minified builds fail
+   - Workaround: Use basic `hugo` command without `--minify` flag
 
 2. **First Build is Slow**
    - First/clean build: ~10 seconds (image processing)
    - Incremental builds: ~50-100ms
-   - Server startup adds ~50ms to initial build
+   - Server startup adds ~50-70ms to initial build
 
 3. **No Validation in CI**
    - Only image optimization runs in CI
    - Build validation must be done locally
    - Always test `hugo` command succeeds before committing
 
-4. **Theme is a Submodule**
-   - Don't edit `themes/hugo-PaperMod/` directly
-   - Changes will be lost when submodule updates
-   - Put overrides in root `layouts/` and `assets/`
+4. **Theme is Included in Repository**
+   - Theme is at `themes/hypercat-theme/` (not a submodule)
+   - Safe to customize theme files directly if needed
+   - Theme is based on PaperMod - see README for documentation
 
 ## Validation Checklist
 
 Before finalizing changes:
 
-1. ✅ Initialize submodules: `git submodule update --init --recursive`
-2. ✅ Clean build succeeds: `rm -rf public/ && hugo`
-3. ✅ Check for warnings in output (should be none with theme present)
-4. ✅ Test dev server: `hugo server` and visit http://localhost:1313
-5. ✅ Verify changes render correctly in browser
-6. ✅ Check that no secrets or sensitive content added
-7. ✅ Ensure `.gitignore` excludes `public/`, `resources/_gen/`, `.hugo_build.lock`
+1. ✅ Clean build succeeds: `rm -rf public/ && hugo`
+2. ✅ Check for warnings in output (none expected with current setup)
+3. ✅ Test dev server: `hugo server` and visit http://localhost:1313
+4. ✅ Verify changes render correctly in browser
+5. ✅ Check that no secrets or sensitive content added
+6. ✅ Ensure `.gitignore` excludes `public/`, `resources/_gen/`, `.hugo_build.lock`
 
 ## Quick Reference
 
 | Task | Command | Time |
 |------|---------|------|
 | Install Hugo | See "Hugo Installation" section | 10-30s |
-| Init theme | `git submodule update --init --recursive` | 5-15s |
-| Build site | `hugo` | 10s (clean), 50ms (incremental) |
-| Dev server | `hugo server` | Starts in 50-60ms |
+| Build site | `hugo` | 10s (clean), 50-100ms (incremental) |
+| Dev server | `hugo server` | Starts in 50-70ms |
 | Clean build | `rm -rf public/ resources/_gen/ .hugo_build.lock && hugo` | 10s |
 | List content | `hugo list all` | <1s |
 | View config | `hugo config` | <1s |
@@ -239,15 +232,15 @@ Before finalizing changes:
 ## Trust These Instructions
 
 These instructions have been validated through:
-- Clean repository clone and build
-- Missing theme error scenario testing
+- Clean repository clone and build testing
 - Multiple build and clean cycles
 - Development server testing
 - Configuration verification
+- Hugo v0.146.0 extended edition validation
 
 **Only search for additional information if:**
 - These instructions appear outdated (check Hugo version)
 - You encounter errors not documented here
-- You need to understand PaperMod theme specifics
+- You need to understand hypercat-theme/PaperMod theme specifics
 
-For theme documentation, see `themes/hugo-PaperMod/README.md` (after submodule init).
+For theme documentation, see `themes/hypercat-theme/README.md`.
