@@ -36,19 +36,6 @@
     margin-inline-end: 8px;
 }
 
-button#theme-toggle {
-    font-size: 26px;
-    margin: auto 4px;
-}
-
-[data-theme="dark"] #moon {
-    display: none;
-}
-
-[data-theme="light"] #sun {
-    display: none;
-}
-
 #menu {
     list-style: none;
     word-break: keep-all;
