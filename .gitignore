@@ -27,3 +27,7 @@ _testmain.go
 .hugo_build.lock
 resources/_gen/
 *.tar.gz
+
+# Hugo installation files
+hugo_extended_*.tar.gz
+LICENSE
