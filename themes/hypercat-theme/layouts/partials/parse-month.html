@@ -8,25 +8,25 @@
 
 {{- /* Check if already in YYYY-MM format (contains hyphen but not space) */}}
 {{- if and (in $monthStr "-") (not (strings.Contains $monthStr " ")) }}
-    {{- $result = $monthStr }}
+{{- $result = $monthStr }}
 {{- else }}
-    {{- /* Handle "Month YYYY" format (e.g., "January 2026") */}}
-    {{- if (strings.Contains $monthStr " ") }}
-        {{- $parts := split $monthStr " " }}
-        {{- $monthName := index $parts 0 }}
-        {{- $year := index $parts 1 }}
-        {{- $monthNum := partial "month-name-to-num.html" $monthName }}
-        {{- $result = printf "%s-%02d" $year $monthNum }}
-    {{- else if (not (in $monthStr "-")) }}
-        {{- /* Just month name (e.g., "January"), smart year detection */}}
-        {{- /* If the month has already passed this year, assume next year */}}
-        {{- $monthNum := partial "month-name-to-num.html" $monthStr }}
-        {{- $year := $now.Year }}
-        {{- if lt $monthNum (int $now.Month) }}
-            {{- $year = add $year 1 }}
-        {{- end }}
-        {{- $result = printf "%d-%02d" $year $monthNum }}
-    {{- end }}
+{{- /* Handle "Month YYYY" format (e.g., "January 2026") */}}
+{{- if (strings.Contains $monthStr " ") }}
+{{- $parts := split $monthStr " " }}
+{{- $monthName := index $parts 0 }}
+{{- $year := index $parts 1 }}
+{{- $monthNum := partial "month-name-to-num.html" $monthName }}
+{{- $result = printf "%s-%02d" $year $monthNum }}
+{{- else if (not (in $monthStr "-")) }}
+{{- /* Just month name (e.g., "January"), smart year detection */}}
+{{- /* If the month has already passed this year, assume next year */}}
+{{- $monthNum := partial "month-name-to-num.html" $monthStr }}
+{{- $year := $now.Year }}
+{{- if lt $monthNum (int $now.Month) }}
+{{- $year = add $year 1 }}
+{{- end }}
+{{- $result = printf "%d-%02d" $year $monthNum }}
+{{- end }}
 {{- end }}
 
 {{- return $result }}

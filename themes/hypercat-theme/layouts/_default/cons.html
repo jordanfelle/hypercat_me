@@ -19,9 +19,9 @@
         {{- /* Convert month name to comparable YYYY-MM format */}}
         {{- $compareMonth = partial "parse-month.html" (dict "monthStr" $compareMonth "now" $now) }}
         {{- /* Categorize as upcoming or past based on month
-              Note: Conventions are categorized by month only. A convention in the current month
-              is considered "past" even if it occurs later in the month, since we don't have
-              day-level granularity in the month field. */}}
+        Note: Conventions are categorized by month only. A convention in the current month
+        is considered "past" even if it occurs later in the month, since we don't have
+        day-level granularity in the month field. */}}
         {{- if gt $compareMonth $nowMonth }}
         {{- $upcoming = $upcoming | append . }}
         {{- else }}

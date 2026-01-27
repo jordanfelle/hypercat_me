@@ -8,8 +8,8 @@
 
 <div dir="ltr">
   {{ if eq ($.Scratch.Get "md") false }}
-    {{ .Inner }}
+  {{ .Inner }}
   {{ else }}
-    {{ .Inner | markdownify }}
+  {{ .Inner | markdownify }}
   {{ end }}
 </div>

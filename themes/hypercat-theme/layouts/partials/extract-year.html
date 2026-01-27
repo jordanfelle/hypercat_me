@@ -8,14 +8,14 @@
 
 {{- /* Handle "Month YYYY" format (e.g., "January 2026") */}}
 {{- if (strings.Contains $monthStr " ") }}
-    {{- $parts := split $monthStr " " }}
-    {{- $year = (index $parts 1) | int }}
+{{- $parts := split $monthStr " " }}
+{{- $year = (index $parts 1) | int }}
 {{- else if (not (in $monthStr "-")) }}
-    {{- /* Standalone month name (e.g., "January"), use current year */}}
-    {{- $year = $now.Year }}
+{{- /* Standalone month name (e.g., "January"), use current year */}}
+{{- $year = $now.Year }}
 {{- else }}
-    {{- /* YYYY-MM format */}}
-    {{- $year = (index (split $monthStr "-") 0) | int }}
+{{- /* YYYY-MM format */}}
+{{- $year = (index (split $monthStr "-") 0) | int }}
 {{- end }}
 
 {{- return $year }}
