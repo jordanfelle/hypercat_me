@@ -1,26 +1,19 @@
-{{- if eq .Kind "page" }}
-<nav aria-label="breadcrumb">
-    <ol itemscope itemtype="https://schema.org/BreadcrumbList">
-        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <a href="/" itemprop="item">
-                <span itemprop="name">{{ i18n "home" | default "Home" }}</span>
-            </a>
-            <meta itemprop="position" content="1" />
-        </li>
-        {{- $position := 2 }}
-        {{- range .Sections }}
-        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <a href="{{ .Permalink }}" itemprop="item">
-                <span itemprop="name">{{ .Title }}</span>
-            </a>
-            <meta itemprop="position" content="{{ $position }}" />
-        </li>
-        {{- $position = add $position 1 }}
-        {{- end }}
-        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <span itemprop="name">{{ .Title }}</span>
-            <meta itemprop="position" content="{{ $position }}" />
-        </li>
-    </ol>
-</nav>
-{{- end }}
+{{- if (.Param "ShowBreadCrumbs") -}}
+<div class="breadcrumbs">
+    {{- $url := replace .Parent.Permalink (printf "%s" site.Home.Permalink) "" }}
+    {{- $lang_url := strings.TrimPrefix (printf "%s/" .Lang) $url -}}
+
+    <a href="/">{{ i18n "home" | default "Home" }}</a>
+    {{- $scratch := newScratch }}
+    {{- range $index, $element := split $lang_url "/" }}
+
+    {{- $scratch.Add "path" (printf "%s/" $element )}}
+    {{- $bc_pg := site.GetPage ($scratch.Get "path") -}}
+
+    {{- if (and ($bc_pg) (gt (len . ) 0))}}
+    {{- print "&nbsp;»&nbsp;" | safeHTML -}}<a href="{{ $bc_pg.RelPermalink }}">{{ $bc_pg.Name }}</a>
+    {{- end }}
+
+    {{- end -}}
+</div>
+{{- end -}}
