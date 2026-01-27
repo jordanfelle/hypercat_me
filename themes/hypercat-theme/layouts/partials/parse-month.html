@@ -5,32 +5,21 @@
 {{- $monthStr := .monthStr }}
 {{- $now := .now }}
 {{- $result := $monthStr }}
-{{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December" }}
 
-{{- /* If already in YYYY-MM format, return as is */}}
+{{- /* Check if already in YYYY-MM format (contains hyphen but not space) */}}
 {{- if and (in $monthStr "-") (not (strings.Contains $monthStr " ")) }}
     {{- $result = $monthStr }}
 {{- else }}
-    {{- /* Handle "Month YYYY" format */}}
+    {{- /* Handle "Month YYYY" format (e.g., "January 2026") */}}
     {{- if (strings.Contains $monthStr " ") }}
         {{- $parts := split $monthStr " " }}
         {{- $monthName := index $parts 0 }}
         {{- $year := index $parts 1 }}
-        {{- $monthNum := 0 }}
-        {{- range $idx, $m := $monthNames }}
-            {{- if eq $monthName $m }}
-                {{- $monthNum = add $idx 1 }}
-            {{- end }}
-        {{- end }}
+        {{- $monthNum := partial "month-name-to-num.html" $monthName }}
         {{- $result = printf "%s-%02d" $year $monthNum }}
     {{- else if (not (in $monthStr "-")) }}
-        {{- /* Just month name, assume current year */}}
-        {{- $monthNum := 0 }}
-        {{- range $idx, $m := $monthNames }}
-            {{- if eq $monthStr $m }}
-                {{- $monthNum = add $idx 1 }}
-            {{- end }}
-        {{- end }}
+        {{- /* Just month name (e.g., "January"), assume current year */}}
+        {{- $monthNum := partial "month-name-to-num.html" $monthStr }}
         {{- $result = printf "%d-%02d" $now.Year $monthNum }}
     {{- end }}
 {{- end }}

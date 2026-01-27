@@ -1,0 +1,13 @@
+{{- /* Convert month name to month number (1-12) */}}
+{{- /* Input: . (string month name like "January") */}}
+{{- /* Returns: int month number */}}
+
+{{- $monthName := . }}
+{{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December" }}
+{{- $monthNum := 0 }}
+{{- range $idx, $m := $monthNames }}
+    {{- if eq $monthName $m }}
+        {{- $monthNum = add $idx 1 }}
+    {{- end }}
+{{- end }}
+{{- return $monthNum }}
