@@ -85,7 +85,7 @@ staffYears: "2025, 2026"            # (Optional) Years you staffed the conventio
 ## License
 
 - Site content: [Specify your license here]
-- Theme: MIT License (see themes/hugo-PaperMod/)
+- Theme: MIT License (see themes/hypercat-theme/)
 
 ## Credits
 
