@@ -10,6 +10,8 @@ This is the source repository for the **hypercat_me** website, a static site bui
 - Image assets in `/assets/images`
 - Custom archetypes for easy content creation
 - Automated image optimization via GitHub Actions
+- Convention schedule tracking with upcoming and past conventions support
+- Staff tracking for conventions
 
 ## Getting Started
 
@@ -32,9 +34,13 @@ This is the source repository for the **hypercat_me** website, a static site bui
 ## Content Structure
 
 - `content/` — Main site content (Markdown files)
+  - `sona/` — Character/persona content
+  - `cons/` — Convention schedule entries
 - `assets/images/` — Image assets
+- `assets/css/extended/` — Custom CSS extensions
 - `themes/hugo-PaperMod/` — Hugo PaperMod theme (as a submodule)
 - `archetypes/` — Archetypes for new content
+- `layouts/` — Custom Hugo templates
 
 ## Deployment
 
@@ -45,6 +51,37 @@ hugo
 ```
 
 The generated static files will be in the `public/` directory.
+
+## Convention Schedule
+
+The site includes a custom convention schedule page at `/cons/` that displays upcoming and past conventions.
+
+### Adding a Convention
+
+Create a new file in `content/cons/` with the following front matter:
+
+```yaml
+---
+title: "Convention Name"
+month: "July"              # Month name (e.g., "July", "December")
+location: "City, State, Country"
+attendeeYears: "2024, 2025, 2026"  # Comma-separated list of years attended
+staffYears: "2025, 2026"            # (Optional) Years you staffed the convention
+---
+```
+
+**Front Matter Parameters:**
+- `title` (required): Convention name
+- `month` (required): Month in format "MonthName" (e.g., "July") or "MonthName Year" (e.g., "July 2026") or "YYYY-MM"
+- `location` (required): Convention location
+- `attendeeYears`: Comma-separated list of years attended
+- `staffYears` (optional): Comma-separated list of years staffed
+
+**Display Logic:**
+- Conventions are automatically sorted chronologically
+- Upcoming conventions show only the year (or "Staff: year" if staffing)
+- Past conventions display attended years and staffed years separately with a "Staff: year" badge
+- Only years >= the convention's year appear for staffing in the upcoming section
 
 ## License
 

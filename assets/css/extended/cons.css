@@ -1,0 +1,163 @@
+.cons-container {
+    margin-top: 2rem;
+}
+
+/* Upcoming Conventions Section */
+.upcoming-cons-section {
+    margin-bottom: 3rem;
+}
+
+.upcoming-cons-section h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-transform: capitalize;
+}
+
+.con-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--tertiary);
+}
+
+.con-entry:last-child {
+    border-bottom: none;
+}
+
+.con-entry.past .con-icon {
+    display: none;
+}
+
+.con-main-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.con-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+    display: inline;
+}
+
+.con-title a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.con-title a:hover {
+    text-decoration: underline;
+}
+
+.con-dates {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    display: inline;
+}
+
+.con-dates::before {
+    content: " ";
+}
+
+.staff-badge {
+    font-weight: 500;
+    color: #d4a574;
+}
+
+.con-location {
+    text-align: right;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    white-space: nowrap;
+    margin-left: 2rem;
+    flex-shrink: 0;
+}
+
+.con-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+}
+
+.con-icon .icon {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.con-icon .icon.attending {
+    color: #4ade80;
+    font-weight: bold;
+    font-size: 1.8rem;
+}
+
+.con-icon .icon.interested {
+    font-size: 1.2rem;
+}
+
+.con-separator {
+    border: none;
+    border-top: 1px solid var(--tertiary);
+    margin: 0;
+    opacity: 0.5;
+    display: none;
+}
+
+/* Past Conventions Section */
+.past-cons-section {
+    margin-top: 3rem;
+}
+
+.past-cons-section h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-transform: capitalize;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .con-entry {
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+    }
+
+    .con-location {
+        grid-column: 1;
+        text-align: left;
+        order: 3;
+    }
+
+    .con-icon {
+        grid-row: 1;
+        grid-column: 2;
+        order: 2;
+    }
+
+    .past-cons-list {
+        grid-template-columns: 1fr;
+    }
+
+    .past-con-entry {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .con-title {
+        font-size: 1.2rem;
+    }
+
+    .con-location {
+        font-size: 0.85rem;
+    }
+}
