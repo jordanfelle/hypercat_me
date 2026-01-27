@@ -56,7 +56,6 @@ params:
   # author: ["Me", "You"] # multiple authors
 
   ShowShareButtons: false
-  ShowReadingTime: false
   # disableSpecial1stPost: true
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
