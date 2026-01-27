@@ -2,7 +2,7 @@
 
 ## Repository Overview
 
-**hypercat_me** is a static website built with Hugo (v0.146.0+) using the PaperMod theme. It's a small personal portfolio/profile site (~22 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
+**hypercat_me** is a static website built with Hugo (v0.146.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
 
 **Tech Stack:**
 - Static Site Generator: Hugo v0.146.0+ (extended version required)
@@ -104,7 +104,7 @@ Clean these artifacts when:
 
 ## Configuration Details
 
-- **Main config:** `hugo.yaml` (197 lines)
+- **Main config:** `hugo.yaml` (159 lines)
 - **Theme:** hypercat-theme (customized PaperMod - see `themes/hypercat-theme/README.md`)
 - **Base URL:** https://hypercat.me/
 - **Profile mode:** Enabled with custom image and social links
