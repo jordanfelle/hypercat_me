@@ -5,13 +5,13 @@
 {{ $dayDiff := sub $today.Day $birth.Day }}
 
 {{ if (gt $monthDiff 0) }}
-    {{ $age }}
+{{ $age }}
 {{ else if (lt $monthDiff 0) }}
-    {{ sub $age 1 }}
+{{ sub $age 1 }}
 {{ else }}
-    {{ if (ge $dayDiff 0) }}
-        {{ $age }}
-    {{ else }}
-        {{ sub $age 1 }}
-    {{ end }}
+{{ if (ge $dayDiff 0) }}
+{{ $age }}
+{{ else }}
+{{ sub $age 1 }}
+{{ end }}
 {{ end }}
