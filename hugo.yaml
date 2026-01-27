@@ -3,7 +3,7 @@
 baseURL: "https://hypercat.me/"
 title: Hyper
 copyright: "CC BY-NC 4.0"
-theme: [hugo-PaperMod]
+theme: [hypercat-theme]
 
 enableInlineShortcodes: true
 enableRobotsTXT: true
