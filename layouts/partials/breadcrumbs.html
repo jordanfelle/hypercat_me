@@ -7,19 +7,19 @@
             </a>
             <meta itemprop="position" content="1" />
         </li>
-        {{- $current := . }}
-        {{- range (getdigest .Sections) }}
-        {{- $subsections := (where $current.Pages "Section" (i18n . | default .)) }}
+        {{- $position := 2 }}
+        {{- range .Sections }}
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
             <a href="{{ .Permalink }}" itemprop="item">
-                <span itemprop="name">{{ i18n . | default . }}</span>
+                <span itemprop="name">{{ .Title }}</span>
             </a>
-            <meta itemprop="position" content="{{ add 2 (index (seq (len (getdigest .Sections))) 0) }}" />
+            <meta itemprop="position" content="{{ $position }}" />
         </li>
+        {{- $position = add $position 1 }}
         {{- end }}
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
             <span itemprop="name">{{ .Title }}</span>
-            <meta itemprop="position" content="{{ add (len (getdigest .Sections)) 2 }}" />
+            <meta itemprop="position" content="{{ $position }}" />
         </li>
     </ol>
 </nav>
