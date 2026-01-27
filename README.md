@@ -1,11 +1,11 @@
 # hypercat_me
 
-This is the source repository for the **hypercat_me** website, a static site built with [Hugo](https://gohugo.io/) using the [PaperMod theme](themes/hugo-PaperMod/README.md).
+This is the source repository for the **hypercat_me** website, a static site built with [Hugo](https://gohugo.io/) using a custom theme based on [PaperMod](https://github.com/adityatelange/hugo-PaperMod).
 
 ## Features
 
 - Powered by [Hugo](https://gohugo.io/) for fast static site generation
-- Uses the [PaperMod theme](themes/hugo-PaperMod/README.md) for a clean, responsive design
+- Custom Hugo theme with clean, responsive design
 - Organized content under `/content`
 - Image assets in `/assets/images`
 - Custom archetypes for easy content creation
@@ -21,7 +21,7 @@ This is the source repository for the **hypercat_me** website, a static site bui
 2. **Clone the repository**
 
    ```sh
-   git clone --recurse-submodules https://github.com/yourusername/hypercat_me.git
+   git clone https://github.com/yourusername/hypercat_me.git
    cd hypercat_me
    ```
 
@@ -38,9 +38,8 @@ This is the source repository for the **hypercat_me** website, a static site bui
   - `cons/` — Convention schedule entries
 - `assets/images/` — Image assets
 - `assets/css/extended/` — Custom CSS extensions
-- `themes/hugo-PaperMod/` — Hugo PaperMod theme (as a submodule)
+- `themes/hypercat-theme/` — Custom Hugo theme
 - `archetypes/` — Archetypes for new content
-- `layouts/` — Custom Hugo templates
 
 ## Deployment
 
@@ -91,4 +90,4 @@ staffYears: "2025, 2026"            # (Optional) Years you staffed the conventio
 ## Credits
 
 - [Hugo](https://gohugo.io/)
-- [PaperMod Theme](https://github.com/adityatelange/hugo-PaperMod)
+- [PaperMod Theme](https://github.com/adityatelange/hugo-PaperMod) (original theme this is based on)
