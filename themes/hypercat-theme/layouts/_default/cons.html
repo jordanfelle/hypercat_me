@@ -83,15 +83,7 @@
                         {{- if $con.Params.staffYears }}
                         {{- /* Extract convention year */}}
                         {{- $monthStr := $con.Params.month }}
-                        {{- $conYear := 0 }}
-                        {{- if (strings.Contains $monthStr " ") }}
-                        {{- $parts := split $monthStr " " }}
-                        {{- $conYear = (index $parts 1) | int }}
-                        {{- else if (not (in $monthStr "-")) }}
-                        {{- $conYear = $now.Year }}
-                        {{- else }}
-                        {{- $conYear = (index (split $monthStr "-") 0) | int }}
-                        {{- end }}
+                        {{- $conYear := partial "extract-year.html" (dict "monthStr" $monthStr "now" $now) }}
                         {{- /* Filter staff years to only future years */}}
                         {{- $futureStaffYears := slice }}
                         {{- range split $con.Params.staffYears ", " }}
@@ -108,14 +100,7 @@
                         <span class="staff-badge">Staff: {{ delimit $futureStaffYears ", " }}</span>
                         {{- end }}
                         {{- else }}
-                        {{- if (strings.Contains $con.Params.month " ") }}
-                        {{- $parts := split $con.Params.month " " }}
-                        {{- index $parts 1 }}
-                        {{- else if (not (in $con.Params.month "-")) }}
-                        {{- $now.Year }}
-                        {{- else }}
-                        {{- index (split $con.Params.month "-") 0 }}
-                        {{- end }}
+                        {{- partial "extract-year.html" (dict "monthStr" $con.Params.month "now" $now) }}
                         {{- end }}
                     </p>
                 </div>
@@ -187,16 +172,7 @@
             {{- $monthStr = ($con.Date.Format "2006-01") }}
             {{- end }}
             {{- /* Extract year from month string */}}
-            {{- $conYear := 0 }}
-            {{- if (strings.Contains $monthStr " ") }}
-            {{- $parts := split $monthStr " " }}
-            {{- $conYear = (index $parts 1) | int }}
-            {{- else if (not (in $monthStr "-")) }}
-            {{- /* Just month name, use current year */}}
-            {{- $conYear = $now.Year }}
-            {{- else }}
-            {{- $conYear = (index (split $monthStr "-") 0) | int }}
-            {{- end }}
+            {{- $conYear := partial "extract-year.html" (dict "monthStr" $monthStr "now" $now) }}
             {{- $pastYearsArr := slice }}
             {{- $pastStaffArr := slice }}
             {{- range $allYears }}
