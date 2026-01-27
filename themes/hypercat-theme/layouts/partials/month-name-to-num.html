@@ -13,7 +13,8 @@
 
 {{- /* Validate that a valid month was found */}}
 {{- if eq $monthNum 0 }}
-    {{- warnf "Invalid month name '%s' provided to month-name-to-num.html. Expected one of: January, February, March, April, May, June, July, August, September, October, November, December. Returning 0." $monthName }}
+    {{- $validMonths := delimit $monthNames ", " }}
+    {{- warnf "Invalid month name '%s' provided to month-name-to-num.html. Expected one of: %s. Returning 0." $monthName $validMonths }}
 {{- end }}
 
 {{- return $monthNum }}
