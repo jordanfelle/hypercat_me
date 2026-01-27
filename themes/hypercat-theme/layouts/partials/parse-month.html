@@ -18,9 +18,14 @@
         {{- $monthNum := partial "month-name-to-num.html" $monthName }}
         {{- $result = printf "%s-%02d" $year $monthNum }}
     {{- else if (not (in $monthStr "-")) }}
-        {{- /* Just month name (e.g., "January"), assume current year */}}
+        {{- /* Just month name (e.g., "January"), smart year detection */}}
+        {{- /* If the month has already passed this year, assume next year */}}
         {{- $monthNum := partial "month-name-to-num.html" $monthStr }}
-        {{- $result = printf "%d-%02d" $now.Year $monthNum }}
+        {{- $year := $now.Year }}
+        {{- if lt $monthNum (int $now.Month) }}
+            {{- $year = add $year 1 }}
+        {{- end }}
+        {{- $result = printf "%d-%02d" $year $monthNum }}
     {{- end }}
 {{- end }}
 
