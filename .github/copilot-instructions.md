@@ -27,14 +27,14 @@ Without the theme submodule, Hugo will build but produce warnings like "found no
 Install Hugo v0.146.0 or higher (extended version):
 
 ```bash
-# Example for Linux:
+# Example for Linux (check hugo.io for other platforms):
 wget https://github.com/gohugoio/hugo/releases/download/v0.146.0/hugo_extended_0.146.0_linux-amd64.tar.gz
 tar -xzf hugo_extended_0.146.0_linux-amd64.tar.gz
 sudo mv hugo /usr/local/bin/
 hugo version  # Verify: hugo v0.146.0+extended
 ```
 
-The extended version is required for SCSS/SASS processing.
+The extended version is required for SCSS/SASS processing. See https://gohugo.io/installation/ for other platforms.
 
 ## Build and Development Commands
 
@@ -111,7 +111,7 @@ Clean these artifacts when:
 ## Configuration Details
 
 - **Main config:** `hugo.yaml` (197 lines)
-- **Theme:** hugo-PaperMod (submodule at commit 1cf53273c3ba58f0593ecb7c2befe11274f51a4e)
+- **Theme:** hugo-PaperMod (submodule - check `.gitmodules` for URL)
 - **Base URL:** https://hypercat.me/
 - **Profile mode:** Enabled with custom image and social links
 - **Custom shortcode:** `{{< myAge >}}` - calculates age from birthdate (1988-11-02)
@@ -125,8 +125,7 @@ Two workflows automatically optimize images:
 1. **image-optimizer.yml** - Runs on PRs when image files change
 2. **image-optimizer-manual.yml** - Manual workflow dispatch
 
-Uses `cadamsdev/image-optimizer-action@v1` to compress:
-- PNG, JPG, JPEG, GIF, SVG, WEBP, AVIF files
+These use `cadamsdev/image-optimizer-action` to compress image files (PNG, JPG, JPEG, GIF, SVG, WEBP, AVIF). Check `.github/workflows/` for current action versions.
 
 **No other CI/CD checks** - no tests, no linting, no build validation in CI.
 
