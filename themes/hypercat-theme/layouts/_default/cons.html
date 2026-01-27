@@ -1,0 +1,251 @@
+{{- define "main" }}
+<article class="post-single">
+    <header class="post-header">
+        <h1 class="post-title">{{ .Title }}</h1>
+    </header>
+
+    <div class="cons-container">
+        {{- $now := now }}
+        {{- $nowMonth := $now.Format "2006-01" }}
+        {{- $upcoming := slice }}
+        {{- $past := slice }}
+
+        {{- range .Site.RegularPages }}
+        {{- if eq .Type "cons" }}
+        {{- $compareMonth := .Params.month }}
+        {{- if not $compareMonth }}
+        {{- $compareMonth = (.Date.Format "2006-01") }}
+        {{- end }}
+        {{- /* Convert month name to comparable YYYY-MM format */}}
+        {{- $compareMonth = partial "parse-month.html" (dict "monthStr" $compareMonth "now" $now) }}
+        {{- /* Categorize as upcoming or past based on month
+              Note: Conventions are categorized by month only. A convention in the current month
+              is considered "past" even if it occurs later in the month, since we don't have
+              day-level granularity in the month field. */}}
+        {{- if gt $compareMonth $nowMonth }}
+        {{- $upcoming = $upcoming | append . }}
+        {{- else }}
+        {{- $past = $past | append . }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+
+        {{- /* Sort conventions by month */}}
+        {{- /* Create a list with month values for sorting */}}
+        {{- $upcomingWithMonth := slice }}
+        {{- range $upcoming }}
+        {{- $monthStr := .Params.month }}
+        {{- if not $monthStr }}
+        {{- $monthStr = (.Date.Format "2006-01") }}
+        {{- end }}
+        {{- $monthStr = partial "parse-month.html" (dict "monthStr" $monthStr "now" $now) }}
+        {{- $upcomingWithMonth = $upcomingWithMonth | append (dict "page" . "month" $monthStr) }}
+        {{- end }}
+
+        {{- /* Sort by month string */}}
+        {{- $upcoming = slice }}
+        {{- range (sort $upcomingWithMonth "month") }}
+        {{- $upcoming = $upcoming | append .page }}
+        {{- end }}
+
+        {{- $pastWithMonth := slice }}
+        {{- range $past }}
+        {{- $monthStr := .Params.month }}
+        {{- if not $monthStr }}
+        {{- $monthStr = (.Date.Format "2006-01") }}
+        {{- end }}
+        {{- $monthStr = partial "parse-month.html" (dict "monthStr" $monthStr "now" $now) }}
+        {{- $pastWithMonth = $pastWithMonth | append (dict "page" . "month" $monthStr) }}
+        {{- end }}
+
+        {{- /* Sort past conventions in descending order */}}
+        {{- $past = slice }}
+        {{- range (sort $pastWithMonth "month" "desc") }}
+        {{- $past = $past | append .page }}
+        {{- end }}
+
+        {{- if $upcoming }}
+        <section class="upcoming-cons-section">
+            <h2>Upcoming Conventions</h2>
+            {{- range $index, $con := $upcoming }}
+            <div class="con-entry">
+                <div class="con-main-content">
+                    <h2 class="con-title"><a href="{{ $con.RelPermalink }}">{{ $con.Title }}</a></h2>
+                    <p class="con-dates">
+                        {{- if $con.Params.staffYears }}
+                        {{- /* Extract convention year */}}
+                        {{- $monthStr := $con.Params.month }}
+                        {{- $conYear := 0 }}
+                        {{- if (strings.Contains $monthStr " ") }}
+                        {{- $parts := split $monthStr " " }}
+                        {{- $conYear = (index $parts 1) | int }}
+                        {{- else if (not (in $monthStr "-")) }}
+                        {{- $conYear = $now.Year }}
+                        {{- else }}
+                        {{- $conYear = (index (split $monthStr "-") 0) | int }}
+                        {{- end }}
+                        {{- /* Filter staff years to only future years */}}
+                        {{- $futureStaffYears := slice }}
+                        {{- range split $con.Params.staffYears ", " }}
+                        {{- $year := strings.TrimSpace . }}
+                        {{- $yearInt := 0 }}
+                        {{- if (in "0123456789" (substr $year 0 1)) }}
+                        {{- $yearInt = $year | int }}
+                        {{- if ge $yearInt $conYear }}
+                        {{- $futureStaffYears = $futureStaffYears | append $year }}
+                        {{- end }}
+                        {{- end }}
+                        {{- end }}
+                        {{- if gt (len $futureStaffYears) 0 }}
+                        <span class="staff-badge">Staff: {{ delimit $futureStaffYears ", " }}</span>
+                        {{- end }}
+                        {{- else }}
+                        {{- if (strings.Contains $con.Params.month " ") }}
+                        {{- $parts := split $con.Params.month " " }}
+                        {{- index $parts 1 }}
+                        {{- else if (not (in $con.Params.month "-")) }}
+                        {{- $now.Year }}
+                        {{- else }}
+                        {{- index (split $con.Params.month "-") 0 }}
+                        {{- end }}
+                        {{- end }}
+                    </p>
+                </div>
+                <div class="con-location">
+                    {{- if $con.Params.location }}
+                    {{ $con.Params.location }}
+                    {{- else }}
+                    TBA
+                    {{- end }}
+                </div>
+            </div>
+            {{- if ne $index (sub (len $upcoming) 1) }}
+            <hr class="con-separator">
+            {{- end }}
+            {{- end }}
+        </section>
+        {{- end }}
+
+        {{- /* Check if we have past conventions or upcoming with years */}}
+        {{- $hasPast := false }}
+        {{- if $past }}{{ $hasPast = true }}{{- end }}
+        {{- range $upcoming }}{{ if .Params.attendeeYears }}{{ $hasPast = true }}{{- end }}{{- end }}
+
+        {{- if $hasPast }}
+        <section class="past-cons-section">
+            <h2>Past Conventions</h2>
+            {{- range $index, $con := $past }}
+            <div class="con-entry past">
+                <div class="con-main-content">
+                    <h2 class="con-title"><a href="{{ $con.RelPermalink }}">{{ $con.Title }}</a></h2>
+                    <p class="con-dates">
+                        {{- if $con.Params.pastYears }}
+                        {{ $con.Params.pastYears }}
+                        {{- else if $con.Params.attendeeYears }}
+                        {{- delimit (split $con.Params.attendeeYears ", ") ", " }}
+                        {{- else }}
+                        {{ $con.Date.Format "Jan 2006" }}
+                        {{- end }}
+                    </p>
+                </div>
+                <div class="con-location">
+                    {{- if $con.Params.location }}
+                    {{ $con.Params.location }}
+                    {{- else }}
+                    TBA
+                    {{- end }}
+                </div>
+            </div>
+            {{- if or (ne $index (sub (len $past) 1)) ($upcoming) }}
+            <hr class="con-separator">
+            {{- end }}
+            {{- end }}
+
+            {{- /* Show upcoming conventions with years in past section too */}}
+            {{- range $upcomingIndex, $con := $upcoming }}
+            {{- if or $con.Params.attendeeYears $con.Params.staffYears }}
+            {{- $allYears := slice }}
+            {{- if $con.Params.attendeeYears }}
+            {{- $allYears = split $con.Params.attendeeYears ", " }}
+            {{- end }}
+            {{- if $con.Params.staffYears }}
+            {{- $staffYears := split $con.Params.staffYears ", " }}
+            {{- range $staffYears }}
+            {{- $allYears = $allYears | append . }}
+            {{- end }}
+            {{- end }}
+            {{- $monthStr := $con.Params.month }}
+            {{- if not $monthStr }}
+            {{- $monthStr = ($con.Date.Format "2006-01") }}
+            {{- end }}
+            {{- /* Extract year from month string */}}
+            {{- $conYear := 0 }}
+            {{- if (strings.Contains $monthStr " ") }}
+            {{- $parts := split $monthStr " " }}
+            {{- $conYear = (index $parts 1) | int }}
+            {{- else if (not (in $monthStr "-")) }}
+            {{- /* Just month name, use current year */}}
+            {{- $conYear = $now.Year }}
+            {{- else }}
+            {{- $conYear = (index (split $monthStr "-") 0) | int }}
+            {{- end }}
+            {{- $pastYearsArr := slice }}
+            {{- $pastStaffArr := slice }}
+            {{- range $allYears }}
+            {{- $year := strings.TrimSpace . }}
+            {{- $yearInt := 0 }}
+            {{- if (in "0123456789" (substr $year 0 1)) }}
+            {{- $yearInt = $year | int }}
+            {{- if lt $yearInt $conYear }}
+            {{- /* Check if this year is a staff year */}}
+            {{- $isStaff := false }}
+            {{- if $con.Params.staffYears }}
+            {{- range split $con.Params.staffYears ", " }}
+            {{- if eq (strings.TrimSpace .) $year }}
+            {{- $isStaff = true }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if $isStaff }}
+            {{- $pastStaffArr = $pastStaffArr | append $year }}
+            {{- else }}
+            {{- $pastYearsArr = $pastYearsArr | append $year }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if or (gt (len $pastYearsArr) 0) (gt (len $pastStaffArr) 0) }}
+            <div class="con-entry past">
+                <div class="con-main-content">
+                    <h2 class="con-title"><a href="{{ $con.RelPermalink }}">{{ $con.Title }}</a></h2>
+                    <p class="con-dates">
+                        {{- if gt (len $pastYearsArr) 0 }}
+                        {{- delimit $pastYearsArr ", " }}
+                        {{- end }}
+                        {{- if and (gt (len $pastYearsArr) 0) (gt (len $pastStaffArr) 0) }}
+                        •
+                        {{- end }}
+                        {{- if gt (len $pastStaffArr) 0 }}
+                        <span class="staff-badge">Staff: {{ delimit $pastStaffArr ", " }}</span>
+                        {{- end }}
+                    </p>
+                </div>
+                <div class="con-location">
+                    {{- if $con.Params.location }}
+                    {{ $con.Params.location }}
+                    {{- else }}
+                    TBA
+                    {{- end }}
+                </div>
+            </div>
+            {{- if ne $upcomingIndex (sub (len $upcoming) 1) }}
+            <hr class="con-separator">
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+        </section>
+        {{- end }}
+    </div>
+</article>
+{{- end }}

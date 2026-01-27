@@ -1,0 +1,27 @@
+{{- /* Parse month string to YYYY-MM format */}}
+{{- /* Input: . (context with .monthStr and .now) */}}
+{{- /* Returns: string in YYYY-MM format */}}
+
+{{- $monthStr := .monthStr }}
+{{- $now := .now }}
+{{- $result := $monthStr }}
+
+{{- /* Check if already in YYYY-MM format (contains hyphen but not space) */}}
+{{- if and (in $monthStr "-") (not (strings.Contains $monthStr " ")) }}
+    {{- $result = $monthStr }}
+{{- else }}
+    {{- /* Handle "Month YYYY" format (e.g., "January 2026") */}}
+    {{- if (strings.Contains $monthStr " ") }}
+        {{- $parts := split $monthStr " " }}
+        {{- $monthName := index $parts 0 }}
+        {{- $year := index $parts 1 }}
+        {{- $monthNum := partial "month-name-to-num.html" $monthName }}
+        {{- $result = printf "%s-%02d" $year $monthNum }}
+    {{- else if (not (in $monthStr "-")) }}
+        {{- /* Just month name (e.g., "January"), assume current year */}}
+        {{- $monthNum := partial "month-name-to-num.html" $monthStr }}
+        {{- $result = printf "%d-%02d" $now.Year $monthNum }}
+    {{- end }}
+{{- end }}
+
+{{- return $result }}

@@ -1,4 +1,5 @@
 ---
-title: "Cons"
+title: "Con Schedule"
+layout: cons
 hidemeta: true
 ---
