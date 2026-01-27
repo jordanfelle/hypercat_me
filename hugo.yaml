@@ -22,30 +22,27 @@ pagination:
   disableAliases: false
   pagerSize: 5
 
-languages:
-  en:
-    languageName: "English"
-    weight: 1
-    taxonomies:
-      category: categories
-      tag: tags
-      series: series
-    menu:
-      main:
-        - name: Sona
-          url: /sona/
-          weight: 5
-        - name: Conventions
-          url: /cons/
-          weight: 10
-        # - name: Search
-        #   url: search/
-        #   weight: 10
-        # - name: Tags
-        #   url: tags/
-        #   weight: 10
-        # - name: Photography
-        #   url: https://photo.felle.me/
+taxonomies:
+  category: categories
+  tag: tags
+  series: series
+
+menu:
+  main:
+    - name: Sona
+      url: /sona/
+      weight: 5
+    - name: Conventions
+      url: /cons/
+      weight: 10
+    # - name: Search
+    #   url: search/
+    #   weight: 10
+    # - name: Tags
+    #   url: tags/
+    #   weight: 10
+    # - name: Photography
+    #   url: https://photo.felle.me/
 
 outputs:
   home:
@@ -63,7 +60,6 @@ params:
   ShowShareButtons: false
   ShowReadingTime: false
   # disableSpecial1stPost: true
-  displayFullLangName: true
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
   ShowCodeCopyButtons: true
