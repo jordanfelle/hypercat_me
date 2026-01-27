@@ -43,12 +43,8 @@
         {{- end }}
 
         {{- /* Sort by month string */}}
-        {{- $sorted := slice }}
-        {{- range $upcomingWithMonth }}
-        {{- $sorted = $sorted | append . }}
-        {{- end }}
         {{- $upcoming = slice }}
-        {{- range (sort $sorted "month") }}
+        {{- range (sort $upcomingWithMonth "month") }}
         {{- $upcoming = $upcoming | append .page }}
         {{- end }}
 
@@ -63,12 +59,8 @@
         {{- end }}
 
         {{- /* Sort past conventions in descending order */}}
-        {{- $sorted = slice }}
-        {{- range $pastWithMonth }}
-        {{- $sorted = $sorted | append . }}
-        {{- end }}
         {{- $past = slice }}
-        {{- range (sort $sorted "month" "desc") }}
+        {{- range (sort $pastWithMonth "month" "desc") }}
         {{- $past = $past | append .page }}
         {{- end }}
 
