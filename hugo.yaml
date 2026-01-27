@@ -71,7 +71,6 @@ params:
   ShowToc: true
   # comments: false
   # images: ["images/hyper.png"]
-  ShowRssButtonInSectionTermList: false
 
   profileMode:
     enabled: true
