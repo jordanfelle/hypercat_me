@@ -5,6 +5,7 @@
 {{- $monthStr := .monthStr }}
 {{- $now := .now }}
 {{- $result := $monthStr }}
+{{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December" }}
 
 {{- /* If already in YYYY-MM format, return as is */}}
 {{- if and (in $monthStr "-") (not (strings.Contains $monthStr " ")) }}
@@ -15,7 +16,6 @@
         {{- $parts := split $monthStr " " }}
         {{- $monthName := index $parts 0 }}
         {{- $year := index $parts 1 }}
-        {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December" }}
         {{- $monthNum := 0 }}
         {{- range $idx, $m := $monthNames }}
             {{- if eq $monthName $m }}
@@ -25,7 +25,6 @@
         {{- $result = printf "%s-%02d" $year $monthNum }}
     {{- else if (not (in $monthStr "-")) }}
         {{- /* Just month name, assume current year */}}
-        {{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December" }}
         {{- $monthNum := 0 }}
         {{- range $idx, $m := $monthNames }}
             {{- if eq $monthStr $m }}
