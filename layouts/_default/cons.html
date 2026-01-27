@@ -144,7 +144,7 @@
             {{- range $index, $con := $upcoming }}
             <div class="con-entry">
                 <div class="con-main-content">
-                    <h2 class="con-title"><a href="{{ $con.RelPermalink | absLangURL }}">{{ $con.Title }}</a></h2>
+                    <h2 class="con-title"><a href="{{ $con.RelPermalink }}">{{ $con.Title }}</a></h2>
                     <p class="con-dates">
                         {{- if $con.Params.staffYears }}
                         {{- /* Extract convention year */}}
@@ -211,7 +211,7 @@
             {{- range $index, $con := $past }}
             <div class="con-entry past">
                 <div class="con-main-content">
-                    <h2 class="con-title"><a href="{{ $con.RelPermalink | absLangURL }}">{{ $con.Title }}</a></h2>
+                    <h2 class="con-title"><a href="{{ $con.RelPermalink }}">{{ $con.Title }}</a></h2>
                     <p class="con-dates">
                         {{- if $con.Params.pastYears }}
                         {{ $con.Params.pastYears }}
@@ -291,7 +291,7 @@
             {{- if or (gt (len $pastYearsArr) 0) (gt (len $pastStaffArr) 0) }}
             <div class="con-entry past">
                 <div class="con-main-content">
-                    <h2 class="con-title"><a href="{{ $con.RelPermalink | absLangURL }}">{{ $con.Title }}</a></h2>
+                    <h2 class="con-title"><a href="{{ $con.RelPermalink }}">{{ $con.Title }}</a></h2>
                     <p class="con-dates">
                         {{- if gt (len $pastYearsArr) 0 }}
                         {{- delimit $pastYearsArr ", " }}
