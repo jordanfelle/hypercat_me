@@ -54,7 +54,6 @@ params:
   author: Hyper
   # author: ["Me", "You"] # multiple authors
 
-  ShowShareButtons: false
   # disableSpecial1stPost: true
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
