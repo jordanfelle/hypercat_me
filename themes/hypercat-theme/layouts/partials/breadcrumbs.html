@@ -1,6 +1,6 @@
 {{- if (.Param "ShowBreadCrumbs") -}}
 <div class="breadcrumbs">
-    {{- $url := replace .Parent.Permalink (printf "%s" site.Home.Permalink) "" }}
+    {{- $url := replace .Parent.RelPermalink (printf "%s" site.Home.RelPermalink) "" }}
     {{- $lang_url := strings.TrimPrefix (printf "%s/" .Lang) $url -}}
 
     <a href="/">{{ i18n "home" | default "Home" }}</a>
