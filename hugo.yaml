@@ -6,7 +6,6 @@ copyright: "CC BY-NC 4.0"
 theme: [hypercat-theme]
 
 enableInlineShortcodes: true
-enableRobotsTXT: true
 buildDrafts: false
 buildFuture: true
 buildExpired: false
