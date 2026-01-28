@@ -30,4 +30,5 @@ resources/_gen/
 
 # Hugo installation files
 hugo_extended_*.tar.gz
+hugo
 LICENSE

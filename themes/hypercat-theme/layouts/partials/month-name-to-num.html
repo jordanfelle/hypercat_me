@@ -3,18 +3,20 @@
 {{- /* Returns: int month number (0 if invalid) */}}
 
 {{- $monthName := . }}
-{{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December" }}
+{{- $monthNames := slice "January" "February" "March" "April" "May" "June" "July" "August" "September" "October"
+"November" "December" }}
 {{- $monthNum := 0 }}
 {{- range $idx, $m := $monthNames }}
-    {{- if eq $monthName $m }}
-        {{- $monthNum = add $idx 1 }}
-    {{- end }}
+{{- if eq $monthName $m }}
+{{- $monthNum = add $idx 1 }}
+{{- end }}
 {{- end }}
 
 {{- /* Validate that a valid month was found */}}
 {{- if eq $monthNum 0 }}
-    {{- $validMonths := delimit $monthNames ", " }}
-    {{- warnf "Invalid month name '%s' provided to month-name-to-num.html. Expected one of: %s. Returning 0." $monthName $validMonths }}
+{{- $validMonths := delimit $monthNames ", " }}
+{{- warnf "Invalid month name '%s' provided to month-name-to-num.html. Expected one of: %s. Returning 0." $monthName
+$validMonths }}
 {{- end }}
 
 {{- return $monthNum }}
