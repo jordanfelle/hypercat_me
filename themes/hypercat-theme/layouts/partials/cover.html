@@ -21,10 +21,18 @@
     {{- end -}}
 
     {{- $isRelative := (.Params.cover.relative | default false) }}
-    {{- $imgdl := cond $isRelative (.Params.cover.image) ((.Params.cover.image) | absURL) }}
+    {{- $imagePath := .Params.cover.image }}
+    {{- if and $isRelative (not (hasPrefix $imagePath "/")) }}
+    {{- $imagePath = printf "/%s" $imagePath }}
+    {{- end }}
+    {{- $imgdl := cond $isRelative $imagePath ($imagePath | absURL) }}
+    
     {{- if $cover -}}
     {{- if $isRelative }}
     {{- $imgdl = .Params.cover.image }}
+    {{- if not (hasPrefix $imgdl "/") }}
+    {{- $imgdl = printf "/%s" $imgdl }}
+    {{- end }}
     {{- else }}
     {{- $imgdl = $cover.Permalink }}
     {{- end }}
