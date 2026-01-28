@@ -44,7 +44,6 @@
 -   Light/Dark theme (automatic theme switch a/c to browser theme and theme-switch button).
 -   SEO Friendly.
 -   Multiple Author support.
--   Search Page with Fuse.js
 -   Other Posts suggestion below a post
 -   Breadcrumb Navigation.
 -   Code Block Copy buttons.
@@ -94,7 +93,6 @@ Release ChangeLog has info about stuff added: **[Releases](https://github.com/ad
 ## Special Thanks 🌟
 
 -   [**Highlight.js**](https://github.com/highlightjs/highlight.js)
--   [**Fuse.js**](https://github.com/krisk/fuse)
 -   [**Feather Icons**](https://github.com/feathericons/feather)
 -   [**Simple Icons**](https://github.com/simple-icons/simple-icons)
 -   **All Contributors and Supporters**
