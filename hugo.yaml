@@ -67,7 +67,7 @@ params:
     enabled: true
     title: hyper
     subtitle: "{{< myAge >}} | Photographer | Nerd | Big Cat"    
-    imageUrl: "images/profile/hyper.png"
+    imageUrl: "images/profile/hyper.avif"
     imageTitle: Hyper
     imageWidth: 400
     imageHeight: 509
