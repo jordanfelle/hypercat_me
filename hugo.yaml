@@ -15,7 +15,6 @@ mainsections: ["posts", "papermod"]
 
 minify:
   disableXML: true
-  # minifyOutput: true
 
 pagination:
   disableAliases: false
@@ -34,14 +33,6 @@ menu:
     - name: Conventions
       url: /cons/
       weight: 10
-    # - name: Search
-    #   url: search/
-    #   weight: 10
-    # - name: Tags
-    #   url: tags/
-    #   weight: 10
-    # - name: Photography
-    #   url: https://photo.felle.me/
 
 outputs:
   home:
@@ -52,16 +43,12 @@ params:
   env: production
   description: "Hyper"
   author: Hyper
-  # author: ["Me", "You"] # multiple authors
-
-  # disableSpecial1stPost: true
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
   ShowCodeCopyButtons: true
   ShowAllPagesInArchive: true
   ShowPageNums: true
   ShowToc: true
-  # images: ["images/hyper.png"]
 
   profileMode:
     enabled: true
@@ -109,23 +96,8 @@ params:
       title: Join on Discord
       url: "https://discord.com/users/307919782961872897"
 
-  # label:
-  # iconSVG: '<svg xmlns="http://www.w3.org/2000/svg" height="25" viewBox="0 -960 960 960" fill="currentColor"><path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/></svg>'
-  # text: "Home"
-  # icon: icon.png
-  # iconHeight: 35
-
-  # analytics:
-  #     google:
-  #         SiteVerificationTag: "XYZabc"
-
   assets:
     disableHLJS: true
-  #     favicon: "<link / abs url>"
-  #     favicon16x16: "<link / abs url>"
-  #     favicon32x32: "<link / abs url>"
-  #     apple_touch_icon: "<link / abs url>"
-  #     safari_pinned_tab: "<link / abs url>"
 
   cover:
     hidden: false # hide everywhere but not in structured data
@@ -141,11 +113,6 @@ markup:
       unsafe: true
   highlight:
     noClasses: false
-    # anchorLineNos: true
-    # codeFences: true
-    # guessSyntax: true
-    # lineNos: true
-    # style: monokai
 
 services:
   instagram:
