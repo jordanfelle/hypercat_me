@@ -20,9 +20,14 @@
     {{- $processableFormats = $processableFormats | append "webp" -}}
     {{- end -}}
 
-    {{- $imgdl := (.Params.cover.image) | absURL }}
+    {{- $isRelative := (.Params.cover.relative | default false) }}
+    {{- $imgdl := cond $isRelative (.Params.cover.image) ((.Params.cover.image) | absURL) }}
     {{- if $cover -}}
+    {{- if $isRelative }}
+    {{- $imgdl = .Params.cover.image }}
+    {{- else }}
     {{- $imgdl = $cover.Permalink }}
+    {{- end }}
     {{- end -}}
 
     {{- if $addLink }}
