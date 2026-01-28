@@ -146,9 +146,3 @@ markup:
     # guessSyntax: true
     # lineNos: true
     # style: monokai
-
-services:
-  instagram:
-    disableInlineCSS: true
-  x:
-    disableInlineCSS: true
