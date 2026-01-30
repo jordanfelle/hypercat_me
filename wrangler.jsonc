@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hypercat-me",
+  "compatibility_date": "2026-01-30",
+  "preview_urls": true,
+  "assets": {
+    "directory": "./public"
+  },
+  "build": {
+    "command": "hugo --minify"
+  }
+}
