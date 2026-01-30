@@ -2,6 +2,14 @@
 
 This repository uses pre-commit hooks to maintain code quality and consistency.
 
+## Prerequisites
+
+Before installing pre-commit hooks, ensure you have:
+
+- **Hugo extended v0.146.0 or higher** - Required for the `hugo-build` hook
+  - Install from: <https://gohugo.io/installation/>
+  - Verify with: `hugo version` (must show "extended" in the version string)
+
 ## Installation
 
 1. Install `pre-commit`:
@@ -60,7 +68,6 @@ pre-commit autoupdate
 - `.pre-commit-config.yaml` - Main pre-commit configuration
 - `.markdownlint.json` - Markdown linting rules
 - `.prettierrc` - Prettier formatting rules
-- `.mlc_config.json` - Markdown link checker configuration
 - `.codespellrc` - Codespell configuration
 
 ## Troubleshooting
