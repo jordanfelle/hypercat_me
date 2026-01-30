@@ -42,6 +42,9 @@
     transition: transform 0.1s;
     border: 1px solid var(--border);
     min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .post-entry:active {
