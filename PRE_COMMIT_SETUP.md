@@ -24,6 +24,7 @@ Before installing pre-commit hooks, ensure you have:
 
    ```bash
    pre-commit install
+   pre-commit install --hook-type pre-push
    ```
 
 3. (Optional) Run all hooks on all files to check the current state:
@@ -35,7 +36,7 @@ Before installing pre-commit hooks, ensure you have:
 
 - **Trailing whitespace**: Removes trailing whitespace from files
 - **End of file fixer**: Ensures files end with a newline
-- **YAML checker**: Validates standalone YAML files (e.g., hugo.yaml, workflow .yml files). YAML front matter in Markdown is validated indirectly by the Hugo build check.
+- **YAML checker**: Validates YAML syntax (e.g., GitHub Actions workflows, YAML front matter in content files)
 - **JSON checker**: Validates JSON syntax
 - **TOML checker**: Validates TOML syntax
 - **Merge conflict checker**: Detects merge conflict markers
