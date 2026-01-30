@@ -1,0 +1,90 @@
+# Pre-commit hooks for Hugo site
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        exclude: ^(resources/|public/)
+      - id: end-of-file-fixer
+        name: Fix end of file
+        exclude: ^(resources/|public/)
+      - id: check-yaml
+        name: Check YAML
+        args: ['--unsafe']
+      - id: check-json
+        name: Check JSON
+        exclude: ^(resources/|public/|themes/.*\.(json|html))
+      - id: check-toml
+        name: Check TOML
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: check-case-conflict
+        name: Check for case conflicts
+      - id: mixed-line-ending
+        name: Fix mixed line endings
+        args: ['--fix=lf']
+        exclude: ^(resources/|public/)
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        name: Lint YAML
+        args:
+          - --config-data
+          - |
+            {
+              extends: default,
+              rules: {
+                line-length: {max: 120},
+                document-start: disable,
+                comments-indentation: disable,
+                truthy: disable
+              }
+            }
+        exclude: ^(resources/|public/)
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        name: Lint Markdown
+        args: ['--config', '.markdownlint.json']
+        exclude: ^(resources/|public/)
+
+  # Prettier for formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        name: Format with Prettier
+        types_or: [markdown, json]
+        exclude: ^(resources/|public/|themes/|\.github/|layouts/)
+
+  # Spell checking
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        name: Check spelling
+        exclude: ^(resources/|public/|themes/|\.git/)
+
+  # Hugo build check
+  - repo: local
+    hooks:
+      - id: hugo-build
+        name: Hugo build check
+        entry: hugo
+        language: system
+        types: [file]
+        pass_filenames: false
+
+ci:
+  autoupdate_schedule: monthly

@@ -1,0 +1,15 @@
+{
+  "default": true,
+  "MD003": { "style": "consistent" },
+  "MD004": { "style": "consistent" },
+  "MD007": false,
+  "MD012": false,
+  "MD013": false,
+  "MD030": false,
+  "MD031": false,
+  "MD032": false,
+  "MD033": false,
+  "MD034": false,
+  "MD040": false,
+  "MD041": false
+}
