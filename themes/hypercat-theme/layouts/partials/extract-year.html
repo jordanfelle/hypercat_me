@@ -1,21 +1,15 @@
 {{- /* Extract year from month string */}}
-{{- /* Input: . (context with .monthStr and .now) */}}
+{{- /* Input: . (context with .con and .now) */}}
 {{- /* Returns: integer year */}}
+{{- /* Note: This now uses get-con-month.html for consistency with sorting/categorization logic */}}
 
-{{- $monthStr := .monthStr }}
+{{- $con := .con }}
 {{- $now := .now }}
-{{- $year := $now.Year }}
 
-{{- /* Handle "Month YYYY" format (e.g., "January 2026") */}}
-{{- if (strings.Contains $monthStr " ") }}
-{{- $parts := split $monthStr " " }}
-{{- $year = (index $parts 1) | int }}
-{{- else if (not (in $monthStr "-")) }}
-{{- /* Standalone month name (e.g., "January"), use current year */}}
-{{- $year = $now.Year }}
-{{- else }}
-{{- /* YYYY-MM format */}}
-{{- $year = (index (split $monthStr "-") 0) | int }}
-{{- end }}
+{{- /* Get the YYYY-MM format from get-con-month.html */}}
+{{- $monthYYYYMM := partial "get-con-month.html" (dict "con" $con "now" $now) }}
 
-{{- return $year }}
+{{- /* Extract just the year part (YYYY) */}}
+{{- $year := (index (split $monthYYYYMM "-") 0) | int }}
+
+{{- $year -}}

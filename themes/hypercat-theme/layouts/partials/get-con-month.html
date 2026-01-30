@@ -1,0 +1,109 @@
+{{- /* Get convention month in YYYY-MM format, using latest year from attendeeYears or staffYears if only month is provided */}}
+{{- /* Input: . (context with .con, .now) */}}
+{{- /* Returns: string in YYYY-MM format */}}
+
+{{- $con := .con }}
+{{- $now := .now }}
+{{- $monthStr := $con.Params.month }}
+{{- $result := "" }}
+
+{{- if not $monthStr }}
+{{- $monthStr = ($con.Date.Format "2006-01") }}
+{{- end }}
+
+{{- /* Check if already in YYYY-MM format */}}
+{{- if and (in $monthStr "-") (not (strings.Contains $monthStr " ")) }}
+{{- $result = $monthStr }}
+{{- else }}
+{{- /* Determine the year to use */}}
+{{- $year := $now.Year }}
+{{- $maxYear := 0 }}
+
+{{- /* Extract year from attendeeYears if available */}}
+{{- if $con.Params.attendeeYears }}
+{{- $attendeeYears := $con.Params.attendeeYears }}
+{{- if (reflect.IsSlice $attendeeYears) }}
+{{- range $attendeeYears }}
+{{- $yearStr := (printf "%v" .) }}
+{{- $yearInt := ($yearStr | replaceRE "[^0-9]" "") | int }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- else }}
+{{- /* Handle comma-separated string or single value */}}
+{{- $yearStr := (printf "%v" $attendeeYears) }}
+{{- if (in $yearStr ",") }}
+{{- $yearList := split $yearStr "," }}
+{{- range $yearList }}
+{{- $trimmed := (. | replaceRE "[^0-9]" "") }}
+{{- if $trimmed }}
+{{- $yearInt := ($trimmed | int) }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- else }}
+{{- $yearInt := ($yearStr | replaceRE "[^0-9]" "") | int }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- /* Extract year from staffYears if available */}}
+{{- if $con.Params.staffYears }}
+{{- $staffYears := $con.Params.staffYears }}
+{{- if (reflect.IsSlice $staffYears) }}
+{{- range $staffYears }}
+{{- $yearStr := (printf "%v" .) }}
+{{- $yearInt := ($yearStr | replaceRE "[^0-9]" "") | int }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- else }}
+{{- /* Handle comma-separated string or single value */}}
+{{- $yearStr := (printf "%v" $staffYears) }}
+{{- if (in $yearStr ",") }}
+{{- $yearList := split $yearStr "," }}
+{{- range $yearList }}
+{{- $trimmed := (. | replaceRE "[^0-9]" "") }}
+{{- if $trimmed }}
+{{- $yearInt := ($trimmed | int) }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- else }}
+{{- $yearInt := ($yearStr | replaceRE "[^0-9]" "") | int }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if gt $maxYear 0 }}
+{{- $year = $maxYear }}
+{{- end }}
+
+{{- /* Now parse the month with the determined year */}}
+{{- if (strings.Contains $monthStr " ") }}
+{{- /* "Month YYYY" format - use provided year */}}
+{{- $parts := split $monthStr " " }}
+{{- $monthName := index $parts 0 }}
+{{- $monthNum := partial "month-name-to-num.html" $monthName }}
+{{- $yearFromStr := (index $parts 1 | int) }}
+{{- $result = (printf "%d-%02d" $yearFromStr $monthNum) }}
+{{- else }}
+{{- /* Just month name - use determined year */}}
+{{- $monthNum := partial "month-name-to-num.html" $monthStr }}
+{{- $result = (printf "%d-%02d" $year $monthNum) }}
+{{- end }}
+{{- end }}
+
+{{- $result -}}

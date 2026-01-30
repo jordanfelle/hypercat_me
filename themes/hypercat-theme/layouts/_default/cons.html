@@ -12,17 +12,12 @@
 
         {{- range .Site.RegularPages }}
         {{- if eq .Type "cons" }}
-        {{- $compareMonth := .Params.month }}
-        {{- if not $compareMonth }}
-        {{- $compareMonth = (.Date.Format "2006-01") }}
-        {{- end }}
-        {{- /* Convert month name to comparable YYYY-MM format */}}
-        {{- $compareMonth = partial "parse-month.html" (dict "monthStr" $compareMonth "now" $now) }}
-        {{- /* Categorize as upcoming or past based on month
-        Note: Conventions are categorized by month only. A convention in the current month
-        is considered "past" even if it occurs later in the month, since we don't have
-        day-level granularity in the month field. */}}
-        {{- if gt $compareMonth $nowMonth }}
+        {{- /* Convert month name to comparable YYYY-MM format, using latest year from attendeeYears/staffYears */}}
+        {{- $compareMonth := partial "get-con-month.html" (dict "con" . "now" $now) }}
+        {{- /* Categorize as upcoming or past based on month.
+        Conventions show as upcoming during the entire month they're held in,
+        and become past starting the next month. */}}
+        {{- if ge $compareMonth $nowMonth }}
         {{- $upcoming = $upcoming | append . }}
         {{- else }}
         {{- $past = $past | append . }}
@@ -34,11 +29,7 @@
         {{- /* Create a list with month values for sorting */}}
         {{- $upcomingWithMonth := slice }}
         {{- range $upcoming }}
-        {{- $monthStr := .Params.month }}
-        {{- if not $monthStr }}
-        {{- $monthStr = (.Date.Format "2006-01") }}
-        {{- end }}
-        {{- $monthStr = partial "parse-month.html" (dict "monthStr" $monthStr "now" $now) }}
+        {{- $monthStr := partial "get-con-month.html" (dict "con" . "now" $now) }}
         {{- $upcomingWithMonth = $upcomingWithMonth | append (dict "page" . "month" $monthStr) }}
         {{- end }}
 
@@ -50,11 +41,7 @@
 
         {{- $pastWithMonth := slice }}
         {{- range $past }}
-        {{- $monthStr := .Params.month }}
-        {{- if not $monthStr }}
-        {{- $monthStr = (.Date.Format "2006-01") }}
-        {{- end }}
-        {{- $monthStr = partial "parse-month.html" (dict "monthStr" $monthStr "now" $now) }}
+        {{- $monthStr := partial "get-con-month.html" (dict "con" . "now" $now) }}
         {{- $pastWithMonth = $pastWithMonth | append (dict "page" . "month" $monthStr) }}
         {{- end }}
 
@@ -74,8 +61,7 @@
                     <p class="con-dates">
                         {{- if $con.Params.staffYears }}
                         {{- /* Extract convention year */}}
-                        {{- $monthStr := $con.Params.month }}
-                        {{- $conYear := partial "extract-year.html" (dict "monthStr" $monthStr "now" $now) }}
+                        {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
                         {{- /* Filter staff years to only future years */}}
                         {{- $futureStaffYears := slice }}
                         {{- range split $con.Params.staffYears ", " }}
@@ -92,7 +78,7 @@
                         <span class="staff-badge">Staff: {{ delimit $futureStaffYears ", " }}</span>
                         {{- end }}
                         {{- else }}
-                        {{- partial "extract-year.html" (dict "monthStr" $con.Params.month "now" $now) }}
+                        {{- partial "extract-year.html" (dict "con" $con "now" $now) }}
                         {{- end }}
                     </p>
                 </div>
@@ -159,12 +145,8 @@
             {{- $allYears = $allYears | append . }}
             {{- end }}
             {{- end }}
-            {{- $monthStr := $con.Params.month }}
-            {{- if not $monthStr }}
-            {{- $monthStr = ($con.Date.Format "2006-01") }}
-            {{- end }}
-            {{- /* Extract year from month string */}}
-            {{- $conYear := partial "extract-year.html" (dict "monthStr" $monthStr "now" $now) }}
+            {{- /* Extract year from convention using get-con-month.html for consistency */}}
+            {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
             {{- $pastYearsArr := slice }}
             {{- $pastStaffArr := slice }}
             {{- range $allYears }}
