@@ -89,8 +89,9 @@ repos:
         name: Hugo build check
         entry: hugo
         language: system
-        types: [file]
         pass_filenames: false
+        files: ^(content/|layouts/|assets/|static/|themes/|hugo\.yaml)
+        stages: [push]
 
 ci:
   autoupdate_schedule: monthly
