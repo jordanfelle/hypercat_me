@@ -15,19 +15,9 @@
         {{- /* Convert month name to comparable YYYY-MM format, using latest year from attendeeYears/staffYears */}}
         {{- $compareMonth := partial "get-con-month.html" (dict "con" . "now" $now) }}
         {{- /* Categorize as upcoming or past based on month.
-        Conventions are assumed to happen on the last day of the month.
-        If in the current month, check if today is before the end of month. */}}
-        {{- $isUpcoming := false }}
-        {{- if gt $compareMonth $nowMonth }}
-        {{- $isUpcoming = true }}
-        {{- else if eq $compareMonth $nowMonth }}
-        {{- /* Same month - check if we're before the last day */}}
-        {{- $lastDayOfMonth := ($now.AddDate 0 1 0).AddDate 0 0 -1 }}
-        {{- if lt $now.Day $lastDayOfMonth.Day }}
-        {{- $isUpcoming = true }}
-        {{- end }}
-        {{- end }}
-        {{- if $isUpcoming }}
+        Conventions show as upcoming during the entire month they're held in,
+        and become past starting the next month. */}}
+        {{- if ge $compareMonth $nowMonth }}
         {{- $upcoming = $upcoming | append . }}
         {{- else }}
         {{- $past = $past | append . }}
