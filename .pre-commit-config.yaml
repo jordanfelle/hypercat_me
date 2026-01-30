@@ -91,7 +91,7 @@ repos:
         language: system
         pass_filenames: false
         files: ^(content/|layouts/|assets/|static/|themes/|hugo\.yaml)
-        stages: [push]
+        stages: [pre-push]
 
 ci:
   autoupdate_schedule: monthly

@@ -36,7 +36,7 @@ Before installing pre-commit hooks, ensure you have:
 
 - **Trailing whitespace**: Removes trailing whitespace from files
 - **End of file fixer**: Ensures files end with a newline
-- **YAML checker**: Validates YAML syntax (e.g., GitHub Actions workflows, YAML front matter in content files)
+- **YAML checker**: Validates YAML syntax in `.yml`/`.yaml` files (e.g., GitHub Actions workflows and other YAML config files)
 - **JSON checker**: Validates JSON syntax
 - **TOML checker**: Validates TOML syntax
 - **Merge conflict checker**: Detects merge conflict markers
