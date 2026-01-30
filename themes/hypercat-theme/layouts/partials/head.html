@@ -104,5 +104,4 @@
 {{- if hugo.IsProduction | or (eq site.Params.env "production") }}
 {{- partial "google_analytics.html" . }}
 {{- partial "templates/opengraph.html" . }}
-{{- partial "templates/schema_json.html" . }}
 {{- end -}}
