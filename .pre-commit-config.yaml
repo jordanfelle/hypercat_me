@@ -76,6 +76,13 @@ repos:
         name: Check spelling
         exclude: ^(resources/|public/|themes/|\.git/)
 
+  # GitHub Actions workflow validation
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.1
+    hooks:
+      - id: actionlint
+        name: Validate GitHub Actions workflows
+
   # Hugo build check
   - repo: local
     hooks:

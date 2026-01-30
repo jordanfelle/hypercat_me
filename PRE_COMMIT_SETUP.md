@@ -33,6 +33,7 @@ This repository uses pre-commit hooks to maintain code quality and consistency.
 - **Markdown linting**: Checks markdown formatting and consistency
 - **Prettier**: Auto-formats markdown and JSON files
 - **Codespell**: Checks for common spelling mistakes
+- **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
 - **Hugo build check**: Verifies the site builds successfully
 
 ## Manual Usage
