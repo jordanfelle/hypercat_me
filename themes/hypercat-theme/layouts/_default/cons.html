@@ -71,8 +71,7 @@
                     <p class="con-dates">
                         {{- if $con.Params.staffYears }}
                         {{- /* Extract convention year */}}
-                        {{- $monthStr := $con.Params.month }}
-                        {{- $conYear := partial "extract-year.html" (dict "monthStr" $monthStr "now" $now) }}
+                        {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
                         {{- /* Filter staff years to only future years */}}
                         {{- $futureStaffYears := slice }}
                         {{- range split $con.Params.staffYears ", " }}
@@ -89,7 +88,7 @@
                         <span class="staff-badge">Staff: {{ delimit $futureStaffYears ", " }}</span>
                         {{- end }}
                         {{- else }}
-                        {{- partial "extract-year.html" (dict "monthStr" $con.Params.month "now" $now) }}
+                        {{- partial "extract-year.html" (dict "con" $con "now" $now) }}
                         {{- end }}
                     </p>
                 </div>
@@ -156,12 +155,8 @@
             {{- $allYears = $allYears | append . }}
             {{- end }}
             {{- end }}
-            {{- $monthStr := $con.Params.month }}
-            {{- if not $monthStr }}
-            {{- $monthStr = ($con.Date.Format "2006-01") }}
-            {{- end }}
-            {{- /* Extract year from month string */}}
-            {{- $conYear := partial "extract-year.html" (dict "monthStr" $monthStr "now" $now) }}
+            {{- /* Extract year from convention using get-con-month.html for consistency */}}
+            {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
             {{- $pastYearsArr := slice }}
             {{- $pastStaffArr := slice }}
             {{- range $allYears }}
