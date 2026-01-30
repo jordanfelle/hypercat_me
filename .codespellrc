@@ -1,0 +1,4 @@
+# Codespell configuration
+[codespell]
+skip = .git,resources,public,themes,node_modules,package-lock.json
+ignore-words-list = caf,doth,formater,nd,sav,ser

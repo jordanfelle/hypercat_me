@@ -5,6 +5,7 @@
 **hypercat_me** is a static website built with Hugo (v0.146.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
 
 **Tech Stack:**
+
 - Static Site Generator: Hugo v0.146.0+ (extended version required)
 - Theme: hypercat-theme (customized PaperMod theme, included in repository)
 - Languages: Hugo templates (.html), Markdown (.md), YAML configuration
@@ -66,6 +67,7 @@ hugo
 ```
 
 Clean these artifacts when:
+
 - Switching branches with significant changes
 - Theme updates
 - Unexpected rendering issues
@@ -98,6 +100,7 @@ Clean these artifacts when:
 ```
 
 **Generated directories (gitignored):**
+
 - `public/` - Built site output
 - `resources/_gen/` - Generated resources cache
 - `.hugo_build.lock` - Build lock file
@@ -132,6 +135,7 @@ hugo new content/section/page-name.md
 ```
 
 Uses archetype from `archetypes/default.md` with front matter:
+
 - date (auto-generated)
 - draft: true
 - title (auto-generated from filename)
@@ -188,16 +192,19 @@ Shows Hugo version, Go version, libsass version, libwebp version.
 ## Known Issues and Gotchas
 
 1. **Minify Build Errors**
+
    - Symptoms: JSON parsing errors in cons pages when using `hugo --minify`
    - Impact: Basic `hugo` command works fine, but minified builds fail
    - Workaround: Use basic `hugo` command without `--minify` flag
 
 2. **First Build is Slow**
+
    - First/clean build: ~10 seconds (image processing)
    - Incremental builds: ~50-100ms
    - Server startup adds ~50-70ms to initial build
 
 3. **No Validation in CI**
+
    - Only image optimization runs in CI
    - Build validation must be done locally
    - Always test `hugo` command succeeds before committing
@@ -220,18 +227,19 @@ Before finalizing changes:
 
 ## Quick Reference
 
-| Task | Command | Time |
-|------|---------|------|
-| Install Hugo | See "Hugo Installation" section | 10-30s |
-| Build site | `hugo` | 10s (clean), 50-100ms (incremental) |
-| Dev server | `hugo server` | Starts in 50-70ms |
-| Clean build | `rm -rf public/ resources/_gen/ .hugo_build.lock && hugo` | 10s |
-| List content | `hugo list all` | <1s |
-| View config | `hugo config` | <1s |
+| Task         | Command                                                   | Time                                |
+| ------------ | --------------------------------------------------------- | ----------------------------------- |
+| Install Hugo | See "Hugo Installation" section                           | 10-30s                              |
+| Build site   | `hugo`                                                    | 10s (clean), 50-100ms (incremental) |
+| Dev server   | `hugo server`                                             | Starts in 50-70ms                   |
+| Clean build  | `rm -rf public/ resources/_gen/ .hugo_build.lock && hugo` | 10s                                 |
+| List content | `hugo list all`                                           | <1s                                 |
+| View config  | `hugo config`                                             | <1s                                 |
 
 ## Trust These Instructions
 
 These instructions have been validated through:
+
 - Clean repository clone and build testing
 - Multiple build and clean cycles
 - Development server testing
@@ -239,6 +247,7 @@ These instructions have been validated through:
 - Hugo v0.146.0 extended edition validation
 
 **Only search for additional information if:**
+
 - These instructions appear outdated (check Hugo version)
 - You encounter errors not documented here
 - You need to understand hypercat-theme/PaperMod theme specifics

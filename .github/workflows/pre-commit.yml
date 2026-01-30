@@ -1,0 +1,65 @@
+name: Pre-commit checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  pre-commit:
+    # Only auto-fix on push events; PRs from forks can't push anyway
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Set up Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: "0.154.5"
+          extended: true
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit checks
+        id: pre-commit
+        continue-on-error: true
+        run: pre-commit run --all-files
+
+      - name: Commit and push fixes
+        if: steps.pre-commit.outcome == 'failure' && github.event_name == 'push'
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add -A
+            git commit -m "chore: auto-fix issues with pre-commit hooks"
+            git push
+          fi
+
+      - name: Re-run pre-commit after fixes
+        if: steps.pre-commit.outcome == 'failure' && github.event_name == 'push'
+        run: pre-commit run --all-files
