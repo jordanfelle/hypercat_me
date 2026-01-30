@@ -1,6 +1,7 @@
 name: Pre-commit checks
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 on:
   pull_request:
@@ -13,6 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -35,3 +43,14 @@ jobs:
 
       - name: Run pre-commit checks
         run: pre-commit run --all-files
+
+      - name: Commit and push fixes
+        if: always()
+        run: |
+          if git diff --quiet; then
+            echo "No changes detected"
+          else
+            git add -A
+            git commit -m "chore: auto-fix issues with pre-commit hooks"
+            git push
+          fi
