@@ -12,17 +12,22 @@
 
         {{- range .Site.RegularPages }}
         {{- if eq .Type "cons" }}
-        {{- $compareMonth := .Params.month }}
-        {{- if not $compareMonth }}
-        {{- $compareMonth = (.Date.Format "2006-01") }}
-        {{- end }}
-        {{- /* Convert month name to comparable YYYY-MM format */}}
-        {{- $compareMonth = partial "parse-month.html" (dict "monthStr" $compareMonth "now" $now) }}
-        {{- /* Categorize as upcoming or past based on month
-        Note: Conventions are categorized by month only. A convention in the current month
-        is considered "past" even if it occurs later in the month, since we don't have
-        day-level granularity in the month field. */}}
+        {{- /* Convert month name to comparable YYYY-MM format, using latest year from attendeeYears/staffYears */}}
+        {{- $compareMonth := partial "get-con-month.html" (dict "con" . "now" $now) }}
+        {{- /* Categorize as upcoming or past based on month.
+        Conventions are assumed to happen on the last day of the month.
+        If in the current month, check if today is before the end of month. */}}
+        {{- $isUpcoming := false }}
         {{- if gt $compareMonth $nowMonth }}
+        {{- $isUpcoming = true }}
+        {{- else if eq $compareMonth $nowMonth }}
+        {{- /* Same month - check if we're before the last day */}}
+        {{- $lastDayOfMonth := ($now.AddDate 0 1 0).AddDate 0 0 -1 }}
+        {{- if lt $now.Day $lastDayOfMonth.Day }}
+        {{- $isUpcoming = true }}
+        {{- end }}
+        {{- end }}
+        {{- if $isUpcoming }}
         {{- $upcoming = $upcoming | append . }}
         {{- else }}
         {{- $past = $past | append . }}
@@ -34,11 +39,7 @@
         {{- /* Create a list with month values for sorting */}}
         {{- $upcomingWithMonth := slice }}
         {{- range $upcoming }}
-        {{- $monthStr := .Params.month }}
-        {{- if not $monthStr }}
-        {{- $monthStr = (.Date.Format "2006-01") }}
-        {{- end }}
-        {{- $monthStr = partial "parse-month.html" (dict "monthStr" $monthStr "now" $now) }}
+        {{- $monthStr := partial "get-con-month.html" (dict "con" . "now" $now) }}
         {{- $upcomingWithMonth = $upcomingWithMonth | append (dict "page" . "month" $monthStr) }}
         {{- end }}
 
@@ -50,11 +51,7 @@
 
         {{- $pastWithMonth := slice }}
         {{- range $past }}
-        {{- $monthStr := .Params.month }}
-        {{- if not $monthStr }}
-        {{- $monthStr = (.Date.Format "2006-01") }}
-        {{- end }}
-        {{- $monthStr = partial "parse-month.html" (dict "monthStr" $monthStr "now" $now) }}
+        {{- $monthStr := partial "get-con-month.html" (dict "con" . "now" $now) }}
         {{- $pastWithMonth = $pastWithMonth | append (dict "page" . "month" $monthStr) }}
         {{- end }}
 
