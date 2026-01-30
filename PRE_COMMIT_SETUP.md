@@ -2,6 +2,16 @@
 
 This repository uses pre-commit hooks to maintain code quality and consistency.
 
+## Prerequisites
+
+Before installing pre-commit hooks, ensure you have:
+
+- **Python 3.8+** - Required for pre-commit itself
+- **Node.js 16+** - Required for markdownlint and Prettier
+- **Hugo extended** - Required for the Hugo build check hook (see [Hugo installation](https://gohugo.io/installation/))
+  - Minimum version: v0.146.0 (as specified in the theme)
+  - Must be available on your PATH (verify with `hugo version`)
+
 ## Installation
 
 1. Install `pre-commit`:
@@ -36,6 +46,23 @@ This repository uses pre-commit hooks to maintain code quality and consistency.
 - **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
 - **Hugo build check**: Verifies the site builds successfully
 
+## CI/CD and Dependency Updates
+
+The GitHub Actions workflow (`.github/workflows/pre-commit.yml`) pins specific versions for reproducibility:
+
+- **Hugo**: Pinned to a specific version (e.g., 0.154.5)
+- **Node.js**: Pinned to v18
+- **Python**: Pinned to 3.11
+
+**Version updates are handled automatically by Renovate**, which is configured in `renovate.json`. Renovate will:
+
+- Monitor for new Hugo, Node.js, and other dependency releases
+- Create PRs automatically when updates are available
+- Run the pre-commit checks against new versions to ensure compatibility
+- Notify you of any breaking changes
+
+This ensures you get security updates and new features automatically without manual version bumping.
+
 ## Manual Usage
 
 To run pre-commit checks:
@@ -60,7 +87,6 @@ pre-commit autoupdate
 - `.pre-commit-config.yaml` - Main pre-commit configuration
 - `.markdownlint.json` - Markdown linting rules
 - `.prettierrc` - Prettier formatting rules
-- `.mlc_config.json` - Markdown link checker configuration
 - `.codespellrc` - Codespell configuration
 
 ## Troubleshooting

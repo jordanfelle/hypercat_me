@@ -15,7 +15,6 @@ repos:
         exclude: ^(resources/|public/)
       - id: check-yaml
         name: Check YAML
-        args: ['--unsafe']
       - id: check-json
         name: Check JSON
         exclude: ^(resources/|public/|themes/.*\.(json|html))
