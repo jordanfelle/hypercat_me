@@ -120,12 +120,15 @@
                         {{- if $con.Params.staffYears }}
                         {{- /* Filter staff years to only future years */}}
                         {{- $futureStaffYears := slice }}
+                        {{- $conMonth := $con.Params.month }}
+                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
+                        {{- $nowMonth := $now.Format "01" | int }}
                         {{- range split $con.Params.staffYears ", " }}
                         {{- $year := strings.TrimSpace . }}
                         {{- $yearInt := 0 }}
                         {{- if (in "0123456789" (substr $year 0 1)) }}
                         {{- $yearInt = $year | int }}
-                        {{- if ge $yearInt $conYear }}
+                        {{- if or (gt $yearInt $nowYear) (and (eq $yearInt $nowYear) (ge $monthNum $nowMonth)) }}
                         {{- $futureStaffYears = $futureStaffYears | append $year }}
                         {{- end }}
                         {{- end }}
@@ -136,12 +139,15 @@
                         {{- else if $con.Params.attendeeYears }}
                         {{- /* Filter attendee years to only future years */}}
                         {{- $futureAttendeeYears := slice }}
+                        {{- $conMonth := $con.Params.month }}
+                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
+                        {{- $nowMonth := $now.Format "01" | int }}
                         {{- range split $con.Params.attendeeYears ", " }}
                         {{- $year := strings.TrimSpace . }}
                         {{- $yearInt := 0 }}
                         {{- if (in "0123456789" (substr $year 0 1)) }}
                         {{- $yearInt = $year | int }}
-                        {{- if ge $yearInt $conYear }}
+                        {{- if or (gt $yearInt $nowYear) (and (eq $yearInt $nowYear) (ge $monthNum $nowMonth)) }}
                         {{- $futureAttendeeYears = $futureAttendeeYears | append $year }}
                         {{- end }}
                         {{- end }}
@@ -189,12 +195,15 @@
 
                         {{- /* Collect past attendee years */}}
                         {{- if $con.Params.attendeeYears }}
+                        {{- $conMonth := $con.Params.month }}
+                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
+                        {{- $nowMonth := $now.Format "01" | int }}
                         {{- range split $con.Params.attendeeYears ", " }}
                         {{- $year := strings.TrimSpace . }}
                         {{- $yearInt := 0 }}
                         {{- if (in "0123456789" (substr $year 0 1)) }}
                         {{- $yearInt = $year | int }}
-                        {{- if lt $yearInt $nowYear }}
+                        {{- if or (lt $yearInt $nowYear) (and (eq $yearInt $nowYear) (lt $monthNum $nowMonth)) }}
                         {{- $pastYears = $pastYears | append $year }}
                         {{- end }}
                         {{- end }}
@@ -203,12 +212,15 @@
 
                         {{- /* Collect past staff years */}}
                         {{- if $con.Params.staffYears }}
+                        {{- $conMonth := $con.Params.month }}
+                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
+                        {{- $nowMonth := $now.Format "01" | int }}
                         {{- range split $con.Params.staffYears ", " }}
                         {{- $year := strings.TrimSpace . }}
                         {{- $yearInt := 0 }}
                         {{- if (in "0123456789" (substr $year 0 1)) }}
                         {{- $yearInt = $year | int }}
-                        {{- if lt $yearInt $nowYear }}
+                        {{- if or (lt $yearInt $nowYear) (and (eq $yearInt $nowYear) (lt $monthNum $nowMonth)) }}
                         {{- $pastStaff = $pastStaff | append $year }}
                         {{- end }}
                         {{- end }}
