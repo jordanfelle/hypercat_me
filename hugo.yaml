@@ -21,9 +21,9 @@ pagination:
   disableAliases: false
   pagerSize: 5
 
-taxonomies:
-  category: categories
-  series: series
+disableKinds:
+  - taxonomy
+  - term
 
 menu:
   main:
