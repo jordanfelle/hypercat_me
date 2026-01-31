@@ -5,4 +5,4 @@ Input: convention title string
 Output: normalized convention name suitable for URL paths
 */}}
 {{- $title := . }}
-{{- $title | replaceRE "[^a-zA-Z0-9 ]" "" | replaceRE " +" "-" -}}
+{{- $title | strings.TrimSpace | replaceRE "[^a-zA-Z0-9 ]" "" | replaceRE " +" "-" -}}
