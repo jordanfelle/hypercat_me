@@ -1,0 +1,8 @@
+{{- /*
+Normalize convention title for use in URLs
+Removes special characters and replaces spaces with hyphens
+Input: convention title string
+Output: normalized convention name suitable for URL paths
+*/}}
+{{- $title := . }}
+{{- $title | replaceRE "[^a-zA-Z0-9 ]" "" | replaceRE " +" "-" -}}

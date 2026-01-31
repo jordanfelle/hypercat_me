@@ -8,12 +8,21 @@ CONS_HTML="public/cons/index.html"
 ERRORS=0
 
 if [ ! -f "$CONS_HTML" ]; then
-    echo "Error: $CONS_HTML not found. Please run 'hugo' first."
-    exit 1
+    echo "Warning: $CONS_HTML not found. Running hugo build..."
+    hugo || {
+        echo "Error: Hugo build failed."
+        exit 1
+    }
 fi
 
 # Extract all photo.felle.me URLs
 LINKS=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[^"]*' "$CONS_HTML" | sort -u)
+
+# If no links are found, skip validation to avoid processing an empty string as a link
+if [ -z "$LINKS" ]; then
+    echo "No photo.felle.me links found in $CONS_HTML"
+    exit 0
+fi
 
 echo "Found links:"
 while IFS= read -r link; do
@@ -32,8 +41,8 @@ while IFS= read -r link; do
     # Split path into convention name and year (if present)
     IFS='/' read -r conv_name year <<< "$path"
 
-    # Validate convention name (should have hyphens and letters)
-    if ! [[ "$conv_name" =~ ^[a-zA-Z0-9-]+$ ]]; then
+    # Validate convention name: alphanumeric segments separated by single hyphens
+    if ! [[ "$conv_name" =~ ^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$ ]]; then
         echo "❌ Invalid convention name format: $conv_name in $link"
         ((ERRORS++))
         continue
