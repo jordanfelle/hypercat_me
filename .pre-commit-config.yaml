@@ -24,6 +24,8 @@ repos:
         name: Check for merge conflicts
       - id: check-case-conflict
         name: Check for case conflicts
+      - id: check-executables-have-shebangs
+        name: Check executables have shebangs
       - id: mixed-line-ending
         name: Fix mixed line endings
         args: ['--fix=lf']
@@ -82,6 +84,15 @@ repos:
       - id: actionlint
         name: Validate GitHub Actions workflows
 
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        name: Lint shell scripts
+        types: [shell]
+        args: ['--severity=warning']
+
   # Hugo build check
   - repo: local
     hooks:
@@ -92,6 +103,14 @@ repos:
         pass_filenames: false
         files: ^(content/|layouts/|assets/|static/|themes/|hugo\.yaml)
         stages: [pre-push]
+      - id: validate-photo-links
+        name: Validate photo.felle.me links
+        entry: ./scripts/validate-photo-links.sh
+        language: script
+        pass_filenames: false
+        files: ^(content/cons/|layouts/.*cons|public/cons)
+        stages: [pre-push]
+        require_serial: true
 
 ci:
   autoupdate_schedule: monthly

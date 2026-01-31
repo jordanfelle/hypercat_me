@@ -40,12 +40,17 @@ Before installing pre-commit hooks, ensure you have:
 - **JSON checker**: Validates JSON syntax
 - **TOML checker**: Validates TOML syntax
 - **Merge conflict checker**: Detects merge conflict markers
+- **Case conflict checker**: Detects case conflicts in filenames
+- **Executable shebangs**: Ensures shell scripts have shebangs
+- **Mixed line endings**: Fixes mixed line endings (converts to LF)
 - **YAML linting**: Checks YAML style and formatting
 - **Markdown linting**: Checks markdown formatting and consistency
 - **Prettier**: Auto-formats markdown and JSON files
 - **Codespell**: Checks for common spelling mistakes
 - **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
+- **Shell script linting**: Validates bash/shell scripts with shellcheck
 - **Hugo build check**: Verifies the site builds successfully
+- **Photo links validation**: Validates all photo.felle.me links follow the correct format (runs after Hugo build)
 
 ## CI/CD and Dependency Updates
 
