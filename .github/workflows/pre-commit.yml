@@ -77,7 +77,7 @@ jobs:
         run: exit 1
 
       - name: Build Hugo site
-        if: steps.pre-commit.outcome == 'success' || steps.pre-commit-after-fix.outcome == 'success'
+        if: steps.pre-commit.outcome != 'failure'
         run: |
           echo "Building Hugo site..."
           hugo
@@ -88,11 +88,11 @@ jobs:
           echo "Build successful"
 
       - name: Validate photo links
-        if: steps.pre-commit.outcome == 'success' || steps.pre-commit-after-fix.outcome == 'success'
+        if: steps.pre-commit.outcome != 'failure'
         run: bash scripts/validate-photo-links.sh
 
       - name: Validate HTML structure
-        if: steps.pre-commit.outcome == 'success' || steps.pre-commit-after-fix.outcome == 'success'
+        if: steps.pre-commit.outcome != 'failure'
         run: |
           if ! command -v tidy &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y tidy
@@ -103,15 +103,15 @@ jobs:
           echo "HTML validation completed"
 
       - name: Validate project configuration
-        if: steps.pre-commit.outcome == 'success' || steps.pre-commit-after-fix.outcome == 'success'
+        if: steps.pre-commit.outcome != 'failure'
         run: bash scripts/validate-config.sh
 
       - name: Validate internal links
-        if: steps.pre-commit.outcome == 'success' || steps.pre-commit-after-fix.outcome == 'success'
+        if: steps.pre-commit.outcome != 'failure'
         run: bash scripts/validate-links.sh
 
       - name: Run BATS tests
-        if: steps.pre-commit.outcome == 'success' || steps.pre-commit-after-fix.outcome == 'success'
+        if: steps.pre-commit.outcome != 'failure'
         run: |
           npm install -g bats
           bats tests/validate-photo-links.bats
