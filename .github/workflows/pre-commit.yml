@@ -97,7 +97,7 @@ jobs:
           if ! command -v tidy &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y tidy
           fi
-          find public -name '*.html' -type f | head -20 | while read file; do
+          find public -name '*.html' -type f | head -20 | while read -r file; do
             tidy -q -e "$file" 2>&1 | head -5
           done
           echo "HTML validation completed"
