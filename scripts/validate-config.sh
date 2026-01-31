@@ -19,7 +19,7 @@ validate_yaml() {
     fi
 
     # Basic YAML validation - check for invalid indentation patterns
-    if grep -E '^\t' "$file" &>/dev/null; then
+    if grep -P '^\t' "$file" &>/dev/null; then
         echo "❌ $file contains tabs (use spaces for YAML)"
         ((ERRORS++))
         return 1
