@@ -21,6 +21,11 @@ if [ ! -f "$CONS_HTML" ]; then
         echo "Error: Hugo build failed."
         exit 1
     }
+    # Verify the cons HTML file was actually created after build
+    if [ ! -f "$CONS_HTML" ]; then
+        echo "Error: $CONS_HTML not found after Hugo build. Cannot validate photo links."
+        exit 1
+    fi
 fi
 
 # Extract all photo.felle.me URLs
