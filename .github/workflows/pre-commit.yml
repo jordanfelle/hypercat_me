@@ -49,7 +49,7 @@ jobs:
         continue-on-error: true
         run: |
           pre-commit run --all-files
-          pre-commit run --all-files --hook-stage pre-push
+          pre-commit run --all-files --hook-stage push
 
       - name: Commit and push fixes
         if: steps.pre-commit.outcome == 'failure' && github.event_name == 'push'
@@ -68,7 +68,7 @@ jobs:
         continue-on-error: true
         run: |
           pre-commit run --all-files
-          pre-commit run --all-files --hook-stage pre-push
+          pre-commit run --all-files --hook-stage push
 
       - name: Fail if pre-commit found issues
         if: >
