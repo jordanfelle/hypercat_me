@@ -26,6 +26,9 @@ if [ ! -f "$CONS_HTML" ]; then
         echo "Error: $CONS_HTML not found after Hugo build. Cannot validate photo links."
         exit 1
     fi
+    # Note: Build artifacts (public/ directory) are left in the working directory.
+    # This is by design - the pre-commit hook uses these for validation, and they'll
+    # be regenerated on the next build. If you want to clean up, run: rm -rf public/
 fi
 
 # Extract all photo.felle.me URLs
