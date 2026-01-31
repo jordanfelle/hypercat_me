@@ -1,0 +1,25 @@
+{{- /*
+Normalize convention title for use in URLs
+Removes special characters and replaces spaces with hyphens
+Input: convention title string
+Output: normalized convention name suitable for URL paths
+*/}}
+{{- $title := . }}{{- /*
+Normalize convention title for use in URLs and photo.felle.me paths.
+
+Rules:
+- Trim leading/trailing whitespace
+- Remove all characters that are not ASCII letters, digits, or spaces (regex: [^a-zA-Z0-9 ])
+  This includes apostrophes and all punctuation
+- Collapse multiple spaces into single spaces
+- Replace remaining spaces with hyphens ("-")
+
+Examples (must match photo.felle.me directory names exactly):
+- "Fur the 'More" -> "Fur-the-More"
+- "New Year's Furry Ball" -> "New-Years-Furry-Ball"
+- "Furry Con!!! 2024" -> "Furry-Con-2024"
+- "Anthro New England" -> "Anthro-New-England"
+
+Input: convention title string (e.g. .Title)
+Output: normalized convention name suitable for URL/path segments
+*/ -}}{{- $title | strings.TrimSpace | replaceRE "[^a-zA-Z0-9 ]" "" | replaceRE " +" "-" -}}
