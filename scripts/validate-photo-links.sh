@@ -5,6 +5,9 @@
 # so it must have the executable bit set or the hook will fail.
 # Ensure it is executable with: chmod +x scripts/validate-photo-links.sh
 #
+# REQUIREMENT: This script requires bash (uses arithmetic expansion ((ERRORS++))).
+# The shebang (#!/bin/bash) ensures bash is used when invoked directly.
+#
 # Note: This script validates URL format only (alphanumeric segments with hyphens, 4-digit years).
 # It does NOT verify that photo directories actually exist on photo.felle.me.
 # This is intentional - directory existence checks would require HTTP requests and add overhead.
