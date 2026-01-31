@@ -25,10 +25,6 @@ teardown() {
 <a href="https://photo.felle.me/Furries/Cons/midwest-furfest/2023">Photos</a>
 EOF
 
-    # Create minimal mock cons HTML
-    mkdir -p "$(dirname "$TEST_HTML")/../../public/cons"
-    cp "$TEST_HTML" "$(dirname "$TEST_HTML")/../../public/cons/index.html" 2>/dev/null || true
-
     # This test verifies the URL format is recognized
     output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[^"]*' "$TEST_HTML")
     [[ "$output" == "https://photo.felle.me/Furries/Cons/midwest-furfest/2023" ]]
