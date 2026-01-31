@@ -180,7 +180,7 @@
             {{- range $index, $con := $past }}
             <div class="con-entry past">
                 <div class="con-main-content">
-                    <h2 class="con-title"><a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}" title="View all photos" target="_blank" rel="noopener noreferrer">{{ $con.Title }}</a></h2>
+                    <h2 class="con-title"><a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}" title="View all photos (opens in new tab)" target="_blank" rel="noopener noreferrer">{{ $con.Title }}</a></h2>
                     <p class="con-dates">
                         {{- $nowYear := $now.Format "2006" | int }}
                         {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
@@ -217,20 +217,20 @@
 
                         {{- /* Display past attendee years with links */}}
                         {{- if gt (len $pastYears) 0 }}
-                        {{- range $i, $year := $pastYears }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ $year }}" title="View photos" target="_blank" rel="noopener noreferrer">{{ $year }}</a>{{- end }}
+                        {{- range $i, $year := $pastYears }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ $year }}" title="View photos (opens in new tab)" target="_blank" rel="noopener noreferrer">{{ $year }}</a>{{- end }}
                         {{- end }}
 
                         {{- /* Display past staff years with links */}}
                         {{- if gt (len $pastStaff) 0 }}
-                        {{- if gt (len $pastYears) 0 }} • {{ end }}<span class="staff-badge">Staff: {{- range $i, $year := $pastStaff }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ $year }}" title="View photos" class="staff-badge-link" target="_blank" rel="noopener noreferrer">{{ $year }}</a>{{- end }}</span>
+                        {{- if gt (len $pastYears) 0 }} • {{ end }}<span class="staff-badge">Staff: {{- range $i, $year := $pastStaff }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ $year }}" title="View photos (opens in new tab)" class="staff-badge-link" target="_blank" rel="noopener noreferrer">{{ $year }}</a>{{- end }}</span>
                         {{- end }}
 
                         {{- /* Fallback if no years found */}}
                         {{- if and (eq (len $pastYears) 0) (eq (len $pastStaff) 0) }}
                         {{- if $con.Params.pastYears }}
-                        {{- range $i, $year := split $con.Params.pastYears ", " }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ trim $year " " }}" title="View photos" target="_blank" rel="noopener noreferrer">{{ trim $year " " }}</a>{{- end }}
+                        {{- range $i, $year := split $con.Params.pastYears ", " }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ trim $year " " }}" title="View photos (opens in new tab)" target="_blank" rel="noopener noreferrer">{{ trim $year " " }}</a>{{- end }}
                         {{- else }}
-                        <a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ $conYear }}" title="View photos" target="_blank" rel="noopener noreferrer">{{ $conYear }}</a>
+                        <a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ $conYear }}" title="View photos (opens in new tab)" target="_blank" rel="noopener noreferrer">{{ $conYear }}</a>
                         {{- end }}
                         {{- end }}
                     </p>
@@ -243,7 +243,7 @@
                     {{- end }}
                 </div>
             </div>
-            {{- if or (ne $index (sub (len $past) 1)) ($upcoming) }}
+            {{- if ne $index (sub (len $past) 1) }}
             <hr class="con-separator">
             {{- end }}
             {{- end }}

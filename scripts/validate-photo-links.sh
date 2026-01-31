@@ -1,6 +1,14 @@
 #!/bin/bash
 
 # Validation script for photo.felle.me links in cons page
+# This script is used by the pre-commit "validate-photo-links" hook with `language: script`,
+# so it must have the executable bit set or the hook will fail.
+# Ensure it is executable with: chmod +x scripts/validate-photo-links.sh
+#
+# Note: This script validates URL format only (alphanumeric segments with hyphens, 4-digit years).
+# It does NOT verify that photo directories actually exist on photo.felle.me.
+# This is intentional - directory existence checks would require HTTP requests and add overhead.
+# To fully validate URLs, use: curl -s -o /dev/null -w "%{http_code}" <url>
 
 echo "Validating photo.felle.me links..."
 
