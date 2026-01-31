@@ -113,7 +113,7 @@
             {{- range $index, $con := $upcoming }}
             <div class="con-entry">
                 <div class="con-main-content">
-                    <h2 class="con-title"><a href="{{ $con.RelPermalink }}">{{ $con.Title }}</a></h2>
+                    <h2 class="con-title">{{ $con.Title }}</h2>
                     <p class="con-dates">
                         {{- $nowYear := $now.Format "2006" | int }}
                         {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
@@ -150,7 +150,7 @@
                         {{- delimit $futureAttendeeYears ", " }}
                         {{- end }}
                         {{- else }}
-                        <a href="https://photo.felle.me/Furries/Cons/{{ partial "normalize-con-name.html" $con.Title }}/{{ $conYear }}" title="View photos">{{ $conYear }}</a>
+                        {{ $conYear }}
                         {{- end }}
                     </p>
                 </div>
