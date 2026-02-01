@@ -1,0 +1,17 @@
+name: Monthly Site Rebuild
+
+on:
+  schedule:
+    # Run at 00:00 UTC on the 1st of every month
+    - cron: "0 0 1 * *"
+  workflow_dispatch: # Allow manual triggering for testing
+
+jobs:
+  trigger-rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages Rebuild
+        run: |
+          curl -X POST "${{ secrets.CLOUDFLARE_PAGES_BUILD_WEBHOOK }}" \
+            -H "Content-Type: application/json" \
+            -d '{}'
