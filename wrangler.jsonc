@@ -11,5 +11,10 @@
   },
   "build": {
     "command": "hugo --minify"
+  },
+  "triggers": {
+    "crons": [
+      "0 0 1 * *"
+    ]
   }
 }
