@@ -19,7 +19,7 @@ jobs:
             echo "Please configure the secret in repository settings"
             exit 1
           fi
-          
+
           curl -f -s -S -X POST "$WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d '{}'
