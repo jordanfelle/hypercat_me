@@ -34,17 +34,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "24"
-          cache: 'npm'
-
-      - name: Cache Hugo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/hugo_extended/
-            /tmp/hugo
-          key: hugo-${{ runner.os }}-0.154.5
-          restore-keys: |
-            hugo-${{ runner.os }}-
 
       - name: Set up Hugo
         uses: peaceiris/actions-hugo@v3
@@ -103,7 +92,7 @@ jobs:
         run: bash scripts/validate-photo-links.sh
 
       - name: Validate HTML structure
-        if: github.event_name == 'push' && steps.pre-commit.outcome != 'failure'
+        if: steps.pre-commit.outcome != 'failure'
         run: |
           if ! command -v tidy &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y tidy
@@ -111,7 +100,14 @@ jobs:
           # Only validate a sample of critical pages for faster checks
           for file in public/index.html public/cons/index.html public/sona/index.html; do
             if [ -f "$file" ]; then
-              tidy -q -e "$file" 2>&1 | head -10 || true
+              echo "Validating $file..."
+              tidy_output="$(tidy -q -e "$file" 2>&1)"
+              tidy_status=$?
+              printf '%s\n' "$tidy_output" | head -10
+              if [ $tidy_status -ne 0 ]; then
+                echo "HTML validation failed for $file"
+                exit $tidy_status
+              fi
             fi
           done
           echo "HTML validation completed"
@@ -121,11 +117,11 @@ jobs:
         run: bash scripts/validate-config.sh
 
       - name: Validate internal links
-        if: github.event_name == 'push' && steps.pre-commit.outcome != 'failure'
+        if: steps.pre-commit.outcome != 'failure'
         run: bash scripts/validate-links.sh
 
       - name: Run BATS tests
-        if: github.event_name == 'push' && steps.pre-commit.outcome != 'failure'
+        if: steps.pre-commit.outcome != 'failure'
         run: |
           npm install -g bats
           bats tests/validate-photo-links.bats
