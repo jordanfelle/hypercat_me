@@ -51,30 +51,17 @@ jobs:
           pre-commit run --all-files
           pre-commit run --all-files --hook-stage pre-push
 
-      - name: Commit and push fixes
-        if: steps.pre-commit.outcome == 'failure' && github.event_name == 'push'
+      - name: Show diff if pre-commit made changes
+        if: steps.pre-commit.outcome == 'failure'
         run: |
-          if git diff --quiet; then
-            echo "No changes to commit"
-          else
-            git add -A
-            git commit -m "chore: auto-fix issues with pre-commit hooks"
-            git push
-          fi
-
-      - name: Re-run pre-commit after fixes
-        if: steps.pre-commit.outcome == 'failure' && github.event_name == 'push'
-        id: pre-commit-after-fix
-        continue-on-error: true
-        run: |
-          pre-commit run --all-files
-          pre-commit run --all-files --hook-stage pre-push
+          echo "Pre-commit hooks made the following changes:"
+          git diff
 
       - name: Fail if pre-commit found issues
-        if: >
-          steps.pre-commit.outcome == 'failure' &&
-          (github.event_name != 'push' || steps.pre-commit-after-fix.outcome == 'failure')
-        run: exit 1
+        if: steps.pre-commit.outcome == 'failure'
+        run: |
+          echo "❌ Pre-commit checks failed. Please run 'pre-commit run --all-files' locally and commit the fixes."
+          exit 1
 
       - name: Build Hugo site
         if: steps.pre-commit.outcome != 'failure'
