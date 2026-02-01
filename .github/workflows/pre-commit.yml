@@ -54,8 +54,12 @@ jobs:
       - name: Show diff if pre-commit made changes
         if: steps.pre-commit.outcome == 'failure'
         run: |
-          echo "Pre-commit hooks made the following changes:"
-          git diff
+          if ! git diff --quiet; then
+            echo "Pre-commit hooks made the following changes:"
+            git diff
+          else
+            echo "Pre-commit checks failed but no file changes were made."
+          fi
 
       - name: Fail if pre-commit found issues
         if: steps.pre-commit.outcome == 'failure'
