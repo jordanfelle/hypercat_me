@@ -54,17 +54,22 @@ jobs:
       - name: Show diff if pre-commit made changes
         if: steps.pre-commit.outcome == 'failure'
         run: |
-          if ! git diff --quiet; then
-            echo "Pre-commit hooks made the following changes:"
-            git diff
+          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo "Pre-commit checks failed, but no file changes (including untracked files) were detected."
           else
-            echo "Pre-commit checks failed but no file changes were made."
+            echo "Pre-commit hooks made the following changes (including any new/untracked files):"
+            git diff HEAD || true
+            echo
+            echo "Git status (including untracked files):"
+            git status --porcelain || true
           fi
 
       - name: Fail if pre-commit found issues
         if: steps.pre-commit.outcome == 'failure'
         run: |
-          echo "❌ Pre-commit checks failed. Please run 'pre-commit run --all-files' locally and commit the fixes."
+          echo "❌ Pre-commit checks failed. Please run the following commands locally and commit the fixes:"
+          echo "  - pre-commit run --all-files"
+          echo "  - pre-commit run --all-files --hook-stage pre-push"
           exit 1
 
       - name: Build Hugo site
