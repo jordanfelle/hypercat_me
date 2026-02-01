@@ -10,8 +10,17 @@ jobs:
   trigger-rebuild:
     runs-on: ubuntu-latest
     steps:
+      - name: Validate webhook secret
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_PAGES_BUILD_WEBHOOK }}" ]; then
+            echo "Error: CLOUDFLARE_PAGES_BUILD_WEBHOOK secret is not set"
+            echo "Please configure the secret in repository settings"
+            exit 1
+          fi
+
       - name: Trigger Cloudflare Pages Rebuild
         run: |
-          curl -X POST "${{ secrets.CLOUDFLARE_PAGES_BUILD_WEBHOOK }}" \
+          curl -f -s -S -X POST "${{ secrets.CLOUDFLARE_PAGES_BUILD_WEBHOOK }}" \
             -H "Content-Type: application/json" \
             -d '{}'
+          echo "Build webhook triggered successfully"
