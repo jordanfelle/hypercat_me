@@ -1,0 +1,64 @@
+{{- /*
+  Responsive image shortcode with lazy loading and automatic srcset generation
+
+  Usage:
+    {{< img src="path/to/image.jpg" alt="Image description" >}}
+    {{< img src="path/to/image.jpg" alt="Image description" title="Image title" class="custom-class" >}}
+
+  Parameters:
+    - src: Path to the image (required)
+    - alt: Alt text (required)
+    - title: Optional title
+    - class: Optional CSS class
+    - width: Optional width for aspect ratio preservation
+    - height: Optional height for aspect ratio preservation
+*/ -}}
+
+{{- $src := .Get "src" -}}
+{{- $alt := .Get "alt" -}}
+{{- $title := .Get "title" -}}
+{{- $class := .Get "class" | default "" -}}
+{{- $width := .Get "width" -}}
+{{- $height := .Get "height" -}}
+
+{{- if not $src -}}
+  {{- errorf "img shortcode requires 'src' parameter" -}}
+{{- end -}}
+
+{{- if not $alt -}}
+  {{- errorf "img shortcode requires 'alt' parameter" -}}
+{{- end -}}
+
+{{- $img := resources.Get $src -}}
+{{- if not $img -}}
+  {{- errorf "Image not found: %s" $src -}}
+{{- end -}}
+
+{{- /* Generate responsive sizes */ -}}
+{{- $small := $img.Resize "480x" -}}
+{{- $medium := $img.Resize "800x" -}}
+{{- $large := $img.Resize "1200x" -}}
+{{- $original := $img -}}
+
+{{- /* Get dimensions for aspect ratio */ -}}
+{{- $w := or $width ($img.Width | default 1200) -}}
+{{- $h := or $height ($img.Height | default 800) -}}
+{{- $aspectRatio := div $h $w -}}
+
+<img
+  src="{{ $small.RelPermalink }}"
+  srcset="
+    {{ $small.RelPermalink }} 480w,
+    {{ $medium.RelPermalink }} 800w,
+    {{ $large.RelPermalink }} 1200w{{ if ge $original.Width 1200 }},
+    {{ $original.RelPermalink }} {{ $original.Width }}w{{ end }}"
+  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px"
+  alt="{{ $alt }}"
+  {{- if $title }} title="{{ $title }}"{{ end }}
+  {{- if $class }} class="responsive-img {{ $class }}"{{ else }} class="responsive-img"{{ end }}
+  loading="lazy"
+  decoding="async"
+  width="{{ $w }}"
+  height="{{ $h }}"
+  style="aspect-ratio: {{ $w }} / {{ $h }};"
+/>
