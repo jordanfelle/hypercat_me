@@ -47,12 +47,7 @@ Deployments are handled automatically by Cloudflare Pages when changes are pushe
 
 The site is automatically rebuilt on the 1st of each month using a GitHub Actions workflow ([`.github/workflows/monthly-rebuild.yml`](.github/workflows/monthly-rebuild.yml)). This ensures that dynamic content (like age calculations) stays up-to-date.
 
-To enable this workflow, you need to configure a GitHub secret:
-
-1. In your Cloudflare Pages project, go to Settings > Builds & deployments
-2. Find and copy your Build Hook URL (create one if it doesn't exist)
-3. In your GitHub repository, go to Settings > Secrets and variables > Actions
-4. Create a new repository secret named `CLOUDFLARE_PAGES_BUILD_WEBHOOK` with the Build Hook URL as its value
+The workflow creates an empty commit to the main branch, which automatically triggers Cloudflare Pages to rebuild the site. No additional configuration is needed - the workflow uses the standard GitHub token with write permissions to the repository.
 
 The workflow can also be triggered manually from the Actions tab for testing purposes.
 
