@@ -108,7 +108,7 @@ repos:
         entry: ./scripts/validate-photo-links.sh
         language: script
         pass_filenames: false
-        files: ^(content/cons/|content/layouts/.*cons|content/public/cons)
+        files: ^(content/content/cons/|content/themes/.*/cons\.html|content/public/cons)
         stages: [pre-push]
         require_serial: true
 

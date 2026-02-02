@@ -26,7 +26,7 @@ teardown() {
 EOF
 
     # This test verifies the URL format is recognized
-    output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[^"]*' "$TEST_HTML")
+    output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[a-zA-Z0-9/_-]*' "$TEST_HTML")
     [[ "$output" == "https://photo.felle.me/Furries/Cons/midwest-furfest/2023" ]]
 }
 
@@ -36,7 +36,7 @@ EOF
 <a href="https://photo.felle.me/Furries/Cons/anthrocon">Photos</a>
 EOF
 
-    output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[^"]*' "$TEST_HTML")
+    output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[a-zA-Z0-9/_-]*' "$TEST_HTML")
     [[ "$output" == "https://photo.felle.me/Furries/Cons/anthrocon" ]]
 }
 
@@ -46,7 +46,7 @@ EOF
 <a href="https://photo.felle.me/Furries/Cons/fur-the-more/2023">Photos</a>
 EOF
 
-    output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[^"]*' "$TEST_HTML")
+    output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[a-zA-Z0-9/_-]*' "$TEST_HTML")
     [[ "$output" == "https://photo.felle.me/Furries/Cons/fur-the-more/2023" ]]
 }
 
@@ -57,7 +57,7 @@ EOF
 <a href="https://photo.felle.me/Furries/Cons/midwest-furfest/2023">MFF 2023</a>
 EOF
 
-    output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[^"]*' "$TEST_HTML" | sort -u)
+    output=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[a-zA-Z0-9/_-]*' "$TEST_HTML" | sort -u)
     count=$(echo "$output" | wc -l)
     [[ "$count" -eq 2 ]]
 }
