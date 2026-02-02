@@ -105,7 +105,7 @@ def strip_jsonc_comments(text: str) -> str:
             i += 1
             continue
 
-        if ch in ('"', "'"):
+        if ch == '"':
             in_string = True
             string_quote = ch
             result.append(ch)
