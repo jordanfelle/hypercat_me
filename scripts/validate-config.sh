@@ -58,9 +58,92 @@ validate_jsonc() {
         return 1
     fi
 
-    # Basic JSONC validation - check for common syntax errors
-    # Remove comments and check for valid JSON structure
-    if ! grep -v '^\s*//' "$file" | python3 -m json.tool &>/dev/null; then
+    # JSONC validation - strip comments and check for valid JSON structure
+    # This handles line comments (//), block comments (* ... */), and inline comments
+    if ! python3 - "$file" &>/dev/null << 'PYCODE'
+import sys
+import json
+
+def strip_jsonc_comments(text: str) -> str:
+    result = []
+    i = 0
+    n = len(text)
+    in_string = False
+    string_quote = None
+    escape = False
+    in_line_comment = False
+    in_block_comment = False
+
+    while i < n:
+        ch = text[i]
+        nxt = text[i + 1] if i + 1 < n else ''
+
+        if in_line_comment:
+            if ch == '\n':
+                in_line_comment = False
+                result.append(ch)
+            i += 1
+            continue
+
+        if in_block_comment:
+            if ch == '*' and nxt == '/':
+                in_block_comment = False
+                i += 2
+            else:
+                i += 1
+            continue
+
+        if in_string:
+            result.append(ch)
+            if escape:
+                escape = False
+            elif ch == '\\':
+                escape = True
+            elif ch == string_quote:
+                in_string = False
+                string_quote = None
+            i += 1
+            continue
+
+        if ch in ('"', "'"):
+            in_string = True
+            string_quote = ch
+            result.append(ch)
+            i += 1
+            continue
+
+        if ch == '/' and nxt == '/':
+            in_line_comment = True
+            i += 2
+            continue
+
+        if ch == '/' and nxt == '*':
+            in_block_comment = True
+            i += 2
+            continue
+
+        result.append(ch)
+        i += 1
+
+    return ''.join(result)
+
+def main() -> int:
+    if len(sys.argv) < 2:
+        return 1
+    path = sys.argv[1]
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            text = f.read()
+        stripped = strip_jsonc_comments(text)
+        json.loads(stripped)
+        return 0
+    except Exception:
+        return 1
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+PYCODE
+    then
         echo "❌ $file has invalid JSON syntax"
         ((ERRORS++))
         return 1
