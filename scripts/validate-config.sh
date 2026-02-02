@@ -49,11 +49,32 @@ validate_toml() {
     return 0
 }
 
+# Function to validate JSONC (JSON with comments) files
+validate_jsonc() {
+    local file="$1"
+    if [ ! -f "$file" ]; then
+        echo "❌ Missing required file: $file"
+        ((ERRORS++))
+        return 1
+    fi
+
+    # Basic JSONC validation - check for common syntax errors
+    # Remove comments and check for valid JSON structure
+    if ! grep -v '^\s*//' "$file" | python3 -m json.tool &>/dev/null; then
+        echo "❌ $file has invalid JSON syntax"
+        ((ERRORS++))
+        return 1
+    fi
+
+    echo "✓ $file is valid"
+    return 0
+}
+
 # Validate Hugo configuration
 validate_yaml "content/hugo.yaml" || true
 
 # Validate wrangler configuration
-validate_toml "wrangler.jsonc" || true
+validate_jsonc "wrangler.jsonc" || true
 
 # Validate pre-commit configuration
 validate_yaml ".pre-commit-config.yaml" || true
