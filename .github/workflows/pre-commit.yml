@@ -55,7 +55,7 @@ jobs:
           path: content/resources/_gen
           key: >-
             ${{ runner.os }}-hugo-resources-${{
-            hashFiles('content/content/**', 'content/assets/**', 'content/hugo.yaml') }}
+            hashFiles('content/**', 'content/assets/**', 'content/hugo.yaml') }}
           restore-keys: |
             ${{ runner.os }}-hugo-resources-
 
@@ -95,6 +95,7 @@ jobs:
         run: |
           echo "Building Hugo site..."
           cd content
+          npm install
           npm run build
           if [ ! -d "public" ] || [ ! -f "public/index.html" ]; then
             echo "Error: Hugo build failed - public/index.html not found"
