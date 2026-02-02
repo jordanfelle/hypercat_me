@@ -101,7 +101,7 @@ repos:
         entry: bash -c 'cd content && npm run build'
         language: system
         pass_filenames: false
-        files: ^(content/content/|content/layouts/|content/assets/|content/static/|content/themes/|content/hugo\.yaml)
+        files: ^(content/(content|layouts|assets|themes|hugo\.yaml))
         stages: [pre-push]
       - id: validate-photo-links
         name: Validate photo.felle.me links
