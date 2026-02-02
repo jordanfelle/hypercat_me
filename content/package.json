@@ -5,8 +5,5 @@
   "scripts": {
     "build": "hugo --minify",
     "dev": "hugo server --disableFastRender"
-  },
-  "devDependencies": {
-    "hugo-bin": "^0.120.0"
   }
 }
