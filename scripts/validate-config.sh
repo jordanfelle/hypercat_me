@@ -50,7 +50,7 @@ validate_toml() {
 }
 
 # Validate Hugo configuration
-validate_yaml "hugo.yaml" || true
+validate_yaml "content/hugo.yaml" || true
 
 # Validate wrangler configuration
 validate_toml "wrangler.jsonc" || true
@@ -60,9 +60,10 @@ validate_yaml ".pre-commit-config.yaml" || true
 
 # Check for required directories
 required_dirs=(
-    "content"
-    "layouts"
-    "assets"
+    "content/content/cons"
+    "content/content/sona"
+    "content/layouts"
+    "content/assets"
 )
 
 for dir in "${required_dirs[@]}"; do

@@ -11,7 +11,7 @@ buildFuture: true
 buildExpired: false
 enableEmoji: true
 pygmentsUseClasses: true
-mainsections: ["posts", "papermod"]
+mainsections: ["posts", "papermod", "cons", "sona"]
 
 minify:
   disableXML: true
@@ -49,6 +49,10 @@ outputs:
   home:
     - HTML
     - JSON
+  page:
+    - HTML
+  section:
+    - HTML
 
 params:
   env: production

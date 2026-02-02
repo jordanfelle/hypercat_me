@@ -15,12 +15,12 @@
 
 echo "Validating photo.felle.me links..."
 
-CONS_HTML="public/cons/index.html"
+CONS_HTML="content/public/cons/index.html"
 ERRORS=0
 
 if [ ! -f "$CONS_HTML" ]; then
     echo "Warning: $CONS_HTML not found. Running hugo build..."
-    hugo || {
+    cd content && npm run build && cd .. || {
         echo "Error: Hugo build failed."
         exit 1
     }

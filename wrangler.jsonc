@@ -7,9 +7,10 @@
     "mode": "smart"
   },
   "assets": {
-    "directory": "./public"
+    "directory": "./content/public"
   },
   "build": {
-    "command": "hugo --minify"
+    "command": "npm run build",
+    "cwd": "./content"
   }
 }

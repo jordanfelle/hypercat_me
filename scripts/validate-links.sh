@@ -5,7 +5,7 @@
 
 echo "Validating links in built site..."
 
-BUILD_DIR="public"
+BUILD_DIR="content/public"
 ERRORS=0
 
 if [ ! -d "$BUILD_DIR" ]; then
