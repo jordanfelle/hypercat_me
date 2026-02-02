@@ -17,7 +17,6 @@
 ![code-size](https://img.shields.io/github/languages/code-size/adityatelange/hugo-PaperMod)
 [![X (formerly Twitter) URL](https://img.shields.io/badge/-Share%20on%20X-gray?style=flat&logo=x)](https://x.com/intent/tweet/?text=Checkout%20Hugo%20PaperMod%20%E2%9C%A8%0AA%20fast,%20clean,%20responsive%20Hugo%20theme.&url=https://github.com/adityatelange/hugo-PaperMod&hashtags=Hugo,PaperMod)
 
-
 ---
 
 <p align="center">
@@ -28,27 +27,27 @@
 
 ## Features/Mods 💥
 
--   Uses Hugo's asset generator with pipelining, fingerprinting, bundling and minification by default.
--   3 Modes:
-    -   [Regular Mode.](https://github.com/adityatelange/hugo-PaperMod/wiki/Features#regular-mode-default-mode)
-    -   [Home-Info Mode.](https://github.com/adityatelange/hugo-PaperMod/wiki/Features#home-info-mode)
-    -   [Profile Mode.](https://github.com/adityatelange/hugo-PaperMod/wiki/Features#profile-mode)
--   Table of Content Generation (newer implementation).
--   Archive of posts.
--   Social Icons (home-info and profile-mode).
--   Social-Media Share buttons on posts.
--   Menu location indicator.
--   Multilingual support. (with language selector).
--   Taxonomies.
--   Cover image for each post (with Responsive image support).
--   Light/Dark theme (automatic theme switch a/c to browser theme and theme-switch button).
--   SEO Friendly.
--   Multiple Author support.
--   Other Posts suggestion below a post
--   Breadcrumb Navigation.
--   Code Block Copy buttons.
--   Hugo's Chroma syntax highlighter.
--   No webpack, nodejs and other dependencies are required to edit the theme.
+- Uses Hugo's asset generator with pipelining, fingerprinting, bundling and minification by default.
+- 3 Modes:
+  - [Regular Mode.](https://github.com/adityatelange/hugo-PaperMod/wiki/Features#regular-mode-default-mode)
+  - [Home-Info Mode.](https://github.com/adityatelange/hugo-PaperMod/wiki/Features#home-info-mode)
+  - [Profile Mode.](https://github.com/adityatelange/hugo-PaperMod/wiki/Features#profile-mode)
+- Table of Content Generation (newer implementation).
+- Archive of posts.
+- Social Icons (home-info and profile-mode).
+- Social-Media Share buttons on posts.
+- Menu location indicator.
+- Multilingual support. (with language selector).
+- Taxonomies.
+- Cover image for each post (with Responsive image support).
+- Light/Dark theme (automatic theme switch a/c to browser theme and theme-switch button).
+- SEO Friendly.
+- Multiple Author support.
+- Other Posts suggestion below a post
+- Breadcrumb Navigation.
+- Code Block Copy buttons.
+- Hugo's Chroma syntax highlighter.
+- No webpack, nodejs and other dependencies are required to edit the theme.
 
 Read Wiki For More Details => **[PaperMod - Features](https://github.com/adityatelange/hugo-PaperMod/wiki/Features)**
 
@@ -84,18 +83,18 @@ Release ChangeLog has info about stuff added: **[Releases](https://github.com/ad
 
 ## Support 🫶
 
--   Star 🌟 this repository.
--   Help spread the word about PaperMod by sharing it on social media and recommending it to your friends. 🗣️
--   You can also sponsor 🏅 on [Github Sponsors](https://github.com/sponsors/adityatelange) / [Ko-Fi](https://ko-fi.com/adityatelange).
+- Star 🌟 this repository.
+- Help spread the word about PaperMod by sharing it on social media and recommending it to your friends. 🗣️
+- You can also sponsor 🏅 on [Github Sponsors](https://github.com/sponsors/adityatelange) / [Ko-Fi](https://ko-fi.com/adityatelange).
 
 ---
 
 ## Special Thanks 🌟
 
--   [**Highlight.js**](https://github.com/highlightjs/highlight.js)
--   [**Feather Icons**](https://github.com/feathericons/feather)
--   [**Simple Icons**](https://github.com/simple-icons/simple-icons)
--   **All Contributors and Supporters**
+- [**Highlight.js**](https://github.com/highlightjs/highlight.js)
+- [**Feather Icons**](https://github.com/feathericons/feather)
+- [**Simple Icons**](https://github.com/simple-icons/simple-icons)
+- **All Contributors and Supporters**
 
 ---
 

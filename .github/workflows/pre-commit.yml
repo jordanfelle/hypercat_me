@@ -30,6 +30,14 @@ jobs:
         with:
           python-version: "3.14"
 
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
@@ -40,6 +48,17 @@ jobs:
         with:
           hugo-version: "0.154.5"
           extended: true
+
+      - name: Cache Hugo resources
+        uses: actions/cache@v4
+        with:
+          path: content/resources/_gen
+          key: >-
+            ${{ runner.os }}-hugo-resources-${{
+            hashFiles('content/**', 'content/assets/**',
+            'content/hugo.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-hugo-resources-
 
       - name: Install pre-commit
         run: pip install pre-commit
@@ -76,11 +95,14 @@ jobs:
         if: steps.pre-commit.outcome != 'failure'
         run: |
           echo "Building Hugo site..."
-          hugo
+          cd content
+          npm install
+          npm run build
           if [ ! -d "public" ] || [ ! -f "public/index.html" ]; then
             echo "Error: Hugo build failed - public/index.html not found"
             exit 1
           fi
+          cd ..
           echo "Build successful"
 
       - name: Validate photo links
@@ -93,7 +115,7 @@ jobs:
           if ! command -v tidy &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y tidy
           fi
-          find public -name '*.html' -type f | head -20 | while read -r file; do
+          find content/public -name '*.html' -type f | head -20 | while read -r file; do
             tidy -q -e "$file" 2>&1 | head -5
           done
           echo "HTML validation completed"

@@ -23,9 +23,11 @@ _testmain.go
 *.test
 
 /public
+content/public
 .DS_Store
 .hugo_build.lock
 resources/_gen/
+content/resources/_gen/
 *.tar.gz
 
 # Hugo installation files

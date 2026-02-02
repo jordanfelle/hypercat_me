@@ -15,12 +15,12 @@
 
 echo "Validating photo.felle.me links..."
 
-CONS_HTML="public/cons/index.html"
+CONS_HTML="content/public/cons/index.html"
 ERRORS=0
 
 if [ ! -f "$CONS_HTML" ]; then
     echo "Warning: $CONS_HTML not found. Running hugo build..."
-    hugo || {
+    cd content && npm run build && cd .. || {
         echo "Error: Hugo build failed."
         exit 1
     }
@@ -35,7 +35,8 @@ if [ ! -f "$CONS_HTML" ]; then
 fi
 
 # Extract all photo.felle.me URLs
-LINKS=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[^"]*' "$CONS_HTML" | sort -u)
+# Only match valid URL characters (alphanumeric, hyphens, slashes, digits)
+LINKS=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[a-zA-Z0-9/_-]*' "$CONS_HTML" | sort -u)
 
 # If no links are found, skip validation to avoid processing an empty string as a link
 if [ -z "$LINKS" ]; then

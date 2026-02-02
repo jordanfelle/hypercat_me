@@ -1,0 +1,9 @@
+{
+  "name": "hypercat-site",
+  "version": "1.0.0",
+  "description": "hypercat.me static site",
+  "scripts": {
+    "build": "hugo --minify",
+    "dev": "hugo server --disableFastRender"
+  }
+}
