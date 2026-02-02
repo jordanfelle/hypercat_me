@@ -15,7 +15,7 @@
 
 echo "Validating photo.felle.me links..."
 
-CONS_HTML="public/cons/index.html"
+CONS_HTML="content/public/cons/index.html"
 ERRORS=0
 
 if [ ! -f "$CONS_HTML" ]; then

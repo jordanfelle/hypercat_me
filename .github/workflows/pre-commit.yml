@@ -52,8 +52,10 @@ jobs:
       - name: Cache Hugo resources
         uses: actions/cache@v4
         with:
-          path: resources/_gen
-          key: ${{ runner.os }}-hugo-resources-${{ hashFiles('content/**', 'assets/**', 'hugo.yaml') }}
+          path: content/resources/_gen
+          key: >-
+            ${{ runner.os }}-hugo-resources-${{
+            hashFiles('content/content/**', 'content/assets/**', 'content/hugo.yaml') }}
           restore-keys: |
             ${{ runner.os }}-hugo-resources-
 
@@ -92,11 +94,13 @@ jobs:
         if: steps.pre-commit.outcome != 'failure'
         run: |
           echo "Building Hugo site..."
-          hugo
+          cd content
+          npm run build
           if [ ! -d "public" ] || [ ! -f "public/index.html" ]; then
             echo "Error: Hugo build failed - public/index.html not found"
             exit 1
           fi
+          cd ..
           echo "Build successful"
 
       - name: Validate photo links
@@ -109,7 +113,7 @@ jobs:
           if ! command -v tidy &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y tidy
           fi
-          find public -name '*.html' -type f | head -20 | while read -r file; do
+          find content/public -name '*.html' -type f | head -20 | while read -r file; do
             tidy -q -e "$file" 2>&1 | head -5
           done
           echo "HTML validation completed"
