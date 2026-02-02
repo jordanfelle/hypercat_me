@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: resources/_gen
-          key: ${{ runner.os }}-hugo-resources-${{ hashFiles('content/**', 'assets/**', 'config/**') }}
+          key: ${{ runner.os }}-hugo-resources-${{ hashFiles('content/**', 'assets/**', 'hugo.yaml') }}
           restore-keys: |
             ${{ runner.os }}-hugo-resources-
 
