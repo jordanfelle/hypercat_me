@@ -59,7 +59,7 @@ validate_jsonc() {
     fi
 
     # JSONC validation - strip comments and check for valid JSON structure
-    # This handles line comments (//), block comments (* ... */), and inline comments
+    # This handles line comments (//), block comments (/* ... */), and inline comments
     if ! python3 - "$file" &>/dev/null << 'PYCODE'
 import sys
 import json
