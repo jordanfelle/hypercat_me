@@ -35,7 +35,8 @@ if [ ! -f "$CONS_HTML" ]; then
 fi
 
 # Extract all photo.felle.me URLs
-LINKS=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[^"]*' "$CONS_HTML" | sort -u)
+# Only match valid URL characters (alphanumeric, hyphens, slashes, digits)
+LINKS=$(grep -o 'https://photo\.felle\.me/Furries/Cons/[a-zA-Z0-9/_-]*' "$CONS_HTML" | sort -u)
 
 # If no links are found, skip validation to avoid processing an empty string as a link
 if [ -z "$LINKS" ]; then
