@@ -34,3 +34,4 @@ content/resources/_gen/
 hugo_extended_*.tar.gz
 hugo
 LICENSE
+node_modules/**
