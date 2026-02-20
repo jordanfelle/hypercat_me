@@ -18,7 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 1
+          ref: ${{ github.head_ref || github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Set up Git
         run: |
@@ -83,13 +85,18 @@ jobs:
             git status --porcelain || true
           fi
 
-      - name: Fail if pre-commit found issues
+      - name: Commit and push fixes
         if: steps.pre-commit.outcome == 'failure'
         run: |
-          echo "❌ Pre-commit checks failed. Please run the following commands locally and commit the fixes:"
-          echo "  - pre-commit run --all-files"
-          echo "  - pre-commit run --all-files --hook-stage pre-push"
-          exit 1
+          if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "Fix pre-commit issues [skip ci]"
+            git push
+            echo "✅ Pre-commit fixes committed and pushed"
+          else
+            echo "❌ Pre-commit checks failed but no fixes were applied"
+            exit 1
+          fi
 
       - name: Build Hugo site
         if: steps.pre-commit.outcome != 'failure'
