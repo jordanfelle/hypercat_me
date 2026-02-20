@@ -3,7 +3,7 @@
 # Run manually: pre-commit run --all-files
 
 repos:
-  # Block pushes to main branch
+  # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -11,11 +11,6 @@ repos:
         name: Block push to main
         stages: [pre-push]
         args: ['--branch', 'main']
-
-  # General file checks
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
       - id: trailing-whitespace
         name: Trim trailing whitespace
         exclude: ^(content/resources/|content/public/|content/themes/)

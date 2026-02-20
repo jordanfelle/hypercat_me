@@ -68,9 +68,7 @@ jobs:
       - name: Run pre-commit checks
         id: pre-commit
         continue-on-error: true
-        run: |
-          pre-commit run --all-files
-          pre-commit run --all-files --hook-stage pre-push
+        run: pre-commit run --all-files
 
       - name: Show diff if pre-commit made changes
         if: steps.pre-commit.outcome == 'failure'
