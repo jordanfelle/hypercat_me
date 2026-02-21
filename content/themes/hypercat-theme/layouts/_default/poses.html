@@ -220,8 +220,12 @@
             
             // Style description as badge on image
             function styleDescription() {
-                var desc = document.querySelector('.gslide-description');
-                var media = document.querySelector('.gslide-media');
+                // Target the active slide's description, not just the first one
+                var activeSlide = document.querySelector('.gslide-active');
+                if (!activeSlide) return;
+                
+                var desc = activeSlide.querySelector('.gslide-description');
+                var media = activeSlide.querySelector('.gslide-media');
                 if (desc && media && desc.parentElement !== media) {
                     media.appendChild(desc);
                 }
