@@ -45,7 +45,13 @@ for dir in "${ordered_dirs[@]}"; do
             invalid_name=true
             break
         fi
-        printf '%s\t%s\n' "$(hash_file "$file")" "$file" >> "$temp_list"
+        # Compute file hash with error handling
+        file_hash=$(hash_file "$file") || {
+            echo "Error: failed to hash file: $file"
+            invalid_name=true
+            break
+        }
+        printf '%s\t%s\n' "$file_hash" "$file" >> "$temp_list"
     done < <(find "$full_dir" -type f \
         \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
         -print0)

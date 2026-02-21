@@ -13,12 +13,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Check for conversion loop
+        id: loop-check
+        run: |
+          last_commit=$(git log -1 --pretty=%s)
+          if [ "$last_commit" = "Automated image conversion to webp and avif" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "⏭️  Skipping conversion: last commit was already converted"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install dependencies
+        if: steps.loop-check.outputs.skip == 'false'
         run: |
           sudo apt-get update
           sudo apt-get install -y webp aom-tools
 
       - name: Run convert script
+        if: steps.loop-check.outputs.skip == 'false'
         id: convert
         run: |
           set +e
@@ -37,6 +50,7 @@ jobs:
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
 
       - name: Commit files
+        if: steps.loop-check.outputs.skip == 'false' && steps.convert.outputs.exit_code == '1'
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -47,3 +61,10 @@ jobs:
           else
             echo "No image conversions made."
           fi
+
+      - name: Trigger pre-commit on main
+        if: steps.loop-check.outputs.skip == 'false' && steps.convert.outputs.exit_code == '1'
+        run: |
+          gh workflow run pre-commit.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -13,7 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Check for rename loop
+        id: loop-check
+        run: |
+          last_commit=$(git log -1 --pretty=%s)
+          if [ "$last_commit" = "Automated rename of pose images" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "⏭️  Skipping rename: last commit was already renamed"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Run rename script
+        if: steps.loop-check.outputs.skip == 'false'
         id: rename
         run: |
           set +e
@@ -24,13 +36,16 @@ jobs:
         continue-on-error: true
 
       - name: Fail on unexpected rename errors
-        if: steps.rename.outputs.exit_code != '0' && steps.rename.outputs.exit_code != '1'
+        if: |
+          steps.loop-check.outputs.skip == 'false' &&
+          steps.rename.outputs.exit_code != '0' &&
+          steps.rename.outputs.exit_code != '1'
         run: |
           echo "Rename script failed with unexpected exit code: ${{ steps.rename.outputs.exit_code }}"
           exit 1
 
       - name: Commit files
-        if: steps.rename.outputs.exit_code == '1'
+        if: steps.loop-check.outputs.skip == 'false' && steps.rename.outputs.exit_code == '1'
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -41,3 +56,10 @@ jobs:
           else
             echo "No pose image changes detected."
           fi
+
+      - name: Trigger pre-commit on main
+        if: steps.loop-check.outputs.skip == 'false' && steps.rename.outputs.exit_code == '1'
+        run: |
+          gh workflow run pre-commit.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
