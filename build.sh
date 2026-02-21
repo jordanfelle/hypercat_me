@@ -45,8 +45,22 @@ if [ ! -f "hugo" ]; then
     rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
     exit 1
   fi
-  if ! sha256sum --check --status - <<< "${CHECKSUM_LINE}"; then
-    echo "Checksum verification failed for Hugo ${HUGO_VERSION}" >&2
+  # Prefer sha256sum, fall back to shasum -a 256 (for macOS and other environments)
+  if command -v sha256sum >/dev/null 2>&1; then
+    if ! sha256sum --check --status - <<< "${CHECKSUM_LINE}"; then
+      echo "Checksum verification failed for Hugo ${HUGO_VERSION}" >&2
+      rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+      exit 1
+    fi
+  elif command -v shasum >/dev/null 2>&1; then
+    # shasum does not support --status, so silence output and rely on exit code
+    if ! shasum -a 256 --check - >/dev/null 2>&1 <<< "${CHECKSUM_LINE}"; then
+      echo "Checksum verification failed for Hugo ${HUGO_VERSION}" >&2
+      rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+      exit 1
+    fi
+  else
+    echo "Error: Neither sha256sum nor shasum is available; cannot verify Hugo archive checksum" >&2
     rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
     exit 1
   fi
@@ -54,11 +68,13 @@ if [ ! -f "hugo" ]; then
   echo "Extracting Hugo archive..."
   tar -xzf "${HUGO_RELEASE}.tar.gz" || {
     echo "Failed to extract Hugo archive ${HUGO_RELEASE}.tar.gz" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
     exit 1
   }
 
   chmod +x hugo || {
     echo "Failed to make Hugo binary executable" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt" hugo
     exit 1
   }
 fi
@@ -74,5 +90,9 @@ echo "Using Hugo version:"
 hugo version
 
 # Change to content directory and run the build
+if [ ! -d "${SCRIPT_DIR}/content" ]; then
+  echo "Error: content directory not found at ${SCRIPT_DIR}/content" >&2
+  exit 1
+fi
 cd "${SCRIPT_DIR}/content"
 npm run build
