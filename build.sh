@@ -1,39 +1,44 @@
 #!/bin/bash
 set -euo pipefail
 
-# Store the repository root directory
-REPO_ROOT="$(pwd)"
+# Determine the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Download and use Hugo 0.156.0 explicitly
-HUGO_VERSION="0.156.0"
+# Read Hugo version from .hugo-version file
+HUGO_VERSION=$(cat "${SCRIPT_DIR}/.hugo-version")
 HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 
-# Create a temporary directory for Hugo
-mkdir -p /tmp/hugo-bin
-cd /tmp/hugo-bin
+# Create a versioned temporary directory for Hugo to handle version changes
+mkdir -p "/tmp/hugo-bin-${HUGO_VERSION}"
+cd "/tmp/hugo-bin-${HUGO_VERSION}"
 
 # Download Hugo if not already present
 if [ ! -f "hugo" ]; then
   echo "Downloading Hugo ${HUGO_VERSION}..."
-  if ! wget -q "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" 2>/dev/null; then
-    echo "Error: Failed to download Hugo ${HUGO_VERSION}. Check network connectivity and release availability." >&2
+  wget -q "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
+    echo "Failed to download Hugo ${HUGO_VERSION}" >&2
     exit 1
-  fi
+  }
 
-  if ! tar -xzf "${HUGO_RELEASE}.tar.gz"; then
-    echo "Error: Failed to extract Hugo archive" >&2
+  echo "Extracting Hugo archive..."
+  tar -xzf "${HUGO_RELEASE}.tar.gz" || {
+    echo "Failed to extract Hugo archive ${HUGO_RELEASE}.tar.gz" >&2
     exit 1
-  fi
-  chmod +x hugo
+  }
+
+  chmod +x hugo || {
+    echo "Failed to make Hugo binary executable" >&2
+    exit 1
+  }
 fi
 
 # Add Hugo to PATH
-export PATH="/tmp/hugo-bin:$PATH"
+export PATH="/tmp/hugo-bin-${HUGO_VERSION}:$PATH"
 
 # Verify Hugo version
 echo "Using Hugo version:"
 ./hugo version
 
-# Return to repo root and build
-cd "$REPO_ROOT/content"
+# Return to repository root and build
+cd "${SCRIPT_DIR}/content"
 npm run build
