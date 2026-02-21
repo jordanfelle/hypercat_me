@@ -100,6 +100,12 @@ repos:
   # Hugo build check
   - repo: local
     hooks:
+      - id: validate-cdn-usage
+        name: Validate CDN usage
+        entry: ./scripts/validate-cdn-usage.sh
+        language: script
+        pass_filenames: false
+        files: \.(html|htm)$
       - id: hugo-build
         name: Hugo build check
         entry: bash -c 'cd content && npm run build'
