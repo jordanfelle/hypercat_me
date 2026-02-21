@@ -2,11 +2,11 @@
 
 ## Repository Overview
 
-**hypercat_me** is a static website built with Hugo (v0.146.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
+**hypercat_me** is a static website built with Hugo (v0.156.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
 
 **Tech Stack:**
 
-- Static Site Generator: Hugo v0.146.0+ (extended version required)
+- Static Site Generator: Hugo v0.156.0+ (extended version required)
 - Theme: hypercat-theme (customized PaperMod theme, included in repository)
 - Languages: Hugo templates (.html), Markdown (.md), YAML configuration
 - No backend, no Node.js, no Python - pure Hugo site
@@ -19,12 +19,12 @@ The theme is a customized version of PaperMod located at `themes/hypercat-theme/
 
 ## Hugo Installation
 
-Install Hugo v0.146.0 or higher (extended version):
+Install Hugo v0.156.0 or higher (extended version):
 
 ```bash
 # Example for Linux (check hugo.io for other platforms):
-wget https://github.com/gohugoio/hugo/releases/download/v0.146.0/hugo_extended_0.146.0_linux-amd64.tar.gz
-tar -xzf hugo_extended_0.146.0_linux-amd64.tar.gz
+wget https://github.com/gohugoio/hugo/releases/download/v0.156.0/hugo_extended_0.156.0_linux-amd64.tar.gz
+tar -xzf hugo_extended_0.156.0_linux-amd64.tar.gz
 sudo mv hugo /usr/local/bin/
 hugo version  # Verify: hugo v0.156.0+extended
 ```
@@ -244,7 +244,7 @@ These instructions have been validated through:
 - Multiple build and clean cycles
 - Development server testing
 - Configuration verification
-- Hugo v0.146.0 extended edition validation
+- Hugo v0.156.0 extended edition validation
 
 **Only search for additional information if:**
 
