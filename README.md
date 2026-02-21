@@ -86,7 +86,7 @@ This script is run as a pre-commit hook. There is also a GitHub Action workflow 
 
 ### `convert-images.sh`
 
-This script converts all images (JPG, PNG) in the `content/content/poses` subdirectories to lossless WebP and AVIF formats. It requires `cwebp` and `avifenc` command-line tools to be installed. This script is also run as a pre-commit hook. A GitHub Action workflow in `.github/workflows/convert-images.yml` runs this script on pushes to main and commits any changes.
+This script converts all images (JPG, PNG) in the `content/content/poses` subdirectories to lossless WebP and AVIF formats, and deletes the original files after a successful conversion. It requires `cwebp` and `avifenc` command-line tools to be installed. This script is also run as a pre-commit hook. A GitHub Action workflow in `.github/workflows/convert-images.yml` runs this script on pushes to main and commits any changes.
 
 For local development, you can install the required tools using Homebrew:
 
