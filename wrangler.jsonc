@@ -10,6 +10,6 @@
     "directory": "./content/public"
   },
   "build": {
-    "command": "./build.sh"
+    "command": "bash ./build.sh"
   }
 }
