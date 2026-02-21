@@ -77,7 +77,12 @@ This repository contains scripts in the `scripts/` directory to automate various
 
 ### `rename-poses-images.sh`
 
-This script renumbers all images in the `content/content/poses` subdirectories to be sequential, starting from 1, based on their modification date. The order of processing directories is `solo`, `duo`, `triple`, then `groups`. This script is run as a pre-commit hook. There is also a GitHub Action workflow in `.github/workflows/rename-images.yml` that runs this script on pushes to main and commits any changes.
+This script renumbers all images in the `content/content/poses` subdirectories to be sequential, starting from 1. The renaming process follows a specific order:
+
+1.  It processes directories in the order: `solo`, `duo`, `triple`, then `groups`.
+2.  Within each directory, images are sorted by their modification date.
+
+This script is run as a pre-commit hook. There is also a GitHub Action workflow in `.github/workflows/rename-images.yml` that runs this script on pushes to main and commits any changes.
 
 ### `convert-images.sh`
 

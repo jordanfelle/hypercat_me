@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# This script renames all images in the pose/* directories to be numerically increasing based on modification date.
-# The ordering of directories is solo, duo, triple, groups.
+# This script renames all images in the pose/* directories to be numerically increasing.
+# The renaming is done in the order of directories: solo, duo, triple, groups.
+# Within each directory, files are sorted by modification date.
 # The script is designed to be used as a pre-commit hook. It will exit with 1 if files are renamed.
 
 set -euo pipefail
@@ -9,60 +10,42 @@ set -euo pipefail
 base_dir="content/content/poses"
 ordered_dirs=("solo" "duo" "triple" "groups")
 
-# Create a temporary file to store the list of files, sorted by modification date
-sorted_file_list=$(mktemp)
-trap 'rm -f -- "$sorted_file_list"' EXIT
-
-# Create a list of directories to search
-search_dirs=()
-for dir in "${ordered_dirs[@]}"; do
-    if [ -d "$base_dir/$dir" ]; then
-        search_dirs+=("$base_dir/$dir")
-    fi
-done
-
-# If no directories are found, exit gracefully
-if [ ${#search_dirs[@]} -eq 0 ]; then
-    echo "No pose directories found to process."
-    exit 0
-fi
-
-# Find all image files and sort them by modification date (oldest first)
-find "${search_dirs[@]}" -type f \
-  \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-  -printf "%T@ %p\n" | sort -n | cut -d' ' -f2- > "$sorted_file_list"
-
-# If no files are found, exit gracefully
-if [ ! -s "$sorted_file_list" ]; then
-    echo "No image files found to process."
-    exit 0
-fi
-
-# Check if any files need renaming by comparing current names with expected names
 count=1
 needs_rename=false
+original_files=()
 temp_files=()
 final_files=()
-original_files=()
 
-while read -r file; do
-  original_files+=("$file")
-  extension="${file##*.}"
-  new_name="$count.$extension"
-  dir_path=$(dirname "$file")
-  new_path="$dir_path/$new_name"
+for dir in "${ordered_dirs[@]}"; do
+    full_dir="$base_dir/$dir"
+    if [ ! -d "$full_dir" ]; then
+        continue
+    fi
 
-  if [ "$file" != "$new_path" ]; then
-    needs_rename=true
-  fi
+    while read -r file; do
+        if [ -z "$file" ]; then
+            continue
+        fi
+        original_files+=("$file")
+        extension="${file##*.}"
+        new_name="$count.$extension"
+        dir_path=$(dirname "$file")
+        new_path="$dir_path/$new_name"
 
-  # Store temp and final names for later
-  tmp_path="$dir_path/tmp_$$_${new_name}"
-  temp_files+=("$tmp_path")
-  final_files+=("$new_path")
+        if [ "$file" != "$new_path" ]; then
+            needs_rename=true
+        fi
 
-  count=$((count+1))
-done < "$sorted_file_list"
+        # Store temp and final names for later
+        tmp_path="$dir_path/tmp_$$_${new_name}"
+        temp_files+=("$tmp_path")
+        final_files+=("$new_path")
+
+        count=$((count+1))
+    done < <(find "$full_dir" -type f \
+              \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
+              -printf "%T@ %p\n" | sort -n | cut -d' ' -f2-)
+done
 
 
 if [ "$needs_rename" = true ]; then
