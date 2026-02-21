@@ -16,12 +16,10 @@ jobs:
       - name: Check for rename loop
         id: loop-check
         run: |
-          last_commit_msg=$(git log -1 --pretty=%s)
-          last_commit_author=$(git log -1 --pretty=%an)
-          if [ "$last_commit_msg" = "Automated rename of pose images" ] && \
-             [ "$last_commit_author" = "github-actions[bot]" ]; then
+          # Check the last 10 commits for an automated rename by github-actions[bot]
+          if git log -n 10 --pretty='%an:%s' | grep -q '^github-actions\[bot\]:Automated rename'; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "⏭️  Skipping rename: last commit was already renamed by github-actions[bot]"
+            echo "⏭️  Skipping rename: recent automated rename detected in last 10 commits"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi

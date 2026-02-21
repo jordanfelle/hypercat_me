@@ -15,7 +15,7 @@ needs_rename=false
 original_files=()
 temp_files=()
 final_files=()
-temp_list=""
+temp_files_all=()
 
 hash_file() {
     if command -v sha256sum >/dev/null 2>&1; then
@@ -28,11 +28,13 @@ hash_file() {
     fi
 }
 
-# Setup cleanup trap once for the entire script
+# Setup cleanup trap to remove all temp files created during script execution
 cleanup() {
-    if [ -n "$temp_list" ] && [ -f "$temp_list" ]; then
-        rm -f "$temp_list"
-    fi
+    for temp_file in "${temp_files_all[@]}"; do
+        if [ -f "$temp_file" ]; then
+            rm -f "$temp_file"
+        fi
+    done
 }
 trap cleanup EXIT
 
@@ -45,6 +47,7 @@ for dir in "${ordered_dirs[@]}"; do
     # Sort by content hash for deterministic ordering.
     # Note: we enforce no tab/newline characters in filenames to keep sorting safe.
     temp_list=$(mktemp -t hypercat-rename.XXXXXX)
+    temp_files_all+=("$temp_list")
     invalid_name=false
     while IFS= read -r -d '' file; do
         # Validate full path (including directory components) for tabs/newlines/CR
@@ -65,11 +68,9 @@ for dir in "${ordered_dirs[@]}"; do
         -print0)
     if [ "$invalid_name" = true ]; then
         rm -f "$temp_list"
-        exit 2
+        exit 1
     fi
     ordered_files=$(sort -t$'\t' -k1,1 -k2,2 "$temp_list" | cut -f2)
-    rm -f "$temp_list"
-    temp_list=""
 
     while read -r file; do
         if [ -z "$file" ]; then

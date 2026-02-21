@@ -94,9 +94,8 @@ jobs:
               exit 0
             fi
             git add -A
-            git commit -m "chore: apply pre-commit fixes"
+            git commit -m "chore: apply pre-commit fixes [skip ci]"
             git push
-            echo "✅ Pre-commit fixes committed and pushed to PR"
           else
             echo "❌ Pre-commit checks failed but no fixes were applied"
             exit 1
@@ -113,7 +112,7 @@ jobs:
               exit 0
             fi
             git add -A
-            git commit -m "chore: apply pre-commit fixes"
+            git commit -m "chore: apply pre-commit fixes [skip ci]"
             git push
             echo "✅ Pre-commit fixes committed and pushed to main"
           else
