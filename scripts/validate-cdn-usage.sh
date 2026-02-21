@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Validate that external JS/CSS libraries use https://cdnjs.cloudflare.com
-# This hook checks for common CDN patterns and ensures consistency
+# Check for disallowed CDN patterns in HTML files
+# This hook validates that external JS/CSS libraries don't use known problematic CDNs
+# Recommended: Use https://cdnjs.cloudflare.com for external libraries
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONTENT_DIR="${SCRIPT_DIR}/../content"
@@ -22,7 +23,7 @@ DISALLOWED_CDNS=(
   "rawgit\\.com"
 )
 
-echo "Checking for non-cdnjs CDN usage in HTML files..."
+echo "Checking for disallowed CDN usage in HTML files..."
 
 # Find all HTML files (excluding generated/vendored directories)
 while IFS= read -r -d '' file; do
@@ -38,7 +39,7 @@ done < <(find "$CONTENT_DIR" -type f \( -name "*.html" -o -name "*.htm" \) \
   ! -path "*/.git/*" \
   ! -path "*/vendor/*" \
   ! -path "*/dist/*" \
-  -print0)
+  -print0) || true
 
 if (( ${#failures[@]} > 0 )); then
   echo ""
@@ -47,10 +48,11 @@ if (( ${#failures[@]} > 0 )); then
     echo "  - $failure"
   done
   echo ""
-  echo "All external libraries must use https://cdnjs.cloudflare.com"
+  echo "Disallowed CDN patterns detected."
+  echo "Recommended: Use https://cdnjs.cloudflare.com for external libraries"
   echo "Find replacements at: https://cdnjs.cloudflare.com/"
   exit 1
 fi
 
-echo "✅ All CDN usage is compliant with https://cdnjs.cloudflare.com"
+echo "✅ No disallowed CDN patterns detected"
 exit 0
