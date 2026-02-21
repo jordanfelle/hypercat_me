@@ -35,7 +35,7 @@ for dir in "${ordered_dirs[@]}"; do
 
     # Sort by content hash for deterministic ordering.
     # Note: we enforce no tab/newline characters in filenames to keep sorting safe.
-    temp_list=$(mktemp)
+    temp_list=$(mktemp -t hypercat-rename.XXXXXX)
     trap 'rm -f "$temp_list"' EXIT
     invalid_name=false
     while IFS= read -r -d '' file; do
@@ -50,6 +50,7 @@ for dir in "${ordered_dirs[@]}"; do
         \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
         -print0)
     if [ "$invalid_name" = true ]; then
+        rm -f "$temp_list"
         trap - EXIT
         exit 2
     fi
