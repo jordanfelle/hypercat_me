@@ -1,0 +1,37 @@
+name: Rename Poses
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  rename-poses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run rename script
+        run: ./scripts/rename-poses-images.sh
+
+      - name: Commit and push changes
+        run: |
+          if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "Automated pose image renumbering [skip ci]"
+            git push
+            echo "✅ Pose images renumbered and pushed"
+          else
+            echo "✅ No pose image changes detected"
+          fi

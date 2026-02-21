@@ -1,0 +1,35 @@
+name: Convert Images
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webp aom-tools
+
+      - name: Run convert script
+        id: convert
+        run: |
+          cd hypercat_me
+          ./scripts/convert-images.sh
+        continue-on-error: true
+
+      - name: Commit files
+        if: steps.convert.outcome == 'failure'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add hypercat_me/content/content/poses
+          git commit -m "Automated image conversion to webp and avif"
+          git push
