@@ -58,7 +58,7 @@ for dir in "${ordered_dirs[@]}"; do
             count=$((count+1))
         done < <(find "$full_dir" -type f \
                   \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-                  -printf "%f\t%p\n" | sort -t$'\t' -k1,1n | cut -f2)
+                  -printf "%f\t%p\n" | sort -t$'\t' -k1,1 | cut -f2)
     else
         # Locally: sort by modification time, then by filename for ties
         # Output timestamp and filename, then sort and remove timestamp

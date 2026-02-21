@@ -111,14 +111,18 @@
         transform: rotate(-90deg);
     }
     .poses-section-content {
+        display: grid;
+        grid-template-rows: 1fr;
         overflow: hidden;
-        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-        max-height: 10000px;
+        transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out;
         opacity: 1;
     }
     .poses-section.collapsed .poses-section-content {
-        max-height: 0;
+        grid-template-rows: 0fr;
         opacity: 0;
+    }
+    .poses-section-content > * {
+        min-height: 0;
     }
 </style>
 
@@ -189,7 +193,7 @@
                             src="{{ $small.RelPermalink }}" 
                             srcset="{{ $small.RelPermalink }} 300w, {{ $medium.RelPermalink }} 600w, {{ $large.RelPermalink }} 1200w"
                             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            alt="{{ $imageName }}"
+                            alt="Pose {{ $imageName }} in {{ $categoryTitle }} category"
                             class="poses-grid-image"
                             loading="lazy"
                         >

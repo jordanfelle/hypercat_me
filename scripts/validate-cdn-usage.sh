@@ -10,6 +10,13 @@ CONTENT_DIR="${SCRIPT_DIR}/../content"
 
 failures=()
 
+# Verify content directory exists
+if [ ! -d "$CONTENT_DIR" ]; then
+  echo "❌ Content directory not found: $CONTENT_DIR"
+  echo "This script must be run from the repository root or scripts directory."
+  exit 1
+fi
+
 # CDN patterns to check (excluding cdnjs.cloudflare.com)
 DISALLOWED_CDNS=(
   "cdn\\.jsdelivr\\.net"
