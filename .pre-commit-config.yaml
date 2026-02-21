@@ -123,16 +123,16 @@ repos:
         files: ^(content/content/cons/|content/themes/.*/cons\.html|content/public/cons)
         stages: [pre-push]
         require_serial: true
-      - id: rename-poses-images
-        name: Rename pose images
-        entry: ./scripts/rename-poses-images.sh
-        language: script
-        pass_filenames: false
-        files: ^(content/content/poses/)
-        stages: [pre-commit]
       - id: convert-images
         name: Convert poses to WebP and AVIF
         entry: ./scripts/convert-images.sh
+        language: script
+        pass_filenames: false
+        files: ^$ # Disabled - Hugo now handles webp conversion directly
+        stages: [pre-commit]
+      - id: rename-poses-images
+        name: Rename pose images
+        entry: ./scripts/rename-poses-images.sh
         language: script
         pass_filenames: false
         files: ^(content/content/poses/)

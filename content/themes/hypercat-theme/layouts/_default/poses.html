@@ -114,12 +114,16 @@
         display: grid;
         grid-template-rows: 1fr;
         overflow: hidden;
-        transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out;
+        transition: grid-template-rows 0.3s ease-out, max-height 0.3s ease-out, opacity 0.3s ease-out, margin 0.3s ease-out, padding 0.3s ease-out;
         opacity: 1;
+        max-height: none;
     }
     .poses-section.collapsed .poses-section-content {
         grid-template-rows: 0fr;
+        max-height: 0;
         opacity: 0;
+        margin: 0;
+        padding: 0;
     }
     .poses-section-content > * {
         min-height: 0;
@@ -222,9 +226,9 @@
             {{- if gt (len $images) 0 }}
                 <div class="poses-grid">
                     {{- range $images }}
-                    {{- $small := .Fit "300x2000 q85" }}
-                    {{- $medium := .Fit "600x2000 q85" }}
-                    {{- $large := .Fit "1200x2000 q85" }}
+                    {{- $small := .Fit "300x2000 webp q85" }}
+                    {{- $medium := .Fit "600x2000 webp q85" }}
+                    {{- $large := .Fit "1200x2000 webp q85" }}
                     {{- $imageName := path.BaseName .Name }}
                     <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-description="{{ $imageName }}">
                         <img 
