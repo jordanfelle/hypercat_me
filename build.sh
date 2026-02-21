@@ -4,8 +4,17 @@ set -euo pipefail
 # Store the repository root directory
 REPO_ROOT="$(pwd)"
 
-# Download and use Hugo 0.156.0 explicitly
-HUGO_VERSION="0.156.0"
+# Read Hugo version from .hugo-version file
+if [ ! -f "${REPO_ROOT}/.hugo-version" ]; then
+  echo "Error: .hugo-version file not found" >&2
+  exit 1
+fi
+HUGO_VERSION="$(cat "${REPO_ROOT}/.hugo-version")"
+# Validate version format to prevent injection in download URLs
+if ! echo "${HUGO_VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+  echo "Error: Invalid Hugo version format in .hugo-version: ${HUGO_VERSION}" >&2
+  exit 1
+fi
 HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 
 # Create a temporary directory for Hugo
