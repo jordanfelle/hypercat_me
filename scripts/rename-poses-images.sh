@@ -16,15 +16,16 @@ original_files=()
 temp_files=()
 final_files=()
 
-# Detect CI environment - if in CI, use stable filename-based sorting
-# to avoid spurious changes due to modification time differences.
-# In local development, use modification time to order newly added files.
-if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
-    echo "CI environment detected - using stable filename sorting"
-    SORT_METHOD="filename"
-else
-    SORT_METHOD="mtime"
-fi
+hash_file() {
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$1" | awk '{print $1}'
+    else
+        shasum -a 256 "$1" | awk '{print $1}'
+    fi
+}
+
+# Use content hash ordering to keep renames deterministic.
+SORT_METHOD="hash"
 
 for dir in "${ordered_dirs[@]}"; do
     full_dir="$base_dir/$dir"
@@ -33,9 +34,8 @@ for dir in "${ordered_dirs[@]}"; do
     fi
 
     # Choose sorting method based on environment
-    if [ "$SORT_METHOD" = "filename" ]; then
-        # In CI: sort by current filename to maintain stable order
-        # Use portable numeric sort instead of GNU sort -V
+    if [ "$SORT_METHOD" = "hash" ]; then
+        # Sort by content hash for deterministic ordering.
         while read -r file; do
             if [ -z "$file" ]; then
                 continue
@@ -56,12 +56,13 @@ for dir in "${ordered_dirs[@]}"; do
             final_files+=("$new_path")
 
             count=$((count+1))
-        done < <(find "$full_dir" -type f \
-                  \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-                  -printf "%f\t%p\n" | sort -t$'\t' -k1,1 | cut -f2)
+                done < <(find "$full_dir" -type f \
+                                    \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
+                                    -print0 | while IFS= read -r -d '' file; do
+                                        printf '%s\t%s\n' "$(hash_file "$file")" "$file"
+                                    done | sort -t$'\t' -k1,1 -k2,2 | cut -f2)
     else
-        # Locally: sort by modification time, then by filename for ties
-        # Output timestamp and filename, then sort and remove timestamp
+                # Fallback (unused): keep stable ordering by path.
         while read -r file; do
             if [ -z "$file" ]; then
                 continue
@@ -83,8 +84,8 @@ for dir in "${ordered_dirs[@]}"; do
 
             count=$((count+1))
         done < <(find "$full_dir" -type f \
-                  \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-                  -printf "%T@ %p\n" | sort -n -k1,1 -k2,2V | cut -d' ' -f2-)
+              \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
+              -print | sort)
     fi
 done
 
