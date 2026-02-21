@@ -35,7 +35,7 @@ for dir in "${ordered_dirs[@]}"; do
     # Choose sorting method based on environment
     if [ "$SORT_METHOD" = "filename" ]; then
         # In CI: sort by current filename to maintain stable order
-        # Output only filename (no timestamp) so sort -V works correctly on filenames
+        # Use portable numeric sort instead of GNU sort -V
         while read -r file; do
             if [ -z "$file" ]; then
                 continue
@@ -58,7 +58,7 @@ for dir in "${ordered_dirs[@]}"; do
             count=$((count+1))
         done < <(find "$full_dir" -type f \
                   \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-                  -printf "%p\n" | sort -V)
+                  -printf "%f\t%p\n" | sort -t$'\t' -k1,1n | cut -f2)
     else
         # Locally: sort by modification time, then by filename for ties
         # Output timestamp and filename, then sort and remove timestamp

@@ -198,7 +198,7 @@
                     {{- end }}
                 </div>
             {{- else }}
-                <p class="poses-empty-gallery">No images yet. Add images to <code>content/poses/{{ $category }}/</code></p>
+                <p class="poses-empty-gallery">No images yet. Add images to <code>content/content/poses/{{ $category }}/</code></p>
             {{- end }}
             </div>
         </section>
@@ -274,7 +274,14 @@
                     var targetSection = document.getElementById(targetId);
                     if (targetSection) {
                         // Expand section if collapsed
-                        targetSection.classList.remove('collapsed');
+                        if (targetSection.classList.contains('collapsed')) {
+                            targetSection.classList.remove('collapsed');
+                            // Update aria-expanded on the section toggle for accessibility
+                            var toggle = targetSection.querySelector('.poses-section-title');
+                            if (toggle) {
+                                toggle.setAttribute('aria-expanded', 'true');
+                            }
+                        }
                         // Smooth scroll to section
                         targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
