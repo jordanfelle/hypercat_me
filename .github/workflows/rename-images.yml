@@ -16,16 +16,26 @@ jobs:
       - name: Run rename script
         id: rename
         run: |
+          set +e
           ./scripts/rename-poses-images.sh
+          exit_code=$?
+          echo "exit_code=${exit_code}" >> "$GITHUB_OUTPUT"
+          exit 0
         continue-on-error: true
 
+      - name: Fail on unexpected rename errors
+        if: steps.rename.outputs.exit_code != '0' && steps.rename.outputs.exit_code != '1'
+        run: |
+          echo "Rename script failed with unexpected exit code: ${{ steps.rename.outputs.exit_code }}"
+          exit 1
+
       - name: Commit files
-        if: steps.rename.outcome == 'failure'
+        if: steps.rename.outputs.exit_code == '1'
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
-            git add -A
+            git add content/content/poses
             git commit -m "Automated rename of pose images"
             git push
           else
