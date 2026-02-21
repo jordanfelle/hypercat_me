@@ -10,15 +10,6 @@
     "directory": "./content/public"
   },
   "build": {
-    "command": "npm run build",
-    "cwd": "./content"
-  },
-  "env": {
-    "production": {
-      "build": {
-        "command": "npm run build",
-        "cwd": "./content"
-      }
-    }
+    "command": "bash ./build.sh"
   }
 }
