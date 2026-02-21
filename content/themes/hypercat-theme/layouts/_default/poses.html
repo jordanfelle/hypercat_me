@@ -46,12 +46,13 @@
                     {{- $small := .Fit "300x2000 q85" }}
                     {{- $medium := .Fit "600x2000 q85" }}
                     {{- $large := .Fit "1200x2000 q85" }}
-                    <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-title="{{ .Name }}">
+                    {{- $imageName := path.BaseName .Name }}
+                    <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-title="{{ $imageName }}">
                         <img 
                             src="{{ $small.RelPermalink }}" 
                             srcset="{{ $small.RelPermalink }} 300w, {{ $medium.RelPermalink }} 600w, {{ $large.RelPermalink }} 1200w"
                             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            alt="{{ .Name }}"
+                            alt="{{ $imageName }}"
                             class="poses-grid-image"
                             loading="lazy"
                         >
