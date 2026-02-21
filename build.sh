@@ -28,10 +28,26 @@ HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 mkdir -p "/tmp/hugo-bin-${HUGO_VERSION}"
 cd "/tmp/hugo-bin-${HUGO_VERSION}"
 
-# Download Hugo if not already present
-if [ ! -f "hugo" ]; then
-  # Clean up any stale artifacts from previous partial/failed downloads
-  rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+HUGO_BINARY_CHECKSUM_FILE="hugo.sha256"
+
+# Verify an existing Hugo binary's checksum; sets NEED_DOWNLOAD=false if valid
+NEED_DOWNLOAD=true
+if [ -f "hugo" ] && [ -f "${HUGO_BINARY_CHECKSUM_FILE}" ]; then
+  if command -v sha256sum >/dev/null 2>&1; then
+    if sha256sum --check --status "${HUGO_BINARY_CHECKSUM_FILE}" 2>/dev/null; then
+      NEED_DOWNLOAD=false
+    fi
+  elif command -v shasum >/dev/null 2>&1; then
+    if shasum -a 256 --check "${HUGO_BINARY_CHECKSUM_FILE}" >/dev/null 2>&1; then
+      NEED_DOWNLOAD=false
+    fi
+  fi
+fi
+
+# Download and verify Hugo if missing or checksum verification failed
+if [ "${NEED_DOWNLOAD}" = "true" ]; then
+  # Clean up any stale artifacts (including a potentially tampered binary)
+  rm -f hugo "${HUGO_BINARY_CHECKSUM_FILE}" "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
 
   echo "Downloading Hugo ${HUGO_VERSION}..."
   wget -q -O "${HUGO_RELEASE}.tar.gz" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
@@ -86,6 +102,13 @@ if [ ! -f "hugo" ]; then
     rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt" hugo
     exit 1
   }
+
+  # Save binary checksum for integrity verification on future runs
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum hugo > "${HUGO_BINARY_CHECKSUM_FILE}"
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 hugo > "${HUGO_BINARY_CHECKSUM_FILE}"
+  fi
 
   # Cleanup downloaded artifacts after successful extraction and setup
   rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
