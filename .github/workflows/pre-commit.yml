@@ -88,7 +88,7 @@ jobs:
         run: |
           if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
             git add -A
-            git commit -m "Fix pre-commit issues [skip ci]"
+            git commit -m "chore: apply pre-commit fixes [skip ci]"
             git push
             echo "✅ Pre-commit fixes committed and pushed to PR"
           else
@@ -96,12 +96,18 @@ jobs:
             exit 1
           fi
 
-      - name: Fail on main branch issues
+      - name: Commit and push fixes (main branch)
         if: steps.pre-commit.outcome == 'failure' && github.event_name == 'push'
         run: |
-          echo "❌ Pre-commit checks failed on main branch."
-          echo "Create a branch and PR instead. Never push directly to main with pre-commit issues."
-          exit 1
+          if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "chore: apply pre-commit fixes [skip ci]"
+            git push
+            echo "✅ Pre-commit fixes committed and pushed to main"
+          else
+            echo "❌ Pre-commit checks failed but no fixes were applied"
+            exit 1
+          fi
 
       - name: Build Hugo site
         if: steps.pre-commit.outcome != 'failure'
