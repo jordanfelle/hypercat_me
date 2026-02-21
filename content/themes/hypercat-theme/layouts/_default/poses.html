@@ -51,9 +51,20 @@
         
         {{- /* Get images from the section's resources */ -}}
         {{- $images := slice }}
+        {{- $imageMap := dict }}
         {{- if $section }}
             {{- range $section.Resources.Match "*.{jpg,jpeg,png,webp,gif}" }}
-                {{- $images = $images | append . }}
+                {{- $numericName := int (path.BaseName .Name) }}
+                {{- $imageMap = merge $imageMap (dict (string $numericName) .) }}
+            {{- end }}
+            {{- /* Sort by numeric key and rebuild slice */ -}}
+            {{- $sortedKeys := slice }}
+            {{- range $key, $val := $imageMap }}
+                {{- $sortedKeys = $sortedKeys | append (int $key) }}
+            {{- end }}
+            {{- $sortedKeys = sort $sortedKeys }}
+            {{- range $sortedKeys }}
+                {{- $images = $images | append (index $imageMap (string .)) }}
             {{- end }}
         {{- end }}
         
