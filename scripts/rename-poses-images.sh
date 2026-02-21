@@ -2,7 +2,7 @@
 
 # This script renames all images in the pose/* directories to be numerically increasing.
 # The renaming is done in the order of directories: solo, duo, triple, groups.
-# Within each directory, files are sorted by modification date.
+# Within each directory, files are sorted by modification date locally, or by filename in CI.
 # The script is designed to be used as a pre-commit hook. It will exit with 1 if files are renamed.
 
 set -euo pipefail
@@ -16,10 +16,29 @@ original_files=()
 temp_files=()
 final_files=()
 
+# Detect CI environment - if in CI, use stable filename-based sorting
+# to avoid spurious changes due to modification time differences.
+# In local development, use modification time to order newly added files.
+if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ]; then
+    echo "CI environment detected - using stable filename sorting"
+    SORT_METHOD="filename"
+else
+    SORT_METHOD="mtime"
+fi
+
 for dir in "${ordered_dirs[@]}"; do
     full_dir="$base_dir/$dir"
     if [ ! -d "$full_dir" ]; then
         continue
+    fi
+
+    # Choose sorting method based on environment
+    if [ "$SORT_METHOD" = "filename" ]; then
+        # In CI: sort by current filename to maintain stable order
+        sort_cmd="sort -V"
+    else
+        # Locally: sort by modification time, then by filename for ties
+        sort_cmd="sort -n -k1,1 -k2,2V"
     fi
 
     while read -r file; do
@@ -44,7 +63,7 @@ for dir in "${ordered_dirs[@]}"; do
         count=$((count+1))
     done < <(find "$full_dir" -type f \
               \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-              -printf "%T@ %p\n" | sort -n | cut -d' ' -f2-)
+              -printf "%T@ %p\n" | $sort_cmd | cut -d' ' -f2-)
 done
 
 
