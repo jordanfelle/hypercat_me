@@ -11,6 +11,10 @@ on:
       - "**/*.webp"
       - "**/*.avif"
 
+concurrency:
+  group: image-optimizer-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     if: github.event.pull_request.head.repo.full_name == github.repository
@@ -20,9 +24,26 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
 
       - name: Compress Images
         id: compress-images
         uses: cadamsdev/image-optimizer-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Push optimized images (rebase if needed)
+        if: steps.compress-images.outcome == 'failure'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if git log --oneline -1 | grep -q "Optimized images"; then
+            git pull --rebase origin "$HEAD_REF"
+            git push origin HEAD:"$HEAD_REF"
+          else
+            echo "Image optimizer failed before creating a commit."
+            exit 1
+          fi
