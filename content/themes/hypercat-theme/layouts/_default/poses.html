@@ -1,5 +1,24 @@
 {{- define "main" }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css">
+<style>
+    .poses-image-link {
+        position: relative;
+        display: inline-block;
+    }
+    .poses-image-number {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        pointer-events: none;
+        z-index: 10;
+    }
+</style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js"></script>
 <script>
@@ -56,6 +75,7 @@
                             class="poses-grid-image"
                             loading="lazy"
                         >
+                        <span class="poses-image-number">{{ $imageName }}</span>
                     </a>
                     {{- end }}
                 </div>
