@@ -122,6 +122,13 @@ repos:
         pass_filenames: false
         files: ^(content/content/poses/)
         stages: [pre-commit]
+      - id: convert-images
+        name: Convert poses to WebP and AVIF
+        entry: ./scripts/convert-images.sh
+        language: script
+        pass_filenames: false
+        files: ^(content/content/poses/)
+        stages: [pre-commit]
 
 ci:
   autoupdate_schedule: monthly

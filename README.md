@@ -71,6 +71,26 @@ hypercat_me/
 
 This repository uses pre-commit hooks to maintain code quality. See [PRE_COMMIT_SETUP.md](PRE_COMMIT_SETUP.md) for installation and usage instructions.
 
+## Scripts
+
+This repository contains scripts in the `scripts/` directory to automate various tasks.
+
+### `rename-poses-images.sh`
+
+This script renumbers all images in the `content/content/poses` subdirectories to be sequential, starting from 1, based on their modification date. The order of processing directories is `solo`, `duo`, `triple`, then `groups`. This script is run as a pre-commit hook. There is also a GitHub Action workflow in `.github/workflows/rename-images.yml` that runs this script on pushes to main and commits any changes.
+
+### `convert-images.sh`
+
+This script converts all images (JPG, PNG) in the `content/content/poses` subdirectories to lossless WebP and AVIF formats. It requires `cwebp` and `avifenc` command-line tools to be installed. This script is also run as a pre-commit hook. A GitHub Action workflow in `.github/workflows/convert-images.yml` runs this script on pushes to main and commits any changes.
+
+For local development, you can install the required tools using Homebrew:
+
+```bash
+brew install webp aom
+```
+
+The GitHub Actions workflow uses `apt-get` to install `webp` and `aom-tools` on the Ubuntu runner.
+
 ## License
 
 Content and custom theme copyright Jordan Felle. Hugo is licensed under the Apache License 2.0.
