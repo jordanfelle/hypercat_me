@@ -1,7 +1,16 @@
 name: Compress Images
 
 on:
-  workflow_dispatch: # Only manually triggered while disabled
+  pull_request:
+    paths:
+      - "**/*.svg"
+      - "**/*.png"
+      - "**/*.jpg"
+      - "**/*.jpeg"
+      - "**/*.gif"
+      - "**/*.webp"
+      - "**/*.avif"
+  workflow_dispatch:
 
 concurrency:
   group: image-optimizer-${{ github.head_ref || github.ref }}
