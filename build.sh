@@ -108,7 +108,7 @@ echo "${HUGO_VERSION_OUTPUT}"
 
 # Validate that the Hugo version matches the expected version and is extended
 # Hugo version output format: "hugo v0.156.0-<hash>+extended ..." or "hugo v0.156.0+extended ..."
-if ! grep -Eq "v${HUGO_VERSION}[-+]" <<< "${HUGO_VERSION_OUTPUT}"; then
+if [[ "${HUGO_VERSION_OUTPUT}" != *"v${HUGO_VERSION}-"* && "${HUGO_VERSION_OUTPUT}" != *"v${HUGO_VERSION}+"* ]]; then
   echo "Error: Hugo version mismatch. Expected v${HUGO_VERSION}, but got:" >&2
   echo "  ${HUGO_VERSION_OUTPUT}" >&2
   exit 1
