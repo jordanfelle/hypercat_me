@@ -11,7 +11,7 @@ buildFuture: true
 buildExpired: false
 enableEmoji: true
 pygmentsUseClasses: true
-mainsections: ["posts", "papermod", "cons", "sona"]
+mainsections: ["posts", "papermod", "cons", "sona", "poses"]
 
 minify:
   disableXML: true
@@ -30,6 +30,9 @@ menu:
     - name: Sona
       url: /sona/
       weight: 5
+    - name: Poses
+      url: /poses/
+      weight: 7
     - name: Conventions
       url: /cons/
       weight: 10

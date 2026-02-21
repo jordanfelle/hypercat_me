@@ -1,0 +1,56 @@
+{{- define "main" }}
+<article class="post-single">
+    <header class="post-header">
+        <h1 class="post-title">{{ .Title }}</h1>
+    </header>
+
+    <div class="poses-container">
+        {{- $poseCategories := slice "solo" "duo" "triple" "groups" }}
+        
+        {{- range $poseCategories }}
+        {{- $category := . }}
+        {{- $section := $.Site.GetPage (printf "/poses/%s" $category) }}
+        {{- $categoryTitle := "Gallery" }}
+        {{- if $section }}
+            {{- $categoryTitle = $section.Title }}
+        {{- end }}
+        
+        {{- /* Get images from the section's resources */ -}}
+        {{- $images := slice }}
+        {{- if $section }}
+            {{- range $section.Resources.Match "*.{jpg,jpeg,png,webp,gif}" }}
+                {{- $images = $images | append . }}
+            {{- end }}
+        {{- end }}
+        
+        <section class="poses-section">
+            <h2 class="poses-section-title">{{ $categoryTitle }}</h2>
+            {{- if gt (len $images) 0 }}
+                <div class="poses-grid">
+                    {{- range $images }}
+                    {{- $small := .Resize "300x300 q85" }}
+                    {{- $medium := .Resize "600x600 q85" }}
+                    {{- $large := .Resize "1200x1200 q85" }}
+                    
+                    <div class="poses-grid-item">
+                        <a href="{{ .RelPermalink }}" class="poses-image-link" data-lightbox="poses-{{ $category }}" data-title="{{ .Name }}">
+                            <img 
+                                src="{{ $small.RelPermalink }}" 
+                                srcset="{{ $small.RelPermalink }} 300w, {{ $medium.RelPermalink }} 600w, {{ $large.RelPermalink }} 1200w"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                alt="{{ .Name }}"
+                                class="poses-grid-image"
+                                loading="lazy"
+                            >
+                        </a>
+                    </div>
+                    {{- end }}
+                </div>
+            {{- else }}
+                <p class="poses-empty-gallery">No images yet. Add images to <code>content/poses/{{ $category }}/</code></p>
+            {{- end }}
+        </section>
+        {{- end }}
+    </div>
+</article>
+{{- end }}
