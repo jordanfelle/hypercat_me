@@ -1,5 +1,6 @@
 {{- define "main" }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
 <style>
     .poses-image-link {
         position: relative;
@@ -18,11 +19,12 @@
         pointer-events: none;
         z-index: 10;
     }
-    /* Style the lightbox description as a badge in lower right */
+    /* Lightbox badge styling */
     .gslide-media {
         position: relative !important;
     }
-    .glightbox-container .gslide-description {
+    .glightbox-container .gslide-description,
+    .gslide-description {
         position: absolute !important;
         bottom: 20px !important;
         right: 20px !important;
@@ -40,12 +42,6 @@
         margin: 0 !important;
         transform: none !important;
     }
-    .gslide-description {
-        position: absolute !important;
-        bottom: 20px !important;
-        right: 20px !important;
-    }
-    /* Hide default title positioning */
     .glightbox-container .gslide-title {
         display: none !important;
     }
@@ -53,21 +49,7 @@
         margin: 0 !important;
     }
 </style>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js"></script>
-<script>
-    window.addEventListener('DOMContentLoaded', function() {
-        if (window.jQuery && jQuery.fn.justifiedGallery) {
-            jQuery('.poses-grid').justifiedGallery({
-                rowHeight: 220,
-                margins: 16,
-                lastRow: 'nojustify',
-                captions: false,
-                imagesSelector: 'img'
-            });
-        }
-    });
-</script>
+
 <header class="post-header">
     <h1 class="post-title">{{ .Title }}</h1>
 </header>
@@ -129,66 +111,55 @@
             {{- end }}
         </section>
         {{- end }}
-    </div>
+</div>
 
-</article>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
-<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script>
-    window.addEventListener('DOMContentLoaded', function() {
-        if (window.jQuery && jQuery.fn.justifiedGallery) {
-            jQuery('.poses-grid').justifiedGallery({
-                rowHeight: 220,
-                margins: 16,
-                lastRow: 'nojustify',
-                captions: false,
-                imagesSelector: 'img'
-            });
-        }
-        // Initialize GLightbox for open source lightbox functionality
-        try {
-            var grid = document.querySelector('.poses-grid');
-            if (window.GLightbox && grid) {
-                var lightbox = GLightbox({ 
-                    selector: '.poses-grid a',
-                    touchNavigation: true,
-                    loop: true,
-                    autoplayVideos: true,
-                    descPosition: 'bottom',
-                    slideEffect: 'slide'
+    (function() {
+        'use strict';
+        
+        function initGallery() {
+            // Initialize justified gallery
+            if (window.jQuery && jQuery.fn.justifiedGallery) {
+                jQuery('.poses-grid').justifiedGallery({
+                    rowHeight: 220,
+                    margins: 16,
+                    lastRow: 'nojustify',
+                    captions: false,
+                    imagesSelector: 'img'
                 });
-                
-                // Function to style description as badge
-                function styleDescription() {
-                    var desc = document.querySelector('.gslide-description');
-                    var media = document.querySelector('.gslide-media');
-                    if (desc && media) {
-                        // Move description inside the media container
-                        if (desc.parentElement !== media) {
-                            media.appendChild(desc);
-                        }
-                        desc.style.cssText = 'position: absolute !important; bottom: 20px !important; right: 20px !important; left: auto !important; top: auto !important; background: rgba(0, 0, 0, 0.75) !important; color: white !important; padding: 6px 12px !important; border-radius: 4px !important; font-size: 16px !important; font-weight: 600 !important; z-index: 1000 !important; width: auto !important; max-width: none !important; transform: none !important; margin: 0 !important;';
-                    }
-                }
-                
-                // Apply styling when lightbox opens and on slide change
-                lightbox.on('open', function() {
-                    setTimeout(styleDescription, 100);
-                });
-                
-                lightbox.on('slide_changed', function() {
-                    setTimeout(styleDescription, 100);
-                });
-                
-                console.log('GLightbox initialized');
-            } else {
-                console.warn('GLightbox or .poses-grid not found');
             }
-        } catch (e) {
-            console.error('GLightbox initialization failed:', e);
+            
+            // Initialize GLightbox
+            if (!window.GLightbox) return;
+            
+            var lightbox = GLightbox({ 
+                selector: '.poses-grid a',
+                touchNavigation: true,
+                loop: true,
+                slideEffect: 'slide'
+            });
+            
+            // Style description as badge on image
+            function styleDescription() {
+                var desc = document.querySelector('.gslide-description');
+                var media = document.querySelector('.gslide-media');
+                if (desc && media && desc.parentElement !== media) {
+                    media.appendChild(desc);
+                }
+            }
+            
+            lightbox.on('open', function() { setTimeout(styleDescription, 100); });
+            lightbox.on('slide_changed', function() { setTimeout(styleDescription, 100); });
         }
-    });
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initGallery);
+        } else {
+            initGallery();
+        }
+    })();
 </script>
 {{- end }}
