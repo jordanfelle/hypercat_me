@@ -18,6 +18,23 @@
         pointer-events: none;
         z-index: 10;
     }
+    /* Style the lightbox description as a badge in lower right */
+    .glightbox-container .gslide-description {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        z-index: 10;
+    }
+    /* Hide default title positioning */
+    .glightbox-container .gslide-title {
+        display: none;
+    }
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js"></script>
@@ -77,7 +94,7 @@
                     {{- $medium := .Fit "600x2000 q85" }}
                     {{- $large := .Fit "1200x2000 q85" }}
                     {{- $imageName := path.BaseName .Name }}
-                    <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-title="{{ $imageName }}">
+                    <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-description="{{ $imageName }}">
                         <img 
                             src="{{ $small.RelPermalink }}" 
                             srcset="{{ $small.RelPermalink }} 300w, {{ $medium.RelPermalink }} 600w, {{ $large.RelPermalink }} 1200w"
@@ -117,7 +134,12 @@
         try {
             var grid = document.querySelector('.poses-grid');
             if (window.GLightbox && grid) {
-                GLightbox({ selector: '.poses-grid a' });
+                GLightbox({ 
+                    selector: '.poses-grid a',
+                    touchNavigation: true,
+                    loop: true,
+                    autoplayVideos: true
+                });
                 console.log('GLightbox initialized');
             } else {
                 console.warn('GLightbox or .poses-grid not found');
