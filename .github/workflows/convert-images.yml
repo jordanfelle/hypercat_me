@@ -16,10 +16,12 @@ jobs:
       - name: Check for conversion loop
         id: loop-check
         run: |
-          last_commit=$(git log -1 --pretty=%s)
-          if [ "$last_commit" = "Automated image conversion to webp and avif" ]; then
+          last_commit_msg=$(git log -1 --pretty=%s)
+          last_commit_author=$(git log -1 --pretty=%an)
+          if [ "$last_commit_msg" = "Automated image conversion to webp and avif" ] && \
+             [ "$last_commit_author" = "github-actions[bot]" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "⏭️  Skipping conversion: last commit was already converted"
+            echo "⏭️  Skipping conversion: last commit was already converted by github-actions[bot]"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
