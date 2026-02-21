@@ -24,9 +24,14 @@ if ! grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "${HUGO_VERSION}"; then
 fi
 HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 
-# Create a versioned temporary directory for Hugo to handle version changes
-mkdir -p "/tmp/hugo-bin-${HUGO_VERSION}"
-cd "/tmp/hugo-bin-${HUGO_VERSION}"
+# Use a user-owned directory under SCRIPT_DIR to safely cache the Hugo binary
+HUGO_DIR="${SCRIPT_DIR}/.hugo-bin-${HUGO_VERSION}"
+HUGO_BIN="${HUGO_DIR}/hugo"
+
+# Create the versioned Hugo directory with restrictive permissions
+mkdir -p "${HUGO_DIR}"
+chmod 700 "${HUGO_DIR}"
+cd "${HUGO_DIR}"
 
 HUGO_BINARY_CHECKSUM_FILE="hugo.sha256"
 
@@ -113,9 +118,6 @@ if [ "${NEED_DOWNLOAD}" = "true" ]; then
   # Cleanup downloaded artifacts after successful extraction and setup
   rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
 fi
-
-# Use absolute path to Hugo binary to avoid adding world-writable /tmp directory to PATH
-HUGO_BIN="/tmp/hugo-bin-${HUGO_VERSION}/hugo"
 
 # Verify Hugo binary exists and is executable
 echo "Using Hugo binary:"
