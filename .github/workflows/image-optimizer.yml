@@ -3,59 +3,29 @@ name: Compress Images
 on:
   pull_request:
     paths:
-      - "**/*.svg"
-      - "**/*.png"
-      - "**/*.jpg"
-      - "**/*.jpeg"
-      - "**/*.gif"
-      - "**/*.webp"
-      - "**/*.avif"
-  workflow_dispatch:
-
-concurrency:
-  group: image-optimizer-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+      - '**/*.svg'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.gif'
+      - '**/*.webp'
+      - '**/*.avif'
 
 jobs:
   build:
-    name: cadamsdev/image-optimizer-action
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    name: stellasoftio/image-optimizer-action
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.head_ref || github.ref }}
-          fetch-depth: 0
-
-      - name: Check for optimizer loop
-        id: loop-check
-        run: |
-          last_commit=$(git log -1 --pretty=%s)
-          if [ "$last_commit" = "Optimized images" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "⏭️  Skipping optimizer: last commit was already optimized"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
+        uses: actions/checkout@v4
 
       - name: Compress Images
-        if: steps.loop-check.outputs.skip == 'false'
         id: compress-images
-        uses: cadamsdev/image-optimizer-action@v1
+        uses: stellasoftio/image-optimizer-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
-
-      - name: Push optimized images (rebase if needed)
-        if: steps.loop-check.outputs.skip == 'false' && steps.compress-images.outcome == 'failure'
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          if git log --oneline -1 | grep -q "Optimized images"; then
-            git pull --rebase origin "$HEAD_REF"
-            git push origin HEAD:"$HEAD_REF"
-          else
-            echo "Image optimizer failed before creating a commit."
-            exit 1
-          fi
+          export-webp: true
+          replace-original-after-export-webp: true
+          compress-webp: false
