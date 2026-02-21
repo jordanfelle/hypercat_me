@@ -20,20 +20,27 @@
     }
     /* Style the lightbox description as a badge in lower right */
     .glightbox-container .gslide-description {
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        background: rgba(0, 0, 0, 0.75);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: 600;
-        z-index: 10;
+        position: absolute !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: auto !important;
+        top: auto !important;
+        background: rgba(0, 0, 0, 0.75) !important;
+        color: white !important;
+        padding: 6px 12px !important;
+        border-radius: 4px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        z-index: 1000 !important;
+        width: auto !important;
+        max-width: none !important;
     }
     /* Hide default title positioning */
     .glightbox-container .gslide-title {
-        display: none;
+        display: none !important;
+    }
+    .gslide-description p {
+        margin: 0 !important;
     }
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -134,12 +141,32 @@
         try {
             var grid = document.querySelector('.poses-grid');
             if (window.GLightbox && grid) {
-                GLightbox({ 
+                var lightbox = GLightbox({ 
                     selector: '.poses-grid a',
                     touchNavigation: true,
                     loop: true,
-                    autoplayVideos: true
+                    autoplayVideos: true,
+                    descPosition: 'bottom',
+                    slideEffect: 'slide'
                 });
+                
+                // Function to style description as badge
+                function styleDescription() {
+                    var desc = document.querySelector('.gslide-description');
+                    if (desc) {
+                        desc.style.cssText = 'position: absolute !important; bottom: 20px !important; right: 20px !important; left: auto !important; top: auto !important; background: rgba(0, 0, 0, 0.75) !important; color: white !important; padding: 6px 12px !important; border-radius: 4px !important; font-size: 16px !important; font-weight: 600 !important; z-index: 1000 !important; width: auto !important; max-width: none !important; transform: none !important;';
+                    }
+                }
+                
+                // Apply styling when lightbox opens and on slide change
+                lightbox.on('open', function() {
+                    setTimeout(styleDescription, 100);
+                });
+                
+                lightbox.on('slide_changed', function() {
+                    setTimeout(styleDescription, 100);
+                });
+                
                 console.log('GLightbox initialized');
             } else {
                 console.warn('GLightbox or .poses-grid not found');
