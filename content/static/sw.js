@@ -71,9 +71,11 @@ self.addEventListener('fetch', function (event) {
                 return fetch(request).then(function (response) {
                     if (response && response.status === 200) {
                         var clone = response.clone();
-                        caches.open(RUNTIME_CACHE).then(function (cache) {
-                            cache.put(request, clone);
-                        });
+                        event.waitUntil(
+                            caches.open(RUNTIME_CACHE).then(function (cache) {
+                                return cache.put(request, clone);
+                            })
+                        );
                     }
                     return response;
                 });
@@ -90,9 +92,11 @@ self.addEventListener('fetch', function (event) {
                 return fetch(request).then(function (response) {
                     if (response && response.status === 200) {
                         var clone = response.clone();
-                        caches.open(STATIC_CACHE).then(function (cache) {
-                            cache.put(request, clone);
-                        });
+                        event.waitUntil(
+                            caches.open(STATIC_CACHE).then(function (cache) {
+                                return cache.put(request, clone);
+                            })
+                        );
                     }
                     return response;
                 });
@@ -107,13 +111,22 @@ self.addEventListener('fetch', function (event) {
             fetch(request).then(function (response) {
                 if (response && response.status === 200) {
                     var clone = response.clone();
-                    caches.open(RUNTIME_CACHE).then(function (cache) {
-                        cache.put(request, clone);
-                    });
+                    event.waitUntil(
+                        caches.open(RUNTIME_CACHE).then(function (cache) {
+                            return cache.put(request, clone);
+                        })
+                    );
                 }
                 return response;
             }).catch(function () {
-                return caches.match(request);
+                return caches.match(request).then(function (cached) {
+                    if (cached) return cached;
+                    return new Response(
+                        '<!doctype html><html><head><meta charset="utf-8"><title>Offline</title></head>' +
+                        '<body><h1>You are offline</h1><p>This page is not available offline yet.</p></body></html>',
+                        { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+                    );
+                });
             })
         );
         return;
