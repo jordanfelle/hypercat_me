@@ -75,7 +75,7 @@ This repository uses pre-commit hooks to maintain code quality. See [PRE_COMMIT_
 
 ### CDN Usage
 
-When loading external JavaScript and CSS libraries, always use [cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/) as the CDN provider. This ensures consistent, reliable, and fast delivery of assets.
+When loading external JavaScript and CSS libraries, always use the `https://cdnjs.cloudflare.com` CDN endpoint as the provider. This ensures consistent, reliable, and fast delivery of assets.
 
 **Example:**
 

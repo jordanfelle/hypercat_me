@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Validate that external JS/CSS libraries use cdnjs.cloudflare.com
+# Validate that external JS/CSS libraries use https://cdnjs.cloudflare.com
 # This hook checks for common CDN patterns and ensures consistency
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -11,15 +11,15 @@ failures=()
 
 # CDN patterns to check (excluding cdnjs.cloudflare.com)
 DISALLOWED_CDNS=(
-  "cdn.jsdelivr.net"
-  "unpkg.com"
-  "code.jquery.com"
-  "ajax.googleapis.com"
-  "://cdnjs\.com/"  # Match direct cdnjs.com URLs but not cdnjs.cloudflare.com
-  "maxcdn.bootstrapcdn.com"
-  "stackpath.bootstrapcdn.com"
-  "cdn.rawgit.com"
-  "rawgit.com"
+  "cdn\\.jsdelivr\\.net"
+  "unpkg\\.com"
+  "code\\.jquery\\.com"
+  "ajax\\.googleapis\\.com"
+  "://cdnjs\\.com/"  # Match direct cdnjs.com URLs but not cdnjs.cloudflare.com
+  "maxcdn\\.bootstrapcdn\\.com"
+  "stackpath\\.bootstrapcdn\\.com"
+  "cdn\\.rawgit\\.com"
+  "rawgit\\.com"
 )
 
 echo "Checking for non-cdnjs CDN usage in HTML files..."
@@ -47,10 +47,10 @@ if (( ${#failures[@]} > 0 )); then
     echo "  - $failure"
   done
   echo ""
-  echo "All external libraries must use cdnjs.cloudflare.com"
+  echo "All external libraries must use https://cdnjs.cloudflare.com"
   echo "Find replacements at: https://cdnjs.cloudflare.com/"
   exit 1
 fi
 
-echo "✅ All CDN usage is compliant with cdnjs.cloudflare.com"
+echo "✅ All CDN usage is compliant with https://cdnjs.cloudflare.com"
 exit 0
