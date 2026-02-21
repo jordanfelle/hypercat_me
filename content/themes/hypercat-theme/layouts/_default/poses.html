@@ -1,10 +1,25 @@
 {{- define "main" }}
-<article class="post-single">
-    <header class="post-header">
-        <h1 class="post-title">{{ .Title }}</h1>
-    </header>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        if (window.jQuery && jQuery.fn.justifiedGallery) {
+            jQuery('.poses-grid').justifiedGallery({
+                rowHeight: 220,
+                margins: 16,
+                lastRow: 'nojustify',
+                captions: false,
+                imagesSelector: 'img'
+            });
+        }
+    });
+</script>
+<header class="post-header">
+    <h1 class="post-title">{{ .Title }}</h1>
+</header>
 
-    <div class="poses-container">
+<div class="poses-container">
         {{- $poseCategories := slice "solo" "duo" "triple" "groups" }}
         
         {{- range $poseCategories }}
@@ -28,22 +43,19 @@
             {{- if gt (len $images) 0 }}
                 <div class="poses-grid">
                     {{- range $images }}
-                    {{- $small := .Resize "300x300 q85" }}
-                    {{- $medium := .Resize "600x600 q85" }}
-                    {{- $large := .Resize "1200x1200 q85" }}
-                    
-                    <div class="poses-grid-item">
-                        <a href="{{ .RelPermalink }}" class="poses-image-link" data-lightbox="poses-{{ $category }}" data-title="{{ .Name }}">
-                            <img 
-                                src="{{ $small.RelPermalink }}" 
-                                srcset="{{ $small.RelPermalink }} 300w, {{ $medium.RelPermalink }} 600w, {{ $large.RelPermalink }} 1200w"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                alt="{{ .Name }}"
-                                class="poses-grid-image"
-                                loading="lazy"
-                            >
-                        </a>
-                    </div>
+                    {{- $small := .Fit "300x2000 q85" }}
+                    {{- $medium := .Fit "600x2000 q85" }}
+                    {{- $large := .Fit "1200x2000 q85" }}
+                    <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-title="{{ .Name }}">
+                        <img 
+                            src="{{ $small.RelPermalink }}" 
+                            srcset="{{ $small.RelPermalink }} 300w, {{ $medium.RelPermalink }} 600w, {{ $large.RelPermalink }} 1200w"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            alt="{{ .Name }}"
+                            class="poses-grid-image"
+                            loading="lazy"
+                        >
+                    </a>
                     {{- end }}
                 </div>
             {{- else }}
@@ -52,5 +64,35 @@
         </section>
         {{- end }}
     </div>
+
 </article>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        if (window.jQuery && jQuery.fn.justifiedGallery) {
+            jQuery('.poses-grid').justifiedGallery({
+                rowHeight: 220,
+                margins: 16,
+                lastRow: 'nojustify',
+                captions: false,
+                imagesSelector: 'img'
+            });
+        }
+        // Initialize GLightbox for open source lightbox functionality
+        try {
+            var grid = document.querySelector('.poses-grid');
+            if (window.GLightbox && grid) {
+                GLightbox({ selector: '.poses-grid a' });
+                console.log('GLightbox initialized');
+            } else {
+                console.warn('GLightbox or .poses-grid not found');
+            }
+        } catch (e) {
+            console.error('GLightbox initialization failed:', e);
+        }
+    });
+</script>
 {{- end }}
