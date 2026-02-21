@@ -25,23 +25,31 @@ cd "/tmp/hugo-bin-${HUGO_VERSION}"
 # Download Hugo if not already present
 if [ ! -f "hugo" ]; then
   echo "Downloading Hugo ${HUGO_VERSION}..."
-  wget -q "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
+  wget -q -O "${HUGO_RELEASE}.tar.gz" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
     echo "Failed to download Hugo ${HUGO_VERSION}" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz"
     exit 1
   }
 
   echo "Downloading Hugo checksums..."
-  wget -q "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_checksums.txt" || {
+  wget -q -O "hugo_${HUGO_VERSION}_checksums.txt" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_checksums.txt" || {
     echo "Failed to download Hugo checksums" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
     exit 1
   }
 
   echo "Verifying Hugo archive checksum..."
-  sha256sum --check --ignore-missing "hugo_${HUGO_VERSION}_checksums.txt" || {
+  CHECKSUM_LINE="$(grep "  ${HUGO_RELEASE}.tar.gz$" "hugo_${HUGO_VERSION}_checksums.txt" || true)"
+  if [ -z "${CHECKSUM_LINE}" ]; then
+    echo "Checksum entry for ${HUGO_RELEASE}.tar.gz not found in hugo_${HUGO_VERSION}_checksums.txt" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+    exit 1
+  fi
+  if ! sha256sum --check --status - <<< "${CHECKSUM_LINE}"; then
     echo "Checksum verification failed for Hugo ${HUGO_VERSION}" >&2
     rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
     exit 1
-  }
+  fi
 
   echo "Extracting Hugo archive..."
   tar -xzf "${HUGO_RELEASE}.tar.gz" || {
