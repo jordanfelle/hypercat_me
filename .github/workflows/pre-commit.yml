@@ -110,7 +110,9 @@ jobs:
           fi
 
       - name: Build Hugo site
-        if: steps.pre-commit.outcome != 'failure'
+        if: >-
+          steps.pre-commit.outcome != 'failure' ||
+          (steps.pre-commit.outcome == 'failure' && github.event_name == 'push')
         run: |
           echo "Building Hugo site..."
           cd content
@@ -124,7 +126,9 @@ jobs:
           echo "Build successful"
 
       - name: Validate photo links
-        if: steps.pre-commit.outcome != 'failure'
+        if: >-
+          steps.pre-commit.outcome != 'failure' ||
+          (steps.pre-commit.outcome == 'failure' && github.event_name == 'push')
         run: bash scripts/validate-photo-links.sh
 
       - name: Validate HTML structure

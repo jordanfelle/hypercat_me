@@ -88,9 +88,19 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.5rem 0;
+        border: none;
+        background: none;
+        font: inherit;
+        color: inherit;
+        width: 100%;
+        text-align: left;
     }
     .poses-section-title:hover {
         opacity: 0.8;
+    }
+    .poses-section-title:focus {
+        outline: 2px solid rgba(0, 0, 0, 0.3);
+        outline-offset: 2px;
     }
     .poses-collapse-icon {
         display: inline-block;
@@ -141,8 +151,12 @@
         {{- $imageMap := dict }}
         {{- if $section }}
             {{- range $section.Resources.Match "*.{jpg,jpeg,png,webp,gif}" }}
-                {{- $numericName := int (path.BaseName .Name) }}
-                {{- $imageMap = merge $imageMap (dict (string $numericName) .) }}
+                {{- $baseName := path.BaseName .Name }}
+                {{- /* Only process files with purely numeric names */ -}}
+                {{- if gt (len (findRE "^[0-9]+$" $baseName)) 0 }}
+                    {{- $numericName := int $baseName }}
+                    {{- $imageMap = merge $imageMap (dict (string $numericName) .) }}
+                {{- end }}
             {{- end }}
             {{- /* Sort by numeric key and rebuild slice */ -}}
             {{- $sortedKeys := slice }}
@@ -156,11 +170,13 @@
         {{- end }}
         
         <section class="poses-section" id="{{ $category }}">
-            <h2 class="poses-section-title">
-                <span class="poses-collapse-icon">▼</span>
-                {{ $categoryTitle }}
+            <h2>
+                <button class="poses-section-title" aria-expanded="true" aria-controls="poses-content-{{ $category }}">
+                    <span class="poses-collapse-icon">▼</span>
+                    {{ $categoryTitle }}
+                </button>
             </h2>
-            <div class="poses-section-content">
+            <div class="poses-section-content" id="poses-content-{{ $category }}">
             {{- if gt (len $images) 0 }}
                 <div class="poses-grid">
                     {{- range $images }}
@@ -241,7 +257,9 @@
             titles.forEach(function(title) {
                 title.addEventListener('click', function() {
                     var section = this.closest('.poses-section');
-                    section.classList.toggle('collapsed');
+                    var isCollapsed = section.classList.toggle('collapsed');
+                    // Update aria-expanded attribute for accessibility
+                    this.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
                 });
             });
         }
