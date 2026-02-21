@@ -16,7 +16,7 @@ DISALLOWED_CDNS=(
   "unpkg\\.com"
   "code\\.jquery\\.com"
   "ajax\\.googleapis\\.com"
-  "://cdnjs\\.com/"  # Match direct cdnjs.com URLs but not cdnjs.cloudflare.com
+  "cdnjs\\.com/"  # Match direct https://cdnjs.com/ asset URLs (not cdnjs.cloudflare.com)
   "maxcdn\\.bootstrapcdn\\.com"
   "stackpath\\.bootstrapcdn\\.com"
   "cdn\\.rawgit\\.com"
@@ -28,7 +28,7 @@ echo "Checking for disallowed CDN usage in HTML files..."
 # Find all HTML files (excluding generated/vendored directories)
 while IFS= read -r -d '' file; do
   for cdn_pattern in "${DISALLOWED_CDNS[@]}"; do
-    if grep -HnE "(src|href)=[\"']https?://${cdn_pattern}" "$file" 2>/dev/null; then
+    if grep -HnEi "(src|href)[[:space:]]*=[[:space:]]*[\"'](https?:)?//${cdn_pattern}" "$file" 2>/dev/null; then
       failures+=("$file: uses disallowed CDN: $cdn_pattern")
     fi
   done
