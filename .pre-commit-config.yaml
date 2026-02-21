@@ -128,7 +128,7 @@ repos:
         entry: ./scripts/convert-images.sh
         language: script
         pass_filenames: false
-        files: ^(content/content/poses/)
+        files: ^$ # Disabled - Hugo now handles webp conversion directly
         stages: [pre-commit]
       - id: rename-poses-images
         name: Rename pose images

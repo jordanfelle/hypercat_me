@@ -226,9 +226,9 @@
             {{- if gt (len $images) 0 }}
                 <div class="poses-grid">
                     {{- range $images }}
-                    {{- $small := .Fit "300x2000 q85" }}
-                    {{- $medium := .Fit "600x2000 q85" }}
-                    {{- $large := .Fit "1200x2000 q85" }}
+                    {{- $small := .Fit "300x2000 webp q85" }}
+                    {{- $medium := .Fit "600x2000 webp q85" }}
+                    {{- $large := .Fit "1200x2000 webp q85" }}
                     {{- $imageName := path.BaseName .Name }}
                     <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-description="{{ $imageName }}">
                         <img 
