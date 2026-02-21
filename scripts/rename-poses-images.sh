@@ -19,8 +19,11 @@ final_files=()
 hash_file() {
     if command -v sha256sum >/dev/null 2>&1; then
         sha256sum "$1" | awk '{print $1}'
-    else
+    elif command -v shasum >/dev/null 2>&1; then
         shasum -a 256 "$1" | awk '{print $1}'
+    else
+        echo "Error: neither sha256sum nor shasum found. Cannot generate file hashes." >&2
+        exit 1
     fi
 }
 
@@ -33,11 +36,12 @@ for dir in "${ordered_dirs[@]}"; do
     # Sort by content hash for deterministic ordering.
     # Note: we enforce no tab/newline characters in filenames to keep sorting safe.
     temp_list=$(mktemp)
+    trap 'rm -f "$temp_list"' EXIT
     invalid_name=false
     while IFS= read -r -d '' file; do
-        base_name=$(basename "$file")
-        if [[ "$base_name" == *$'\t'* || "$base_name" == *$'\n'* || "$base_name" == *$'\r'* ]]; then
-            echo "Error: pose image filenames cannot contain tabs or newlines: $file"
+        # Validate full path (including directory components) for tabs/newlines/CR
+        if [[ "$file" == *$'\t'* || "$file" == *$'\n'* || "$file" == *$'\r'* ]]; then
+            echo "Error: pose image paths cannot contain tabs, newlines, or carriage returns: $file"
             invalid_name=true
             break
         fi
@@ -46,9 +50,10 @@ for dir in "${ordered_dirs[@]}"; do
         \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
         -print0)
     if [ "$invalid_name" = true ]; then
-        rm -f "$temp_list"
+        trap - EXIT
         exit 2
     fi
+    trap - EXIT
     ordered_files=$(sort -t$'\t' -k1,1 -k2,2 "$temp_list" | cut -f2)
     rm -f "$temp_list"
 

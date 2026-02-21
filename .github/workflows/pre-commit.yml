@@ -91,7 +91,7 @@ jobs:
             last_subject=$(git log -1 --pretty=%s)
             if [ "$last_author" = "github-actions[bot]" ] && echo "$last_subject" | grep -qi "pre-commit fixes"; then
               echo "Pre-commit fixes already applied by the bot; refusing to loop."
-              exit 1
+              exit 0
             fi
             git add -A
             git commit -m "chore: apply pre-commit fixes"
@@ -110,7 +110,7 @@ jobs:
             last_subject=$(git log -1 --pretty=%s)
             if [ "$last_author" = "github-actions[bot]" ] && echo "$last_subject" | grep -qi "pre-commit fixes"; then
               echo "Pre-commit fixes already applied by the bot; refusing to loop."
-              exit 1
+              exit 0
             fi
             git add -A
             git commit -m "chore: apply pre-commit fixes"
