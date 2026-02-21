@@ -63,18 +63,33 @@ self.addEventListener('fetch', function (event) {
     if (request.method !== 'GET') return;
     if (!url.startsWith('http')) return;
 
-    // Cache-first for images (pose images, etc.)
-    if (IMAGE_PATTERN.test(url)) {
+    // Parse URL once; bail on malformed URLs
+    var urlObj;
+    try {
+        urlObj = new URL(url);
+    } catch (e) {
+        return;
+    }
+    var pathname = urlObj.pathname;
+
+    // Cache-first for pose images — scoped to /poses/ to limit cache growth
+    var isPoseImage = (
+        urlObj.origin === self.location.origin &&
+        pathname.indexOf('/poses/') === 0 &&
+        IMAGE_PATTERN.test(pathname)
+    );
+
+    if (isPoseImage) {
         event.respondWith(
             caches.match(request).then(function (cached) {
                 if (cached) return cached;
                 return fetch(request).then(function (response) {
-                    if (response && response.status === 200) {
+                    if (response && (response.ok || response.type === 'opaque')) {
                         var clone = response.clone();
                         event.waitUntil(
                             caches.open(RUNTIME_CACHE).then(function (cache) {
                                 return cache.put(request, clone);
-                            })
+                            }).catch(function () {})
                         );
                     }
                     return response;
@@ -85,17 +100,17 @@ self.addEventListener('fetch', function (event) {
     }
 
     // Cache-first for JS/CSS assets (including CDN)
-    if (ASSET_PATTERN.test(url)) {
+    if (ASSET_PATTERN.test(pathname)) {
         event.respondWith(
             caches.match(request).then(function (cached) {
                 if (cached) return cached;
                 return fetch(request).then(function (response) {
-                    if (response && response.status === 200) {
+                    if (response && (response.ok || response.type === 'opaque')) {
                         var clone = response.clone();
                         event.waitUntil(
                             caches.open(STATIC_CACHE).then(function (cache) {
                                 return cache.put(request, clone);
-                            })
+                            }).catch(function () {})
                         );
                     }
                     return response;
@@ -109,12 +124,12 @@ self.addEventListener('fetch', function (event) {
     if (request.headers.get('accept') && request.headers.get('accept').includes('text/html')) {
         event.respondWith(
             fetch(request).then(function (response) {
-                if (response && response.status === 200) {
+                if (response && response.ok) {
                     var clone = response.clone();
                     event.waitUntil(
                         caches.open(RUNTIME_CACHE).then(function (cache) {
                             return cache.put(request, clone);
-                        })
+                        }).catch(function () {})
                     );
                 }
                 return response;
