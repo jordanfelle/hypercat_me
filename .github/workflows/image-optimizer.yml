@@ -1,15 +1,7 @@
 name: Compress Images
 
 on:
-  pull_request:
-    paths:
-      - "**/*.svg"
-      - "**/*.png"
-      - "**/*.jpg"
-      - "**/*.jpeg"
-      - "**/*.gif"
-      - "**/*.webp"
-      - "**/*.avif"
+  workflow_dispatch: # Only manually triggered while disabled
 
 concurrency:
   group: image-optimizer-${{ github.head_ref || github.ref }}
@@ -17,7 +9,6 @@ concurrency:
 
 jobs:
   build:
-    if: github.event.pull_request.head.repo.full_name == github.repository
     name: cadamsdev/image-optimizer-action
     permissions: write-all
     runs-on: ubuntu-latest
