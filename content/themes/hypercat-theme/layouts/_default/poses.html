@@ -1,23 +1,143 @@
 {{- define "main" }}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js"></script>
-<script>
-    window.addEventListener('DOMContentLoaded', function() {
-        if (window.jQuery && jQuery.fn.justifiedGallery) {
-            jQuery('.poses-grid').justifiedGallery({
-                rowHeight: 220,
-                margins: 16,
-                lastRow: 'nojustify',
-                captions: false,
-                imagesSelector: 'img'
-            });
-        }
-    });
-</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.0/css/glightbox.min.css">
+<style>
+    .poses-image-link {
+        position: relative;
+        display: inline-block;
+    }
+    .poses-image-number {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        pointer-events: none;
+        z-index: 10;
+    }
+    /* Lightbox badge styling */
+    .gslide-media {
+        position: relative !important;
+    }
+    .glightbox-container .gslide-description,
+    .gslide-description {
+        position: absolute !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: auto !important;
+        top: auto !important;
+        background: rgba(0, 0, 0, 0.75) !important;
+        color: white !important;
+        padding: 6px 12px !important;
+        border-radius: 4px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        z-index: 1000 !important;
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+    .glightbox-container .gslide-title {
+        display: none !important;
+    }
+    .gslide-description p {
+        margin: 0 !important;
+    }
+    /* Navigation links */
+    .poses-navigation {
+        margin: 2rem 0;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        text-align: center;
+    }
+    .poses-nav-links {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .poses-nav-link {
+        padding: 0.5rem 1.5rem;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        text-decoration: none;
+        color: inherit;
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+    .poses-nav-link:hover {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    /* Collapsible sections */
+    .poses-section {
+        margin-bottom: 2rem;
+    }
+    .poses-section-title {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border: none;
+        background: none;
+        font: inherit;
+        color: inherit;
+        width: 100%;
+        text-align: left;
+    }
+    .poses-section-title:hover {
+        opacity: 0.8;
+    }
+    .poses-section-title:focus {
+        outline: 2px solid rgba(0, 0, 0, 0.3);
+        outline-offset: 2px;
+    }
+    .poses-collapse-icon {
+        display: inline-block;
+        transition: transform 0.3s;
+        font-size: 0.8em;
+    }
+    .poses-section.collapsed .poses-collapse-icon {
+        transform: rotate(-90deg);
+    }
+    .poses-section-content {
+        display: grid;
+        grid-template-rows: 1fr;
+        overflow: hidden;
+        transition: grid-template-rows 0.3s ease-out, opacity 0.3s ease-out;
+        opacity: 1;
+    }
+    .poses-section.collapsed .poses-section-content {
+        grid-template-rows: 0fr;
+        opacity: 0;
+    }
+    .poses-section-content > * {
+        min-height: 0;
+    }
+</style>
+
 <header class="post-header">
     <h1 class="post-title">{{ .Title }}</h1>
 </header>
+
+<nav class="poses-navigation">
+    <ul class="poses-nav-links">
+        <li><a href="#solo" class="poses-nav-link">Solo</a></li>
+        <li><a href="#duo" class="poses-nav-link">Duo</a></li>
+        <li><a href="#triple" class="poses-nav-link">Triple</a></li>
+        <li><a href="#groups" class="poses-nav-link">Groups</a></li>
+    </ul>
+</nav>
 
 <div class="poses-container">
         {{- $poseCategories := slice "solo" "duo" "triple" "groups" }}
@@ -32,67 +152,158 @@
         
         {{- /* Get images from the section's resources */ -}}
         {{- $images := slice }}
+        {{- $imageMap := dict }}
         {{- if $section }}
             {{- range $section.Resources.Match "*.{jpg,jpeg,png,webp,gif}" }}
-                {{- $images = $images | append . }}
+                {{- $baseName := path.BaseName .Name }}
+                {{- /* Only process files with purely numeric names */ -}}
+                {{- if gt (len (findRE "^[0-9]+$" $baseName)) 0 }}
+                    {{- $numericName := int $baseName }}
+                    {{- $imageMap = merge $imageMap (dict (string $numericName) .) }}
+                {{- end }}
+            {{- end }}
+            {{- /* Sort by numeric key and rebuild slice */ -}}
+            {{- $sortedKeys := slice }}
+            {{- range $key, $val := $imageMap }}
+                {{- $sortedKeys = $sortedKeys | append (int $key) }}
+            {{- end }}
+            {{- $sortedKeys = sort $sortedKeys }}
+            {{- range $sortedKeys }}
+                {{- $images = $images | append (index $imageMap (string .)) }}
             {{- end }}
         {{- end }}
         
-        <section class="poses-section">
-            <h2 class="poses-section-title">{{ $categoryTitle }}</h2>
+        <section class="poses-section" id="{{ $category }}">
+            <h2>
+                <button class="poses-section-title" aria-expanded="true" aria-controls="poses-content-{{ $category }}">
+                    <span class="poses-collapse-icon">▼</span>
+                    {{ $categoryTitle }}
+                </button>
+            </h2>
+            <div class="poses-section-content" id="poses-content-{{ $category }}">
             {{- if gt (len $images) 0 }}
                 <div class="poses-grid">
                     {{- range $images }}
                     {{- $small := .Fit "300x2000 q85" }}
                     {{- $medium := .Fit "600x2000 q85" }}
                     {{- $large := .Fit "1200x2000 q85" }}
-                    <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-title="{{ .Name }}">
+                    {{- $imageName := path.BaseName .Name }}
+                    <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-description="{{ $imageName }}">
                         <img 
                             src="{{ $small.RelPermalink }}" 
                             srcset="{{ $small.RelPermalink }} 300w, {{ $medium.RelPermalink }} 600w, {{ $large.RelPermalink }} 1200w"
                             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            alt="{{ .Name }}"
+                            alt="Pose {{ $imageName }} in {{ $categoryTitle }} category"
                             class="poses-grid-image"
                             loading="lazy"
                         >
+                        <span class="poses-image-number">{{ $imageName }}</span>
                     </a>
                     {{- end }}
                 </div>
             {{- else }}
-                <p class="poses-empty-gallery">No images yet. Add images to <code>content/poses/{{ $category }}/</code></p>
+                <p class="poses-empty-gallery">No images yet. Add images to <code>content/content/poses/{{ $category }}/</code></p>
             {{- end }}
+            </div>
         </section>
         {{- end }}
-    </div>
+</div>
 
-</article>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
-<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.0/js/glightbox.min.js"></script>
 <script>
-    window.addEventListener('DOMContentLoaded', function() {
-        if (window.jQuery && jQuery.fn.justifiedGallery) {
-            jQuery('.poses-grid').justifiedGallery({
-                rowHeight: 220,
-                margins: 16,
-                lastRow: 'nojustify',
-                captions: false,
-                imagesSelector: 'img'
+    (function() {
+        'use strict';
+        
+        function initGallery() {
+            // Initialize justified gallery
+            if (window.jQuery && jQuery.fn.justifiedGallery) {
+                jQuery('.poses-grid').justifiedGallery({
+                    rowHeight: 220,
+                    margins: 16,
+                    lastRow: 'nojustify',
+                    captions: false,
+                    imagesSelector: 'img'
+                });
+            }
+            
+            // Initialize GLightbox
+            if (!window.GLightbox) return;
+            
+            var lightbox = GLightbox({ 
+                selector: '.poses-grid a',
+                touchNavigation: true,
+                loop: true,
+                slideEffect: 'slide'
+            });
+            
+            // Style description as badge on image
+            function styleDescription() {
+                // Process all slides to ensure descriptions are in the right place
+                var allSlides = document.querySelectorAll('.gslide');
+                allSlides.forEach(function(slide) {
+                    var desc = slide.querySelector('.gslide-description');
+                    var media = slide.querySelector('.gslide-media');
+                    if (desc && media && desc.parentElement !== media) {
+                        media.appendChild(desc);
+                    }
+                });
+            }
+            
+            lightbox.on('open', function() { setTimeout(styleDescription, 150); });
+            lightbox.on('slide_changed', function() { setTimeout(styleDescription, 50); });
+        }
+        
+        // Add collapsible section functionality
+        function initCollapsible() {
+            var titles = document.querySelectorAll('.poses-section-title');
+            titles.forEach(function(title) {
+                title.addEventListener('click', function() {
+                    var section = this.closest('.poses-section');
+                    var isCollapsed = section.classList.toggle('collapsed');
+                    // Update aria-expanded attribute for accessibility
+                    this.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+                });
             });
         }
-        // Initialize GLightbox for open source lightbox functionality
-        try {
-            var grid = document.querySelector('.poses-grid');
-            if (window.GLightbox && grid) {
-                GLightbox({ selector: '.poses-grid a' });
-                console.log('GLightbox initialized');
-            } else {
-                console.warn('GLightbox or .poses-grid not found');
-            }
-        } catch (e) {
-            console.error('GLightbox initialization failed:', e);
+        
+        // Smooth scroll for navigation links
+        function initNavigation() {
+            var navLinks = document.querySelectorAll('.poses-nav-link');
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var targetId = this.getAttribute('href').substring(1);
+                    var targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        // Expand section if collapsed
+                        if (targetSection.classList.contains('collapsed')) {
+                            targetSection.classList.remove('collapsed');
+                            // Update aria-expanded on the section toggle for accessibility
+                            var toggle = targetSection.querySelector('.poses-section-title');
+                            if (toggle) {
+                                toggle.setAttribute('aria-expanded', 'true');
+                            }
+                        }
+                        // Smooth scroll to section
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
         }
-    });
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initGallery();
+                initCollapsible();
+                initNavigation();
+            });
+        } else {
+            initGallery();
+            initCollapsible();
+            initNavigation();
+        }
+    })();
 </script>
 {{- end }}

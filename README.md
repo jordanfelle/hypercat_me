@@ -71,6 +71,28 @@ hypercat_me/
 
 This repository uses pre-commit hooks to maintain code quality. See [PRE_COMMIT_SETUP.md](PRE_COMMIT_SETUP.md) for installation and usage instructions.
 
+## External Dependencies
+
+### CDN Usage
+
+When loading external JavaScript and CSS libraries, use the `https://cdnjs.cloudflare.com` CDN endpoint as the provider. This ensures consistent, reliable, and fast delivery of assets.
+
+**Why cdnjs.cloudflare.com?**
+
+- Backed by Cloudflare's global CDN infrastructure for reliable performance
+- Comprehensive library coverage with automatic updates
+- Strong security practices and integrity checking
+- No tracking or analytics on delivered assets
+
+The pre-commit hook validates that HTML files don't use known problematic CDNs (jsdelivr, unpkg, code.jquery.com, etc.).
+
+**Example:**
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/library/version/style.min.css" />
+```
+
 ## Scripts
 
 This repository contains scripts in the `scripts/` directory to automate various tasks.
