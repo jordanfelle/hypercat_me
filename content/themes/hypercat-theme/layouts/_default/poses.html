@@ -220,19 +220,19 @@
             
             // Style description as badge on image
             function styleDescription() {
-                // Target the active slide's description, not just the first one
-                var activeSlide = document.querySelector('.gslide-active');
-                if (!activeSlide) return;
-                
-                var desc = activeSlide.querySelector('.gslide-description');
-                var media = activeSlide.querySelector('.gslide-media');
-                if (desc && media && desc.parentElement !== media) {
-                    media.appendChild(desc);
-                }
+                // Process all slides to ensure descriptions are in the right place
+                var allSlides = document.querySelectorAll('.gslide');
+                allSlides.forEach(function(slide) {
+                    var desc = slide.querySelector('.gslide-description');
+                    var media = slide.querySelector('.gslide-media');
+                    if (desc && media && desc.parentElement !== media) {
+                        media.appendChild(desc);
+                    }
+                });
             }
             
-            lightbox.on('open', function() { setTimeout(styleDescription, 100); });
-            lightbox.on('slide_changed', function() { setTimeout(styleDescription, 100); });
+            lightbox.on('open', function() { setTimeout(styleDescription, 150); });
+            lightbox.on('slide_changed', function() { setTimeout(styleDescription, 50); });
         }
         
         // Add collapsible section functionality
