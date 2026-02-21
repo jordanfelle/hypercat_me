@@ -48,11 +48,82 @@
     .gslide-description p {
         margin: 0 !important;
     }
+    /* Navigation links */
+    .poses-navigation {
+        margin: 2rem 0;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        text-align: center;
+    }
+    .poses-nav-links {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .poses-nav-link {
+        padding: 0.5rem 1.5rem;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        text-decoration: none;
+        color: inherit;
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+    .poses-nav-link:hover {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    /* Collapsible sections */
+    .poses-section {
+        margin-bottom: 2rem;
+    }
+    .poses-section-title {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+    }
+    .poses-section-title:hover {
+        opacity: 0.8;
+    }
+    .poses-collapse-icon {
+        display: inline-block;
+        transition: transform 0.3s;
+        font-size: 0.8em;
+    }
+    .poses-section.collapsed .poses-collapse-icon {
+        transform: rotate(-90deg);
+    }
+    .poses-section-content {
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        max-height: 10000px;
+        opacity: 1;
+    }
+    .poses-section.collapsed .poses-section-content {
+        max-height: 0;
+        opacity: 0;
+    }
 </style>
 
 <header class="post-header">
     <h1 class="post-title">{{ .Title }}</h1>
 </header>
+
+<nav class="poses-navigation">
+    <ul class="poses-nav-links">
+        <li><a href="#solo" class="poses-nav-link">Solo</a></li>
+        <li><a href="#duo" class="poses-nav-link">Duo</a></li>
+        <li><a href="#triple" class="poses-nav-link">Triple</a></li>
+        <li><a href="#groups" class="poses-nav-link">Groups</a></li>
+    </ul>
+</nav>
 
 <div class="poses-container">
         {{- $poseCategories := slice "solo" "duo" "triple" "groups" }}
@@ -84,8 +155,12 @@
             {{- end }}
         {{- end }}
         
-        <section class="poses-section">
-            <h2 class="poses-section-title">{{ $categoryTitle }}</h2>
+        <section class="poses-section" id="{{ $category }}">
+            <h2 class="poses-section-title">
+                <span class="poses-collapse-icon">▼</span>
+                {{ $categoryTitle }}
+            </h2>
+            <div class="poses-section-content">
             {{- if gt (len $images) 0 }}
                 <div class="poses-grid">
                     {{- range $images }}
@@ -109,6 +184,7 @@
             {{- else }}
                 <p class="poses-empty-gallery">No images yet. Add images to <code>content/poses/{{ $category }}/</code></p>
             {{- end }}
+            </div>
         </section>
         {{- end }}
 </div>
@@ -155,10 +231,45 @@
             lightbox.on('slide_changed', function() { setTimeout(styleDescription, 100); });
         }
         
+        // Add collapsible section functionality
+        function initCollapsible() {
+            var titles = document.querySelectorAll('.poses-section-title');
+            titles.forEach(function(title) {
+                title.addEventListener('click', function() {
+                    var section = this.closest('.poses-section');
+                    section.classList.toggle('collapsed');
+                });
+            });
+        }
+        
+        // Smooth scroll for navigation links
+        function initNavigation() {
+            var navLinks = document.querySelectorAll('.poses-nav-link');
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var targetId = this.getAttribute('href').substring(1);
+                    var targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        // Expand section if collapsed
+                        targetSection.classList.remove('collapsed');
+                        // Smooth scroll to section
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        }
+        
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initGallery);
+            document.addEventListener('DOMContentLoaded', function() {
+                initGallery();
+                initCollapsible();
+                initNavigation();
+            });
         } else {
             initGallery();
+            initCollapsible();
+            initNavigation();
         }
     })();
 </script>
