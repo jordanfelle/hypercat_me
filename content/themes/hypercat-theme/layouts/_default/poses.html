@@ -124,6 +124,44 @@
     .poses-section-content > * {
         min-height: 0;
     }
+    .poses-back-to-top {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: none;
+        background: rgba(0, 0, 0, 0.75);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(8px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+        z-index: 999;
+    }
+    .poses-back-to-top.is-visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .poses-back-to-top:focus {
+        outline: 2px solid rgba(0, 0, 0, 0.35);
+        outline-offset: 2px;
+    }
+    @media (max-width: 480px) {
+        .poses-back-to-top {
+            right: 12px;
+            bottom: 12px;
+            width: 40px;
+            height: 40px;
+        }
+    }
 </style>
 
 <header class="post-header">
@@ -209,6 +247,10 @@
         {{- end }}
 </div>
 
+<button type="button" class="poses-back-to-top" aria-label="Back to top">
+    ▲
+</button>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/js/glightbox.min.js"></script>
@@ -293,16 +335,38 @@
             });
         }
         
+            function initBackToTop() {
+                var backToTop = document.querySelector('.poses-back-to-top');
+                if (!backToTop) return;
+
+                function toggleVisibility() {
+                    if (window.scrollY > 200) {
+                        backToTop.classList.add('is-visible');
+                    } else {
+                        backToTop.classList.remove('is-visible');
+                    }
+                }
+
+                backToTop.addEventListener('click', function() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+
+                toggleVisibility();
+                window.addEventListener('scroll', toggleVisibility, { passive: true });
+            }
+        
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
                 initGallery();
                 initCollapsible();
                 initNavigation();
+                    initBackToTop();
             });
         } else {
             initGallery();
             initCollapsible();
             initNavigation();
+                initBackToTop();
         }
     })();
 </script>
