@@ -5,7 +5,17 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Read Hugo version from .hugo-version file
-HUGO_VERSION=$(cat "${SCRIPT_DIR}/.hugo-version")
+if [ ! -f "${SCRIPT_DIR}/.hugo-version" ]; then
+  echo "Error: Hugo version file not found at ${SCRIPT_DIR}/.hugo-version" >&2
+  exit 1
+fi
+
+# Sanitize Hugo version: remove carriage returns and whitespace
+HUGO_VERSION=$(tr -d '\r' < "${SCRIPT_DIR}/.hugo-version" | tr -d '[:space:]')
+if [ -z "${HUGO_VERSION}" ]; then
+  echo "Error: Hugo version in ${SCRIPT_DIR}/.hugo-version is empty or invalid" >&2
+  exit 1
+fi
 HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 
 # Create a versioned temporary directory for Hugo to handle version changes
@@ -15,10 +25,31 @@ cd "/tmp/hugo-bin-${HUGO_VERSION}"
 # Download Hugo if not already present
 if [ ! -f "hugo" ]; then
   echo "Downloading Hugo ${HUGO_VERSION}..."
-  wget -q "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
+  wget -q -O "${HUGO_RELEASE}.tar.gz" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
     echo "Failed to download Hugo ${HUGO_VERSION}" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz"
     exit 1
   }
+
+  echo "Downloading Hugo checksums..."
+  wget -q -O "hugo_${HUGO_VERSION}_checksums.txt" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_checksums.txt" || {
+    echo "Failed to download Hugo checksums" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+    exit 1
+  }
+
+  echo "Verifying Hugo archive checksum..."
+  CHECKSUM_LINE="$(grep "  ${HUGO_RELEASE}.tar.gz$" "hugo_${HUGO_VERSION}_checksums.txt" || true)"
+  if [ -z "${CHECKSUM_LINE}" ]; then
+    echo "Checksum entry for ${HUGO_RELEASE}.tar.gz not found in hugo_${HUGO_VERSION}_checksums.txt" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+    exit 1
+  fi
+  if ! sha256sum --check --status - <<< "${CHECKSUM_LINE}"; then
+    echo "Checksum verification failed for Hugo ${HUGO_VERSION}" >&2
+    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+    exit 1
+  fi
 
   echo "Extracting Hugo archive..."
   tar -xzf "${HUGO_RELEASE}.tar.gz" || {
@@ -35,10 +66,13 @@ fi
 # Add Hugo to PATH
 export PATH="/tmp/hugo-bin-${HUGO_VERSION}:$PATH"
 
-# Verify Hugo version
-echo "Using Hugo version:"
-./hugo version
+# Verify Hugo binary and version using PATH
+echo "Using Hugo binary:"
+command -v hugo || { echo "Error: Hugo binary not found in PATH" >&2; exit 1; }
 
-# Return to repository root and build
+echo "Using Hugo version:"
+hugo version
+
+# Change to content directory and run the build
 cd "${SCRIPT_DIR}/content"
 npm run build
