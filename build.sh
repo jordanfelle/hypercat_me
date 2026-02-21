@@ -24,9 +24,14 @@ if ! grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "${HUGO_VERSION}"; then
 fi
 HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 
-# Create a versioned temporary directory for Hugo to handle version changes
-mkdir -p "/tmp/hugo-bin-${HUGO_VERSION}"
-cd "/tmp/hugo-bin-${HUGO_VERSION}"
+# Use a user-owned directory under SCRIPT_DIR to safely cache the Hugo binary
+HUGO_DIR="${SCRIPT_DIR}/.hugo-bin-${HUGO_VERSION}"
+HUGO_BIN="${HUGO_DIR}/hugo"
+
+# Create the versioned Hugo directory with restrictive permissions
+mkdir -p "${HUGO_DIR}"
+chmod 700 "${HUGO_DIR}"
+cd "${HUGO_DIR}"
 
 HUGO_BINARY_CHECKSUM_FILE="hugo.sha256"
 
@@ -114,16 +119,17 @@ if [ "${NEED_DOWNLOAD}" = "true" ]; then
   rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
 fi
 
-# Add Hugo to PATH
-export PATH="/tmp/hugo-bin-${HUGO_VERSION}:$PATH"
-
-# Verify Hugo binary and version using PATH
+# Verify Hugo binary exists and is executable
 echo "Using Hugo binary:"
-command -v hugo || { echo "Error: Hugo binary not found in PATH" >&2; exit 1; }
+echo "${HUGO_BIN}"
+if [ ! -x "${HUGO_BIN}" ]; then
+  echo "Error: Hugo binary not found or not executable at ${HUGO_BIN}" >&2
+  exit 1
+fi
 
 echo "Using Hugo version:"
-HUGO_VERSION_OUTPUT="$(hugo version 2>&1)" || {
-  echo "Error: Failed to execute 'hugo version'" >&2
+HUGO_VERSION_OUTPUT="$("${HUGO_BIN}" version 2>&1)" || {
+  echo "Error: Failed to execute Hugo version check" >&2
   echo "${HUGO_VERSION_OUTPUT}" >&2
   exit 1
 }
@@ -143,10 +149,10 @@ if [[ "${HUGO_VERSION_OUTPUT}" != *"extended"* ]]; then
   exit 1
 fi
 
-# Change to content directory and run the build
+# Change to content directory and run a non-minified Hugo build
 if [ ! -d "${SCRIPT_DIR}/content" ]; then
   echo "Error: content directory not found at ${SCRIPT_DIR}/content" >&2
   exit 1
 fi
 cd "${SCRIPT_DIR}/content"
-npm run build
+"${HUGO_BIN}"
