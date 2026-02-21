@@ -35,35 +35,57 @@ for dir in "${ordered_dirs[@]}"; do
     # Choose sorting method based on environment
     if [ "$SORT_METHOD" = "filename" ]; then
         # In CI: sort by current filename to maintain stable order
-        sort_cmd="sort -V"
+        # Output only filename (no timestamp) so sort -V works correctly on filenames
+        while read -r file; do
+            if [ -z "$file" ]; then
+                continue
+            fi
+            original_files+=("$file")
+            extension="${file##*.}"
+            new_name="$count.$extension"
+            dir_path=$(dirname "$file")
+            new_path="$dir_path/$new_name"
+
+            if [ "$file" != "$new_path" ]; then
+                needs_rename=true
+            fi
+
+            # Store temp and final names for later
+            tmp_path="$dir_path/tmp_$$_${new_name}"
+            temp_files+=("$tmp_path")
+            final_files+=("$new_path")
+
+            count=$((count+1))
+        done < <(find "$full_dir" -type f \
+                  \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
+                  -printf "%p\n" | sort -V)
     else
         # Locally: sort by modification time, then by filename for ties
-        sort_cmd="sort -n -k1,1 -k2,2V"
+        # Output timestamp and filename, then sort and remove timestamp
+        while read -r file; do
+            if [ -z "$file" ]; then
+                continue
+            fi
+            original_files+=("$file")
+            extension="${file##*.}"
+            new_name="$count.$extension"
+            dir_path=$(dirname "$file")
+            new_path="$dir_path/$new_name"
+
+            if [ "$file" != "$new_path" ]; then
+                needs_rename=true
+            fi
+
+            # Store temp and final names for later
+            tmp_path="$dir_path/tmp_$$_${new_name}"
+            temp_files+=("$tmp_path")
+            final_files+=("$new_path")
+
+            count=$((count+1))
+        done < <(find "$full_dir" -type f \
+                  \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
+                  -printf "%T@ %p\n" | sort -n -k1,1 -k2,2V | cut -d' ' -f2-)
     fi
-
-    while read -r file; do
-        if [ -z "$file" ]; then
-            continue
-        fi
-        original_files+=("$file")
-        extension="${file##*.}"
-        new_name="$count.$extension"
-        dir_path=$(dirname "$file")
-        new_path="$dir_path/$new_name"
-
-        if [ "$file" != "$new_path" ]; then
-            needs_rename=true
-        fi
-
-        # Store temp and final names for later
-        tmp_path="$dir_path/tmp_$$_${new_name}"
-        temp_files+=("$tmp_path")
-        final_files+=("$new_path")
-
-        count=$((count+1))
-    done < <(find "$full_dir" -type f \
-              \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-              -printf "%T@ %p\n" | $sort_cmd | cut -d' ' -f2-)
 done
 
 
