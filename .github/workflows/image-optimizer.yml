@@ -8,8 +8,6 @@ on:
       - "**/*.jpg"
       - "**/*.jpeg"
       - "**/*.gif"
-      - "**/*.webp"
-      - "**/*.avif"
 
 concurrency:
   group: image-optimizer-${{ github.head_ref || github.ref }}
