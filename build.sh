@@ -16,14 +16,39 @@ if [ -z "${HUGO_VERSION}" ]; then
   echo "Error: Hugo version in ${SCRIPT_DIR}/.hugo-version is empty or invalid" >&2
   exit 1
 fi
+
+# Validate Hugo version format (e.g., 0.156.0)
+if ! grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "${HUGO_VERSION}"; then
+  echo "Error: Hugo version '${HUGO_VERSION}' in ${SCRIPT_DIR}/.hugo-version is invalid. Expected format: MAJOR.MINOR.PATCH (e.g., 0.156.0)" >&2
+  exit 1
+fi
 HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 
 # Create a versioned temporary directory for Hugo to handle version changes
 mkdir -p "/tmp/hugo-bin-${HUGO_VERSION}"
 cd "/tmp/hugo-bin-${HUGO_VERSION}"
 
-# Download Hugo if not already present
-if [ ! -f "hugo" ]; then
+HUGO_BINARY_CHECKSUM_FILE="hugo.sha256"
+
+# Verify an existing Hugo binary's checksum; sets NEED_DOWNLOAD=false if valid
+NEED_DOWNLOAD=true
+if [ -f "hugo" ] && [ -f "${HUGO_BINARY_CHECKSUM_FILE}" ]; then
+  if command -v sha256sum >/dev/null 2>&1; then
+    if sha256sum --check --status "${HUGO_BINARY_CHECKSUM_FILE}" 2>/dev/null; then
+      NEED_DOWNLOAD=false
+    fi
+  elif command -v shasum >/dev/null 2>&1; then
+    if shasum -a 256 --check "${HUGO_BINARY_CHECKSUM_FILE}" >/dev/null 2>&1; then
+      NEED_DOWNLOAD=false
+    fi
+  fi
+fi
+
+# Download and verify Hugo if missing or checksum verification failed
+if [ "${NEED_DOWNLOAD}" = "true" ]; then
+  # Clean up any stale artifacts (including a potentially tampered binary)
+  rm -f hugo "${HUGO_BINARY_CHECKSUM_FILE}" "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+
   echo "Downloading Hugo ${HUGO_VERSION}..."
   wget -q -O "${HUGO_RELEASE}.tar.gz" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
     echo "Failed to download Hugo ${HUGO_VERSION}" >&2
@@ -77,6 +102,16 @@ if [ ! -f "hugo" ]; then
     rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt" hugo
     exit 1
   }
+
+  # Save binary checksum for integrity verification on future runs
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum hugo > "${HUGO_BINARY_CHECKSUM_FILE}"
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 hugo > "${HUGO_BINARY_CHECKSUM_FILE}"
+  fi
+
+  # Cleanup downloaded artifacts after successful extraction and setup
+  rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
 fi
 
 # Add Hugo to PATH
@@ -87,7 +122,26 @@ echo "Using Hugo binary:"
 command -v hugo || { echo "Error: Hugo binary not found in PATH" >&2; exit 1; }
 
 echo "Using Hugo version:"
-hugo version
+HUGO_VERSION_OUTPUT="$(hugo version 2>&1)" || {
+  echo "Error: Failed to execute 'hugo version'" >&2
+  echo "${HUGO_VERSION_OUTPUT}" >&2
+  exit 1
+}
+echo "${HUGO_VERSION_OUTPUT}"
+
+# Validate that the Hugo version matches the expected version and is extended
+# Hugo version output format: "hugo v0.156.0-<hash>+extended ..." or "hugo v0.156.0+extended ..."
+if [[ "${HUGO_VERSION_OUTPUT}" != *"v${HUGO_VERSION}-"* && "${HUGO_VERSION_OUTPUT}" != *"v${HUGO_VERSION}+"* ]]; then
+  echo "Error: Hugo version mismatch. Expected v${HUGO_VERSION}, but got:" >&2
+  echo "  ${HUGO_VERSION_OUTPUT}" >&2
+  exit 1
+fi
+
+if [[ "${HUGO_VERSION_OUTPUT}" != *"extended"* ]]; then
+  echo "Error: Non-extended Hugo binary detected. The extended version is required." >&2
+  echo "  ${HUGO_VERSION_OUTPUT}" >&2
+  exit 1
+fi
 
 # Change to content directory and run the build
 if [ ! -d "${SCRIPT_DIR}/content" ]; then
