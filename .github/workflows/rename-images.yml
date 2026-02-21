@@ -34,7 +34,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
+          if ! git diff --quiet; then
             git add content/content/poses
             git commit -m "Automated rename of pose images"
             git push

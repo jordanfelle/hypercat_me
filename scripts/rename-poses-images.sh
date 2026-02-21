@@ -36,6 +36,19 @@ for dir in "${ordered_dirs[@]}"; do
     if [ "$SORT_METHOD" = "hash" ]; then
         # Sort by content hash for deterministic ordering.
         # Note: we enforce no tab/newline characters in filenames to keep sorting safe.
+        ordered_files=$(find "$full_dir" -type f \
+            \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
+            -print0 | while IFS= read -r -d '' file; do
+                base_name=$(basename "$file")
+                if [[ "$base_name" == *$'\t'* || "$base_name" == *$'\n'* || "$base_name" == *$'\r'* ]]; then
+                    echo "Error: pose image filenames cannot contain tabs or newlines: $file"
+                    exit 2
+                fi
+                printf '%s\t%s\n' "$(hash_file "$file")" "$file"
+            done | sort -t$'\t' -k1,1 -k2,2 | cut -f2)
+        if [ $? -ne 0 ]; then
+            exit 2
+        fi
         while read -r file; do
             if [ -z "$file" ]; then
                 continue
@@ -56,16 +69,7 @@ for dir in "${ordered_dirs[@]}"; do
             final_files+=("$new_path")
 
             count=$((count+1))
-        done < <(find "$full_dir" -type f \
-            \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-            -print0 | while IFS= read -r -d '' file; do
-                base_name=$(basename "$file")
-                if [[ "$base_name" == *$'\t'* || "$base_name" == *$'\n'* || "$base_name" == *$'\r'* ]]; then
-                    echo "Error: pose image filenames cannot contain tabs or newlines: $file"
-                    exit 2
-                fi
-                printf '%s\t%s\n' "$(hash_file "$file")" "$file"
-            done | sort -t$'\t' -k1,1 -k2,2 | cut -f2)
+        done <<< "$ordered_files"
     fi
 done
 
