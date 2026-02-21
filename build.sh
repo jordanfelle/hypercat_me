@@ -149,7 +149,8 @@ if [[ "${HUGO_VERSION_OUTPUT}" != *"extended"* ]]; then
   exit 1
 fi
 
-# Change to content directory and run a non-minified Hugo build
+# Change to content directory and run Hugo without --minify.
+# Note: --minify is intentionally omitted as it causes JSON parse errors in cons pages.
 if [ ! -d "${SCRIPT_DIR}/content" ]; then
   echo "Error: content directory not found at ${SCRIPT_DIR}/content" >&2
   exit 1
