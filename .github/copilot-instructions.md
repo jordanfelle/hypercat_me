@@ -26,7 +26,7 @@ Install Hugo v0.146.0 or higher (extended version):
 wget https://github.com/gohugoio/hugo/releases/download/v0.146.0/hugo_extended_0.146.0_linux-amd64.tar.gz
 tar -xzf hugo_extended_0.146.0_linux-amd64.tar.gz
 sudo mv hugo /usr/local/bin/
-hugo version  # Verify: hugo v0.146.0+extended
+hugo version  # Verify: hugo v0.156.0+extended
 ```
 
 The extended version is required for SCSS/SASS processing. See https://gohugo.io/installation/ for other platforms.
