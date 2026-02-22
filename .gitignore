@@ -35,3 +35,6 @@ hugo_extended_*.tar.gz
 hugo
 LICENSE
 node_modules/**
+
+# Hugo binary cache
+.hugo-bin-*/
