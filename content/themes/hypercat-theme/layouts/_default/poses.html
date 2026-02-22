@@ -50,85 +50,59 @@
     .gslide-description p {
         margin: 0 !important;
     }
-    /* Navigation links */
+    /* Floating/sticky navigation bar */
     .poses-navigation {
-        margin: 2rem 0;
-        padding: 1rem;
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 8px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding: 0.75rem 1rem;
+        background: var(--theme);
+        border-bottom: 1px solid var(--border);
         text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        margin: 0 calc(-1 * var(--gap));
     }
     .poses-nav-links {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.5rem;
         margin: 0;
         padding: 0;
         list-style: none;
     }
-    .poses-nav-link {
-        padding: 0.5rem 1.5rem;
-        background: rgba(0, 0, 0, 0.1);
+    .poses-nav-btn {
+        padding: 0.4rem 1.25rem;
+        background: var(--entry);
+        border: 1px solid var(--border);
         border-radius: 4px;
         text-decoration: none;
-        color: inherit;
+        color: var(--primary);
         font-weight: 500;
-        transition: background 0.2s;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+        font-family: inherit;
     }
-    .poses-nav-link:hover {
-        background: rgba(0, 0, 0, 0.2);
+    .poses-nav-btn:hover {
+        background: var(--tertiary);
     }
-    /* Collapsible sections */
+    .poses-nav-btn.active {
+        background: var(--primary);
+        color: var(--theme);
+        border-color: var(--primary);
+    }
+    /* Sections */
     .poses-section {
         margin-bottom: 2rem;
     }
-    .poses-section-title {
-        cursor: pointer;
-        user-select: none;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 0;
-        border: none;
-        background: none;
-        font: inherit;
-        color: inherit;
-        width: 100%;
-        text-align: left;
+    .poses-section.poses-hidden {
+        display: none;
     }
-    .poses-section-title:hover {
-        opacity: 0.8;
-    }
-    .poses-section-title:focus {
-        outline: 2px solid rgba(0, 0, 0, 0.3);
-        outline-offset: 2px;
-    }
-    .poses-collapse-icon {
-        display: inline-block;
-        transition: transform 0.3s;
-        font-size: 0.8em;
-    }
-    .poses-section.collapsed .poses-collapse-icon {
-        transform: rotate(-90deg);
-    }
-    .poses-section-content {
-        display: grid;
-        grid-template-rows: 1fr;
-        overflow: hidden;
-        transition: grid-template-rows 0.3s ease-out, max-height 0.3s ease-out, opacity 0.3s ease-out, margin 0.3s ease-out, padding 0.3s ease-out;
-        opacity: 1;
-        max-height: none;
-    }
-    .poses-section.collapsed .poses-section-content {
-        grid-template-rows: 0fr;
-        max-height: 0;
-        opacity: 0;
-        margin: 0;
-        padding: 0;
-    }
-    .poses-section-content > * {
-        min-height: 0;
+    .poses-section-heading {
+        font-size: 24px;
+        margin: 24px 0 16px;
+        font-weight: 600;
     }
     .poses-back-to-top {
         position: fixed;
@@ -167,6 +141,10 @@
             width: 40px;
             height: 40px;
         }
+        .poses-nav-btn {
+            padding: 0.4rem 0.9rem;
+            font-size: 14px;
+        }
     }
 </style>
 
@@ -174,12 +152,13 @@
     <h1 class="post-title">{{ .Title }}</h1>
 </header>
 
-<nav class="poses-navigation">
-    <ul class="poses-nav-links">
-        <li><a href="#solo" class="poses-nav-link">Solo</a></li>
-        <li><a href="#duo" class="poses-nav-link">Duo</a></li>
-        <li><a href="#triple" class="poses-nav-link">Triple</a></li>
-        <li><a href="#groups" class="poses-nav-link">Groups</a></li>
+<nav class="poses-navigation" aria-label="Pose category filter">
+    <ul class="poses-nav-links" role="list">
+        <li><button class="poses-nav-btn active" data-filter="all" aria-pressed="true">All</button></li>
+        <li><button class="poses-nav-btn" data-filter="solo" aria-pressed="false">Solo</button></li>
+        <li><button class="poses-nav-btn" data-filter="duo" aria-pressed="false">Duo</button></li>
+        <li><button class="poses-nav-btn" data-filter="triple" aria-pressed="false">Triple</button></li>
+        <li><button class="poses-nav-btn" data-filter="groups" aria-pressed="false">Groups</button></li>
     </ul>
 </nav>
 
@@ -217,16 +196,10 @@
             {{- end }}
         {{- end }}
         
-        <section class="poses-section" id="{{ $category }}">
-            <h2>
-                <button class="poses-section-title" aria-expanded="true" aria-controls="poses-content-{{ $category }}">
-                    <span class="poses-collapse-icon">▼</span>
-                    {{ $categoryTitle }}
-                </button>
-            </h2>
-            <div class="poses-section-content" id="poses-content-{{ $category }}">
+        <section class="poses-section" id="{{ $category }}" data-category="{{ $category }}">
+            <h2 class="poses-section-heading">{{ $categoryTitle }}</h2>
             {{- if gt (len $images) 0 }}
-                <div class="poses-grid">
+                <div class="poses-grid" id="poses-grid-{{ $category }}">
                     {{- range $images }}
                     {{- $small := .Fit "300x2000 webp q85" }}
                     {{- $medium := .Fit "600x2000 webp q85" }}
@@ -248,7 +221,6 @@
             {{- else }}
                 <p class="poses-empty-gallery">No images yet. Add images to <code>content/content/poses/{{ $category }}/</code></p>
             {{- end }}
-            </div>
         </section>
         {{- end }}
 </div>
@@ -263,11 +235,15 @@
 <script>
     (function() {
         'use strict';
-        
-        function initGallery() {
-            // Initialize justified gallery
+
+        var lightbox = null;
+
+        function initGallery(selector) {
+            // Initialize justified gallery for visible grids
             if (window.jQuery && jQuery.fn.justifiedGallery) {
-                jQuery('.poses-grid').justifiedGallery({
+                var target = selector ? jQuery(selector) : jQuery('.poses-grid');
+                try { target.justifiedGallery('destroy'); } catch(e) {}
+                target.justifiedGallery({
                     rowHeight: 220,
                     margins: 16,
                     lastRow: 'nojustify',
@@ -275,20 +251,21 @@
                     imagesSelector: 'img'
                 });
             }
-            
-            // Initialize GLightbox
+
+            // Reinitialize GLightbox for currently visible images
             if (!window.GLightbox) return;
-            
-            var lightbox = GLightbox({ 
-                selector: '.poses-grid a',
+            if (lightbox) {
+                lightbox.destroy();
+            }
+            lightbox = GLightbox({
+                selector: '.poses-section:not(.poses-hidden) .poses-grid a',
                 touchNavigation: true,
                 loop: true,
                 slideEffect: 'slide'
             });
-            
+
             // Style description as badge on image
             function styleDescription() {
-                // Process all slides to ensure descriptions are in the right place
                 var allSlides = document.querySelectorAll('.gslide');
                 Array.prototype.forEach.call(allSlides, function(slide) {
                     var desc = slide.querySelector('.gslide-description');
@@ -298,95 +275,83 @@
                     }
                 });
             }
-            
+
             lightbox.on('open', function() { setTimeout(styleDescription, 150); });
             lightbox.on('slide_changed', function() { setTimeout(styleDescription, 50); });
         }
-        
-        // Add collapsible section functionality
-        function initCollapsible() {
-            var titles = document.querySelectorAll('.poses-section-title');
-            Array.prototype.forEach.call(titles, function(title) {
-                title.addEventListener('click', function() {
-                    var el = this;
-                    var section = el.parentNode;
-                    while (section && !section.classList.contains('poses-section')) {
-                        section = section.parentNode;
-                    }
-                    if (!section) return;
-                    var isCollapsed = section.classList.toggle('collapsed');
-                    // Update aria-expanded attribute for accessibility
-                    el.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
-                });
-            });
-        }
-        
-        // Smooth scroll for navigation links
-        function initNavigation() {
-            var navLinks = document.querySelectorAll('.poses-nav-link');
-            Array.prototype.forEach.call(navLinks, function(link) {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    var targetId = this.getAttribute('href').substring(1);
-                    var targetSection = document.getElementById(targetId);
-                    if (targetSection) {
-                        // Expand section if collapsed
-                        if (targetSection.classList.contains('collapsed')) {
-                            targetSection.classList.remove('collapsed');
-                            // Update aria-expanded on the section toggle for accessibility
-                            var toggle = targetSection.querySelector('.poses-section-title');
-                            if (toggle) {
-                                toggle.setAttribute('aria-expanded', 'true');
-                            }
-                        }
-                        // Smooth scroll to section
-                        try {
-                            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        } catch (err) {
-                            targetSection.scrollIntoView(true);
-                        }
-                    }
-                });
-            });
-        }
-        
-            function initBackToTop() {
-                var backToTop = document.querySelector('.poses-back-to-top');
-                if (!backToTop) return;
 
-                function toggleVisibility() {
-                    var scrollTop = window.scrollY !== undefined ? window.scrollY : window.pageYOffset;
-                    if (scrollTop > 200) {
-                        backToTop.classList.add('is-visible');
-                    } else {
-                        backToTop.classList.remove('is-visible');
-                    }
+        function setFilter(filter) {
+            var sections = document.querySelectorAll('.poses-section');
+            Array.prototype.forEach.call(sections, function(section) {
+                var category = section.getAttribute('data-category');
+                if (filter === 'all' || filter === category) {
+                    section.classList.remove('poses-hidden');
+                } else {
+                    section.classList.add('poses-hidden');
                 }
+            });
 
-                backToTop.addEventListener('click', function() {
-                    try {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } catch (err) {
-                        window.scrollTo(0, 0);
-                    }
-                });
+            // Update active button state
+            var buttons = document.querySelectorAll('.poses-nav-btn');
+            Array.prototype.forEach.call(buttons, function(btn) {
+                var isActive = btn.getAttribute('data-filter') === filter;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
 
-                toggleVisibility();
-                window.addEventListener('scroll', toggleVisibility, { passive: true });
+            // Reinitialize gallery for newly visible sections
+            if (filter === 'all') {
+                initGallery(null);
+            } else {
+                initGallery('#poses-grid-' + filter);
             }
-        
+        }
+
+        function initFilter() {
+            var buttons = document.querySelectorAll('.poses-nav-btn');
+            Array.prototype.forEach.call(buttons, function(btn) {
+                btn.addEventListener('click', function() {
+                    var filter = this.getAttribute('data-filter');
+                    setFilter(filter);
+                });
+            });
+        }
+
+        function initBackToTop() {
+            var backToTop = document.querySelector('.poses-back-to-top');
+            if (!backToTop) return;
+
+            function toggleVisibility() {
+                var scrollTop = window.scrollY !== undefined ? window.scrollY : window.pageYOffset;
+                if (scrollTop > 200) {
+                    backToTop.classList.add('is-visible');
+                } else {
+                    backToTop.classList.remove('is-visible');
+                }
+            }
+
+            backToTop.addEventListener('click', function() {
+                try {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (err) {
+                    window.scrollTo(0, 0);
+                }
+            });
+
+            toggleVisibility();
+            window.addEventListener('scroll', toggleVisibility, { passive: true });
+        }
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                initGallery();
-                initCollapsible();
-                initNavigation();
-                    initBackToTop();
+                initGallery(null);
+                initFilter();
+                initBackToTop();
             });
         } else {
-            initGallery();
-            initCollapsible();
-            initNavigation();
-                initBackToTop();
+            initGallery(null);
+            initFilter();
+            initBackToTop();
         }
     })();
 </script>
