@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# Store the repository root directory
-REPO_ROOT="$(pwd)"
+# Store the repository root directory based on this script's location
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Read Hugo version from .hugo-version file
 if [ ! -f "${REPO_ROOT}/.hugo-version" ]; then
@@ -17,11 +17,12 @@ if ! echo "${HUGO_VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
 fi
 HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 
-# Create a temporary directory for Hugo
-mkdir -p /tmp/hugo-bin
-cd /tmp/hugo-bin
+# Cache Hugo under a versioned path so version bumps always use the correct binary
+HUGO_BIN_DIR="/tmp/hugo-bin/${HUGO_VERSION}"
+mkdir -p "${HUGO_BIN_DIR}"
+cd "${HUGO_BIN_DIR}"
 
-# Download Hugo if not already present
+# Download Hugo if not already present for this version
 if [ ! -f "hugo" ]; then
   echo "Downloading Hugo ${HUGO_VERSION}..."
   if ! wget -q "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" 2>/dev/null; then
@@ -37,7 +38,7 @@ if [ ! -f "hugo" ]; then
 fi
 
 # Add Hugo to PATH
-export PATH="/tmp/hugo-bin:$PATH"
+export PATH="${HUGO_BIN_DIR}:$PATH"
 
 # Verify Hugo version
 echo "Using Hugo version:"
