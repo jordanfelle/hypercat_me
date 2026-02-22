@@ -180,7 +180,7 @@ for file in "${TARGETS[@]}"; do
   done < <(
     grep -E '<script[^>]*src="[^"]+"' "$file" 2>/dev/null |
       grep -oE 'src="[^"]+"' | sed -e 's/^src="//' -e 's/"$//' || true
-  )
+  ) || true
 
   # Extract href="URL" patterns for links
   while IFS= read -r href_url; do
@@ -224,7 +224,7 @@ for file in "${TARGETS[@]}"; do
   done < <(
     grep -E '<link[^>]*href="[^"]+"' "$file" 2>/dev/null |
       grep -oE 'href="[^"]+"' | sed -e 's/^href="//' -e 's/"$//' || true
-  )
+  ) || true
 done
 
 if [ "$UPDATE_ONLY" = "true" ]; then
