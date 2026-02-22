@@ -35,6 +35,21 @@ cd "${HUGO_DIR}"
 
 HUGO_BINARY_CHECKSUM_FILE="hugo.sha256"
 
+# Load the expected archive checksum from the repo-committed file to guard against supply chain attacks.
+# This file must be updated whenever .hugo-version is updated.
+ARCHIVE_CHECKSUM_FILE="${SCRIPT_DIR}/.hugo-archive-checksum"
+if [ ! -f "${ARCHIVE_CHECKSUM_FILE}" ]; then
+  echo "Error: .hugo-archive-checksum not found at ${ARCHIVE_CHECKSUM_FILE}." >&2
+  echo "This file must contain the expected SHA256 of the Hugo archive." >&2
+  exit 1
+fi
+CHECKSUM_LINE="$(awk -v f="${HUGO_RELEASE}.tar.gz" '$2 == f { print; exit }' "${ARCHIVE_CHECKSUM_FILE}" || true)"
+if [ -z "${CHECKSUM_LINE}" ]; then
+  echo "Checksum entry for ${HUGO_RELEASE}.tar.gz not found in ${ARCHIVE_CHECKSUM_FILE}" >&2
+  echo "Update .hugo-archive-checksum with the expected SHA256 for this Hugo version." >&2
+  exit 1
+fi
+
 # Verify an existing Hugo binary's checksum; sets NEED_DOWNLOAD=false if valid
 NEED_DOWNLOAD=true
 if [ -f "hugo" ] && [ -f "${HUGO_BINARY_CHECKSUM_FILE}" ]; then
@@ -52,7 +67,7 @@ fi
 # Download and verify Hugo if missing or checksum verification failed
 if [ "${NEED_DOWNLOAD}" = "true" ]; then
   # Clean up any stale artifacts (including a potentially tampered binary)
-  rm -f hugo "${HUGO_BINARY_CHECKSUM_FILE}" "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+  rm -f hugo "${HUGO_BINARY_CHECKSUM_FILE}" "${HUGO_RELEASE}.tar.gz"
 
   echo "Downloading Hugo ${HUGO_VERSION}..."
   wget -q -O "${HUGO_RELEASE}.tar.gz" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
@@ -61,50 +76,37 @@ if [ "${NEED_DOWNLOAD}" = "true" ]; then
     exit 1
   }
 
-  echo "Downloading Hugo checksums..."
-  wget -q -O "hugo_${HUGO_VERSION}_checksums.txt" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_checksums.txt" || {
-    echo "Failed to download Hugo checksums" >&2
-    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
-    exit 1
-  }
-
   echo "Verifying Hugo archive checksum..."
-  CHECKSUM_LINE="$(grep "  ${HUGO_RELEASE}.tar.gz$" "hugo_${HUGO_VERSION}_checksums.txt" || true)"
-  if [ -z "${CHECKSUM_LINE}" ]; then
-    echo "Checksum entry for ${HUGO_RELEASE}.tar.gz not found in hugo_${HUGO_VERSION}_checksums.txt" >&2
-    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
-    exit 1
-  fi
-  # Prefer sha256sum, fall back to shasum -a 256 (for macOS and other environments)
+  # Prefer sha256sum (Linux), fall back to shasum -a 256 if unavailable
   if command -v sha256sum >/dev/null 2>&1; then
     if ! sha256sum --check --status - <<< "${CHECKSUM_LINE}"; then
       echo "Checksum verification failed for Hugo ${HUGO_VERSION}" >&2
-      rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+      rm -f "${HUGO_RELEASE}.tar.gz"
       exit 1
     fi
   elif command -v shasum >/dev/null 2>&1; then
     # shasum does not support --status, so silence output and rely on exit code
     if ! shasum -a 256 --check - >/dev/null 2>&1 <<< "${CHECKSUM_LINE}"; then
       echo "Checksum verification failed for Hugo ${HUGO_VERSION}" >&2
-      rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+      rm -f "${HUGO_RELEASE}.tar.gz"
       exit 1
     fi
   else
     echo "Error: Neither sha256sum nor shasum is available; cannot verify Hugo archive checksum" >&2
-    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+    rm -f "${HUGO_RELEASE}.tar.gz"
     exit 1
   fi
 
   echo "Extracting Hugo archive..."
   tar -xzf "${HUGO_RELEASE}.tar.gz" || {
     echo "Failed to extract Hugo archive ${HUGO_RELEASE}.tar.gz" >&2
-    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+    rm -f "${HUGO_RELEASE}.tar.gz"
     exit 1
   }
 
   chmod +x hugo || {
     echo "Failed to make Hugo binary executable" >&2
-    rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt" hugo
+    rm -f "${HUGO_RELEASE}.tar.gz" hugo
     exit 1
   }
 
@@ -115,8 +117,8 @@ if [ "${NEED_DOWNLOAD}" = "true" ]; then
     shasum -a 256 hugo > "${HUGO_BINARY_CHECKSUM_FILE}"
   fi
 
-  # Cleanup downloaded artifacts after successful extraction and setup
-  rm -f "${HUGO_RELEASE}.tar.gz" "hugo_${HUGO_VERSION}_checksums.txt"
+  # Cleanup downloaded artifact after successful extraction and setup
+  rm -f "${HUGO_RELEASE}.tar.gz"
 fi
 
 # Verify Hugo binary exists and is executable
