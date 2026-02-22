@@ -41,6 +41,14 @@ compute_sri() {
   echo "$hash"
 }
 
+escape_sed_pattern() {
+  printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'
+}
+
+escape_sed_replacement() {
+  printf '%s' "$1" | sed -e 's/[|&\\]/\\&/g'
+}
+
 # Get files to process
 if [ $# -eq 0 ]; then
   # If no args, process all HTML files (skip generated/public)
@@ -82,18 +90,20 @@ for file in $TARGETS; do
     fi
 
     # Use a different sed delimiter to avoid issues with special chars in URLs
-    escaped_url=$(printf '%s\n' "$src_url" | sed -e 's/[\/&]/\\&/g')
+    escaped_url=$(escape_sed_pattern "$src_url")
+    replacement_url=$(escape_sed_replacement "$src_url")
+    replacement_hash=$(escape_sed_replacement "$new_hash")
 
     # Check if the line has this src attribute
     if grep -q "src=\"$escaped_url\"" "$file"; then
       # Check if integrity already exists for this URL
       if grep -q "src=\"$escaped_url\".*integrity" "$file"; then
         # Replace existing integrity hash
-        sed -i "s/src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"/src=\"$src_url\"\1integrity=\"sha384-$new_hash\"/g" "$file"
+        sed -i "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Updated hash for script: $src_url" >&2
       else
         # Add integrity attribute after src (before closing > or space)
-        sed -i "s/src=\"$escaped_url\"/src=\"$src_url\" integrity=\"sha384-$new_hash\"/g" "$file"
+        sed -i "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Added integrity to script: $src_url" >&2
       fi
       ((UPDATE_COUNT++))
@@ -117,18 +127,20 @@ for file in $TARGETS; do
     fi
 
     # Escape URL for use in sed
-    escaped_url=$(printf '%s\n' "$href_url" | sed -e 's/[\/&]/\\&/g')
+    escaped_url=$(escape_sed_pattern "$href_url")
+    replacement_url=$(escape_sed_replacement "$href_url")
+    replacement_hash=$(escape_sed_replacement "$new_hash")
 
     # Check if the line has this href attribute
     if grep -q "href=\"$escaped_url\"" "$file"; then
       # Check if integrity already exists for this URL
       if grep -q "href=\"$escaped_url\".*integrity" "$file"; then
         # Replace existing integrity hash
-        sed -i "s/href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"/href=\"$href_url\"\1integrity=\"sha384-$new_hash\"/g" "$file"
+        sed -i "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Updated hash for link: $href_url" >&2
       else
         # Add integrity attribute after href (before closing > or space)
-        sed -i "s/href=\"$escaped_url\"/href=\"$href_url\" integrity=\"sha384-$new_hash\"/g" "$file"
+        sed -i "s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Added integrity to link: $href_url" >&2
       fi
       ((UPDATE_COUNT++))
