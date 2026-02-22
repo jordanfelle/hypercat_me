@@ -1,6 +1,8 @@
 {{- define "main" }}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/css/glightbox.min.css">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css"></noscript>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/css/glightbox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/css/glightbox.min.css"></noscript>
 <style>
     .poses-image-link {
         position: relative;
@@ -288,7 +290,7 @@
             function styleDescription() {
                 // Process all slides to ensure descriptions are in the right place
                 var allSlides = document.querySelectorAll('.gslide');
-                allSlides.forEach(function(slide) {
+                Array.prototype.forEach.call(allSlides, function(slide) {
                     var desc = slide.querySelector('.gslide-description');
                     var media = slide.querySelector('.gslide-media');
                     if (desc && media && desc.parentElement !== media) {
@@ -304,12 +306,17 @@
         // Add collapsible section functionality
         function initCollapsible() {
             var titles = document.querySelectorAll('.poses-section-title');
-            titles.forEach(function(title) {
+            Array.prototype.forEach.call(titles, function(title) {
                 title.addEventListener('click', function() {
-                    var section = this.closest('.poses-section');
+                    var el = this;
+                    var section = el.parentNode;
+                    while (section && !section.classList.contains('poses-section')) {
+                        section = section.parentNode;
+                    }
+                    if (!section) return;
                     var isCollapsed = section.classList.toggle('collapsed');
                     // Update aria-expanded attribute for accessibility
-                    this.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+                    el.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
                 });
             });
         }
@@ -317,7 +324,7 @@
         // Smooth scroll for navigation links
         function initNavigation() {
             var navLinks = document.querySelectorAll('.poses-nav-link');
-            navLinks.forEach(function(link) {
+            Array.prototype.forEach.call(navLinks, function(link) {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     var targetId = this.getAttribute('href').substring(1);
@@ -333,7 +340,11 @@
                             }
                         }
                         // Smooth scroll to section
-                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        try {
+                            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        } catch (err) {
+                            targetSection.scrollIntoView(true);
+                        }
                     }
                 });
             });
@@ -344,7 +355,8 @@
                 if (!backToTop) return;
 
                 function toggleVisibility() {
-                    if (window.scrollY > 200) {
+                    var scrollTop = window.scrollY !== undefined ? window.scrollY : window.pageYOffset;
+                    if (scrollTop > 200) {
                         backToTop.classList.add('is-visible');
                     } else {
                         backToTop.classList.remove('is-visible');
@@ -352,7 +364,11 @@
                 }
 
                 backToTop.addEventListener('click', function() {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    try {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } catch (err) {
+                        window.scrollTo(0, 0);
+                    }
                 });
 
                 toggleVisibility();
