@@ -124,7 +124,7 @@ for file in "${TARGETS[@]}"; do
     # Check if the line has this src attribute
     if grep -Fq "src=\"$src_url\"" "$file"; then
       # Check if integrity already exists for this URL on the tag line
-      if grep -Eq "src=\"$escaped_url\"[^>]*integrity" "$file"; then
+      if grep -F "src=\"$src_url\"" "$file" | grep -Fq 'integrity='; then
         # Replace existing integrity hash
         sed -i "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Updated hash for script: $src_url" >&2
@@ -161,7 +161,7 @@ for file in "${TARGETS[@]}"; do
     # Check if the line has this href attribute
     if grep -Fq "href=\"$href_url\"" "$file"; then
       # Check if integrity already exists for this URL on the tag line
-      if grep -Eq "href=\"$escaped_url\"[^>]*integrity" "$file"; then
+      if grep -F "href=\"$href_url\"" "$file" | grep -Fq 'integrity='; then
         # Replace existing integrity hash
         sed -i "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Updated hash for link: $href_url" >&2
