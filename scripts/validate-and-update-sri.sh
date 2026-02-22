@@ -16,11 +16,32 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 CACHE_DIR="${XDG_CACHE_HOME:-.cache}/sri-hashes"
 mkdir -p "$CACHE_DIR"
 
+sha256_key() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s' "$1" | sha256sum | awk '{print $1}'
+    return 0
+  fi
+  if command -v shasum >/dev/null 2>&1; then
+    printf '%s' "$1" | shasum -a 256 | awk '{print $1}'
+    return 0
+  fi
+  echo "Error: neither sha256sum nor shasum is available" >&2
+  return 1
+}
+
+base64_no_wrap() {
+  if base64 -w0 </dev/null >/dev/null 2>&1; then
+    base64 -w0
+  else
+    base64 | tr -d '\n'
+  fi
+}
+
 # Compute SRI hash for a given URL
 compute_sri() {
   local url="$1"
   local cache_key
-  cache_key="$(echo "$url" | sha256sum | cut -d' ' -f1)"
+  cache_key="$(sha256_key "$url")" || return 1
   local cache_file="$CACHE_DIR/$cache_key"
 
   # Return cached hash if available
@@ -36,13 +57,16 @@ compute_sri() {
   fi
 
   local hash
-  hash=$(curl -s "$url" | openssl dgst -sha384 -binary | base64 -w0) || return 1
+  if ! hash=$(curl -fsSL "$url" | openssl dgst -sha384 -binary | base64_no_wrap); then
+    echo "Error: failed to download or hash '$url'" >&2
+    return 1
+  fi
   echo "$hash" > "$cache_file"
   echo "$hash"
 }
 
 escape_sed_pattern() {
-  printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'
+  printf '%s' "$1" | sed -e 's/[][(){}.^$*+?|]/\\&/g' -e 's/[\/&]/\\&/g'
 }
 
 escape_sed_replacement() {
@@ -50,26 +74,29 @@ escape_sed_replacement() {
 }
 
 # Get files to process
+TARGETS=()
 if [ $# -eq 0 ]; then
   # If no args, process all HTML files (skip generated/public)
-  TARGETS=$(find "$REPO_ROOT" -name "*.html" -type f \
-    ! -path "*/public/*" ! -path "*/resources/*" 2>/dev/null || true)
+  while IFS= read -r -d '' file; do
+    TARGETS+=("$file")
+  done < <(find "$REPO_ROOT" -name "*.html" -type f \
+    ! -path "*/public/*" ! -path "*/resources/*" -print0 2>/dev/null || true)
 else
-  TARGETS="$*"
+  TARGETS=("$@")
 fi
 
 UPDATE_COUNT=0
 MISSING_COUNT=0
 ERROR_URLS=()
 
-for file in $TARGETS; do
+for file in "${TARGETS[@]}"; do
   [ -f "$file" ] || continue
 
   # Skip generated files
   [[ "$file" == */public/* ]] && continue
 
   # Check if file has CDN script or link tags
-  grep -q '\(src\|href\)="https://\(cdnjs\|code\.jquery\|cdn\)\.' "$file" 2>/dev/null || continue
+  grep -Eq '(src|href)="https://(cdnjs|code\.jquery|cdn)\.' "$file" 2>/dev/null || continue
 
   echo "Processing: $file" >&2
 
@@ -77,7 +104,7 @@ for file in $TARGETS; do
   while IFS= read -r src_url; do
     [ -z "$src_url" ] && continue
     # Skip if not a CDN URL
-    [[ "$src_url" =~ ^https://.*\(cdnjs\|code\.jquery\|cdn\) ]] || continue
+    [[ "$src_url" =~ ^https://.*(cdnjs|code\.jquery|cdn) ]] || continue
 
     echo "  Checking script: $src_url" >&2
 
@@ -89,15 +116,15 @@ for file in $TARGETS; do
       continue
     fi
 
-    # Use a different sed delimiter to avoid issues with special chars in URLs
+    # Escape regex metacharacters for safe sed patterns
     escaped_url=$(escape_sed_pattern "$src_url")
     replacement_url=$(escape_sed_replacement "$src_url")
     replacement_hash=$(escape_sed_replacement "$new_hash")
 
     # Check if the line has this src attribute
-    if grep -q "src=\"$escaped_url\"" "$file"; then
-      # Check if integrity already exists for this URL
-      if grep -q "src=\"$escaped_url\".*integrity" "$file"; then
+    if grep -Fq "src=\"$src_url\"" "$file"; then
+      # Check if integrity already exists for this URL on the tag line
+      if grep -Eq "src=\"$escaped_url\"[^>]*integrity" "$file"; then
         # Replace existing integrity hash
         sed -i "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Updated hash for script: $src_url" >&2
@@ -108,13 +135,13 @@ for file in $TARGETS; do
       fi
       ((UPDATE_COUNT++))
     fi
-  done < <(grep -oP 'src="\K[^"]+(?=")' "$file" 2>/dev/null | grep -E '(cdnjs|code\.jquery|cdn)' || true)
+  done < <(grep -oE 'src="[^"]+"' "$file" 2>/dev/null | sed -e 's/^src="//' -e 's/"$//' || true)
 
   # Extract href="URL" patterns for links
   while IFS= read -r href_url; do
     [ -z "$href_url" ] && continue
     # Skip if not a CDN URL
-    [[ "$href_url" =~ ^https://.*\(cdnjs\|code\.jquery\|cdn\) ]] || continue
+    [[ "$href_url" =~ ^https://.*(cdnjs|code\.jquery|cdn) ]] || continue
 
     echo "  Checking link: $href_url" >&2
 
@@ -126,15 +153,15 @@ for file in $TARGETS; do
       continue
     fi
 
-    # Escape URL for use in sed
+    # Escape regex metacharacters for safe sed patterns
     escaped_url=$(escape_sed_pattern "$href_url")
     replacement_url=$(escape_sed_replacement "$href_url")
     replacement_hash=$(escape_sed_replacement "$new_hash")
 
     # Check if the line has this href attribute
-    if grep -q "href=\"$escaped_url\"" "$file"; then
-      # Check if integrity already exists for this URL
-      if grep -q "href=\"$escaped_url\".*integrity" "$file"; then
+    if grep -Fq "href=\"$href_url\"" "$file"; then
+      # Check if integrity already exists for this URL on the tag line
+      if grep -Eq "href=\"$escaped_url\"[^>]*integrity" "$file"; then
         # Replace existing integrity hash
         sed -i "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Updated hash for link: $href_url" >&2
@@ -145,18 +172,22 @@ for file in $TARGETS; do
       fi
       ((UPDATE_COUNT++))
     fi
-  done < <(grep -oP 'href="\K[^"]+(?=")' "$file" 2>/dev/null | grep -E '(cdnjs|code\.jquery|cdn)' || true)
+  done < <(grep -oE 'href="[^"]+"' "$file" 2>/dev/null | sed -e 's/^href="//' -e 's/"$//' || true)
 done
 
 # Validate that all CDN resources have integrity attributes
 echo "Validating SRI attributes..." >&2
 VALIDATION_FAILED=0
-for file in $TARGETS; do
+for file in "${TARGETS[@]}"; do
   [ -f "$file" ] || continue
   [[ "$file" == */public/* ]] && continue
 
   # Find all CDN src= attributes without integrity
-  missing_src=$(grep -oP 'src="\K(?!.*integrity)[^"]*(?=")' "$file" 2>/dev/null | grep -E '(cdnjs|code\.jquery|cdn)' || true)
+  missing_src=$(grep -E 'src="https?://[^"]+"' "$file" 2>/dev/null | while IFS= read -r line; do
+    if ! echo "$line" | grep -Fq 'integrity='; then
+      echo "$line" | sed -n 's/.*src="\([^"]*\)".*/\1/p'
+    fi
+  done | grep -E '(cdnjs|code\.jquery|cdn)' || true)
   if [ -n "$missing_src" ]; then
     echo "❌ Missing SRI on script in $file:" >&2
     echo "$missing_src" | while read -r url; do
@@ -166,7 +197,11 @@ for file in $TARGETS; do
   fi
 
   # Find all CDN href= attributes without integrity
-  missing_href=$(grep -oP 'href="\K(?!.*integrity)[^"]*(?=")' "$file" 2>/dev/null | grep -E '(cdnjs|code\.jquery|cdn)' || true)
+  missing_href=$(grep -E 'href="https?://[^"]+"' "$file" 2>/dev/null | while IFS= read -r line; do
+    if ! echo "$line" | grep -Fq 'integrity='; then
+      echo "$line" | sed -n 's/.*href="\([^"]*\)".*/\1/p'
+    fi
+  done | grep -E '(cdnjs|code\.jquery|cdn)' || true)
   if [ -n "$missing_href" ]; then
     echo "❌ Missing SRI on link in $file:" >&2
     echo "$missing_href" | while read -r url; do

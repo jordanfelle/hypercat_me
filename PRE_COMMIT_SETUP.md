@@ -54,6 +54,11 @@ Before installing pre-commit hooks, ensure you have:
 
 ## CI/CD and Dependency Updates
 
+## Consistency Note
+
+Keep build tooling, SRI scripts, and CI workflow patterns aligned across the
+`hypercat_me`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
+
 The GitHub Actions workflow (`.github/workflows/pre-commit.yml`) pins specific versions for reproducibility:
 
 - **Hugo**: Pinned to a specific version (e.g., 0.154.5)

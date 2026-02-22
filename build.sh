@@ -70,11 +70,23 @@ if [ "${NEED_DOWNLOAD}" = "true" ]; then
   rm -f hugo "${HUGO_BINARY_CHECKSUM_FILE}" "${HUGO_RELEASE}.tar.gz"
 
   echo "Downloading Hugo ${HUGO_VERSION}..."
-  wget -q -O "${HUGO_RELEASE}.tar.gz" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz" || {
-    echo "Failed to download Hugo ${HUGO_VERSION}" >&2
-    rm -f "${HUGO_RELEASE}.tar.gz"
+  DOWNLOAD_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_RELEASE}.tar.gz"
+  if command -v wget >/dev/null 2>&1; then
+    wget -q -O "${HUGO_RELEASE}.tar.gz" "${DOWNLOAD_URL}" || {
+      echo "Failed to download Hugo ${HUGO_VERSION}" >&2
+      rm -f "${HUGO_RELEASE}.tar.gz"
+      exit 1
+    }
+  elif command -v curl >/dev/null 2>&1; then
+    curl -fsSL -o "${HUGO_RELEASE}.tar.gz" "${DOWNLOAD_URL}" || {
+      echo "Failed to download Hugo ${HUGO_VERSION}" >&2
+      rm -f "${HUGO_RELEASE}.tar.gz"
+      exit 1
+    }
+  else
+    echo "Error: Neither wget nor curl is available; cannot download Hugo ${HUGO_VERSION}" >&2
     exit 1
-  }
+  fi
 
   echo "Verifying Hugo archive checksum..."
   # Prefer sha256sum (Linux), fall back to shasum -a 256 if unavailable
