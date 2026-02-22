@@ -135,6 +135,9 @@ The pre-commit workflow runs on PRs and main branch pushes. For same-repo PRs,
 CI is allowed to commit and push auto-fixes (including SRI hash updates). Forked
 PRs are read-only and will fail with guidance instead of pushing changes.
 
+When pre-commit auto-fixes are pushed to a PR branch, the workflow should leave
+a PR comment summarizing the commit and files changed.
+
 ### Other CI Checks
 
 The repo also runs pre-commit, Hugo build validation, and link/config checks in

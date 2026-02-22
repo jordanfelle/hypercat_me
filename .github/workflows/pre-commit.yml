@@ -84,6 +84,7 @@ jobs:
           fi
 
       - name: Commit and push fixes (PR only)
+        id: commit-fixes
         if: steps.pre-commit.outcome == 'failure' && github.event_name == 'pull_request'
         run: |
           if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
@@ -91,15 +92,49 @@ jobs:
             last_subject=$(git log -1 --pretty=%s)
             if [ "$last_author" = "github-actions[bot]" ] && echo "$last_subject" | grep -qi "pre-commit fixes"; then
               echo "Pre-commit fixes already applied by the bot; refusing to loop."
+              echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             git add -A
             git commit -m "chore: apply pre-commit fixes [skip ci]"
             git push
+            commit_sha=$(git rev-parse HEAD)
+            files=$(git show --name-status --pretty=format: -1)
+            {
+              echo "fixes_committed=true"
+              echo "commit_sha=$commit_sha"
+              echo "changed_files<<'EOF'"
+              echo "$files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "❌ Pre-commit checks failed but no fixes were applied"
+            echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
             exit 1
           fi
+
+      - name: Comment on PR with auto-fix details
+        if: steps.commit-fixes.outputs.fixes_committed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = "${{ steps.commit-fixes.outputs.commit_sha }}";
+            const files = `${{ steps.commit-fixes.outputs.changed_files }}`;
+            const body = [
+              "Pre-commit auto-fix applied and pushed by GitHub Actions.",
+              "",
+              `Commit: ${sha}`,
+              "",
+              "Files:",
+              "```",
+              files,
+              "```",
+              "If checks are still failing, pull the latest changes and rerun pre-commit."
+            ].join("\n");
+            await github.rest.issues.createComment({
+              ...context.issue,
+              body
+            });
 
       - name: Commit and push fixes (main branch)
         if: steps.pre-commit.outcome == 'failure' && github.event_name == 'push'
