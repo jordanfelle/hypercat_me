@@ -12,7 +12,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # Cache directory for downloads to avoid redundant requests
-CACHE_DIR="${XDG_CACHE_HOME:-.cache}/sri-hashes"
+if [ -n "${XDG_CACHE_HOME-}" ]; then
+  CACHE_DIR="$XDG_CACHE_HOME/sri-hashes"
+else
+  CACHE_DIR="$REPO_ROOT/.cache/sri-hashes"
+fi
 mkdir -p "$CACHE_DIR"
 
 sha256_key() {
@@ -49,9 +53,13 @@ compute_sri() {
     return 0
   fi
 
-  # Download script and compute SHA384 hash in base64
+  # Check dependencies
   if ! command -v curl &> /dev/null; then
     echo "Error: curl not found" >&2
+    return 1
+  fi
+  if ! command -v openssl &> /dev/null; then
+    echo "Error: openssl not found" >&2
     return 1
   fi
 
