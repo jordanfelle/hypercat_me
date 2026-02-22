@@ -108,6 +108,13 @@ repos:
         language: script
         pass_filenames: false
         files: ^content/.*\.(html|htm)$
+      - id: sri-integrity-check
+        name: Validate and add SRI hashes for CDN assets
+        entry: ./scripts/validate-and-update-sri.sh
+        language: script
+        pass_filenames: true
+        files: ^content/.*\.html$
+        stages: [pre-commit]
       - id: hugo-build
         name: Hugo build check
         entry: bash -c 'cd content && npm run build'
