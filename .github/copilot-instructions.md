@@ -11,6 +11,11 @@
 - Languages: Hugo templates (.html), Markdown (.md), YAML configuration
 - No backend, no Node.js, no Python - pure Hugo site
 
+## Consistency Note
+
+Keep build tooling, SRI scripts, and CI workflow patterns aligned across the
+`hypercat_me`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
+
 ## Critical Setup Requirements
 
 ### 1. Theme (INCLUDED)
