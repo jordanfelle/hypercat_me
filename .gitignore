@@ -36,5 +36,8 @@ hugo
 LICENSE
 node_modules/**
 
+# Tooling caches
+.cache/
+
 # Hugo binary cache
 .hugo-bin-*/
