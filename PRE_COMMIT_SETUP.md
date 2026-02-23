@@ -49,6 +49,7 @@ Before installing pre-commit hooks, ensure you have:
 - **Codespell**: Checks for common spelling mistakes
 - **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
 - **Shell script linting**: Validates bash/shell scripts with shellcheck
+- **SRI integrity validation**: Validates and automatically adds/updates Subresource Integrity hashes for CDN-hosted scripts and stylesheets
 - **Hugo build check**: Verifies the site builds successfully
 - **Photo links validation**: Validates all photo.felle.me links follow the correct format (runs after Hugo build)
 
