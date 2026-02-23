@@ -121,7 +121,7 @@ repos:
         entry: bash scripts/validate-config.sh
         language: system
         pass_filenames: false
-        files: ^(content/hugo\.yaml|wrangler\.jsonc|renovate\.json)
+        files: ^(content/hugo\.yaml|wrangler\.jsonc)$
       - id: hugo-build
         name: Hugo build check
         entry: bash -c 'cd content && npm run build'
