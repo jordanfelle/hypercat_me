@@ -142,7 +142,7 @@ repos:
         entry: ./scripts/convert-images.sh
         language: script
         pass_filenames: false
-        files: ^$ # Disabled - Hugo now handles webp conversion directly
+        files: ^$  # Disabled - Hugo now handles webp conversion directly
         stages: [pre-commit]
       - id: rename-poses-images
         name: Rename pose images
@@ -150,6 +150,13 @@ repos:
         language: script
         pass_filenames: false
         files: ^(content/content/poses/)
+        stages: [pre-commit]
+      - id: validate-poses-images
+        name: Validate poses images are ≤2000px max dimension
+        entry: ./scripts/validate-poses-images.sh
+        language: script
+        pass_filenames: false
+        files: ^(content/assets/images/poses/)
         stages: [pre-commit]
 
 ci:

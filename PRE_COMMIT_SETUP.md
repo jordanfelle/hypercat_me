@@ -8,6 +8,9 @@ Before installing pre-commit hooks, ensure you have:
 
 - **Python 3.8+** - Required for pre-commit itself
 - **Node.js 16+** - Required for markdownlint and Prettier
+- **ImageMagick** - Required for poses image dimension validation
+  - macOS: `brew install imagemagick`
+  - Ubuntu/Debian: `sudo apt install imagemagick`
 - **Hugo extended** - Required for the Hugo build check hook (see [Hugo installation](https://gohugo.io/installation/))
   - Minimum version: v0.146.0 (as specified in the theme)
   - Must be available on your PATH (verify with `hugo version`)
@@ -50,6 +53,7 @@ Before installing pre-commit hooks, ensure you have:
 - **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
 - **Shell script linting**: Validates bash/shell scripts with shellcheck
 - **SRI integrity validation**: Validates and automatically adds/updates Subresource Integrity hashes for CDN-hosted scripts and stylesheets
+- **Poses image validation**: Validates that images in `content/assets/images/poses/` don't exceed 2000px on the long edge
 - **Hugo build check**: Verifies the site builds successfully
 - **Photo links validation**: Validates all photo.felle.me links follow the correct format (runs after Hugo build)
 
