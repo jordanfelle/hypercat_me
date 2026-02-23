@@ -65,8 +65,9 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          if ! command -v ffmpeg &> /dev/null; then
+            sudo apt-get install -y ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          fi
 
       - name: Install pre-commit
         run: pip install pre-commit
@@ -187,7 +188,7 @@ jobs:
         if: steps.pre-commit.outcome != 'failure'
         run: |
           if ! command -v tidy &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y tidy
+            sudo apt-get install -y tidy || (sudo apt-get update && sudo apt-get install -y tidy)
           fi
           find content/public -name '*.html' -type f | head -20 | while read -r file; do
             tidy -q -e "$file" 2>&1 | head -5

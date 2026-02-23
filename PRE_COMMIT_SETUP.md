@@ -53,7 +53,7 @@ Before installing pre-commit hooks, ensure you have:
 - **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
 - **Shell script linting**: Validates bash/shell scripts with shellcheck
 - **SRI integrity validation**: Validates and automatically adds/updates Subresource Integrity hashes for CDN-hosted scripts and stylesheets
-- **Poses image auto-cropping**: Automatically resizes images in `content/content/poses/` to ≤2000px on long edge while preserving aspect ratio
+- **Poses image auto-resizing**: Automatically resizes images in `content/content/poses/` to ≤2000px on long edge while preserving aspect ratio
 - **Hugo build check**: Verifies the site builds successfully
 - **Photo links validation**: Validates all photo.felle.me links follow the correct format (runs after Hugo build)
 
@@ -108,7 +108,7 @@ If a hook fails:
 
 Some hooks (like `trailing-whitespace` and `end-of-file-fixer`) automatically fix issues, while others (like `markdownlint` and `hugo-build`) require manual intervention.
 
-### Poses Image Auto-Cropping
+### Poses Image Auto-Resizing
 
 The poses image hook automatically resizes any images in `content/content/poses/` that exceed 2000px on the long edge. This is the primary validation point - images get fixed locally before being committed.
 

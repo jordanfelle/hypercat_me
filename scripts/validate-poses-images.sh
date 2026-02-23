@@ -31,7 +31,7 @@ if ! command -v ffprobe &> /dev/null; then
 fi
 
 if ! command -v ffmpeg &> /dev/null && [ "$AUTO_CROP" = "--crop" ]; then
-    echo "Error: FFmpeg is required for auto-cropping."
+    echo "Error: FFmpeg is required for auto-resizing."
     echo "Please install FFmpeg: brew install ffmpeg (macOS) or apt install ffmpeg (Ubuntu/Debian)"
     exit 1
 fi
@@ -42,7 +42,7 @@ if [[ ! -d "$POSES_DIR" ]]; then
 fi
 
 failures=()
-cropped_files=()
+resized_files=()
 
 # Find all images in poses subdirectories
 image_files=()
@@ -80,6 +80,7 @@ for image_path in "${image_files[@]}"; do
         long_edge=$height
     fi
 
+    # Skip if image is exactly at or under max dimension
     if (( long_edge > MAX_DIMENSION )); then
         if [ "$AUTO_CROP" = "--crop" ]; then
             echo "⚙️  Resizing $pose_path: ${width}x${height} → max long edge $MAX_DIMENSION"
@@ -92,7 +93,7 @@ for image_path in "${image_files[@]}"; do
             TMP_FILES+=("$tmp_image")
 
             if ffmpeg -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" -q:v 5 "$tmp_image" -y 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
-                cropped_files+=("$pose_path")
+                resized_files+=("$pose_path")
                 # Remove from cleanup list since it was successfully moved
                 TMP_FILES=("${TMP_FILES[@]/$tmp_image}")
             else
@@ -106,10 +107,19 @@ done
 
 echo ""
 if [ "$AUTO_CROP" = "--crop" ]; then
-    if (( ${#cropped_files[@]} > 0 )); then
-        echo "✅ Resized ${#cropped_files[@]} image(s):"
-        printf '  - %s\n' "${cropped_files[@]}"
+    if (( ${#resized_files[@]} > 0 )); then
+        echo "✅ Resized ${#resized_files[@]} image(s):"
+        printf '  - %s\n' "${resized_files[@]}"
     fi
+    if (( ${#failures[@]} > 0 )); then
+        echo "❌ Failed to resize ${#failures[@]} image(s):"
+        printf '  - %s\n' "${failures[@]}"
+        exit 1
+    fi
+    if (( ${#resized_files[@]} == 0 )); then
+        echo "✅ All poses images are within ${MAX_DIMENSION}px max dimension (${#image_files[@]} images checked)"
+    fi
+    exit 0
 fi
 
 if (( ${#failures[@]} == 0 )); then
