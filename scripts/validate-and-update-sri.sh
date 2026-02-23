@@ -101,7 +101,14 @@ escape_sed_pattern() {
 escape_sed_replacement() {
   printf '%s' "$1" | sed -e 's/[|&\\]/\\&/g'
 }
-
+validate_url_safety() {
+  # Reject URLs containing backticks to prevent shell command substitution
+  if [[ "$1" == *\`* ]]; then
+    echo "Error: URL contains backticks (shell injection risk): $1" >&2
+    return 1
+  fi
+  return 0
+}
 sed_in_place() {
   local expr="$1"
   local file="$2"
@@ -147,13 +154,24 @@ for file in "${TARGETS[@]}"; do
 
     echo "  Checking script: $src_url" >&2
 
-    # Compute new hash
-    if ! new_hash=$(compute_sri "$src_url" 2>/dev/null); then
-      echo "  ⚠ Failed to compute hash for: $src_url" >&2
+    # Validate URL safety before using in shell commands
+    if ! validate_url_safety "$src_url"; then
       ERROR_URLS+=("$src_url")
       ((++FAILED_HASH_COUNT))
       continue
     fi
+
+    # Compute new hash with stderr capture for diagnostics
+    if ! compute_err=$(compute_sri "$src_url" 2>&1) || [ -z "$compute_err" ]; then
+      echo "  ⚠ Failed to compute hash for: $src_url" >&2
+      if [ -n "$compute_err" ]; then
+        echo "    Error: $compute_err" >&2
+      fi
+      ERROR_URLS+=("$src_url")
+      ((++FAILED_HASH_COUNT))
+      continue
+    fi
+    new_hash="$compute_err"
 
     # Escape regex metacharacters for safe sed patterns
     escaped_url=$(escape_sed_pattern "$src_url")
@@ -203,13 +221,24 @@ for file in "${TARGETS[@]}"; do
 
     echo "  Checking link: $href_url" >&2
 
-    # Compute new hash
-    if ! new_hash=$(compute_sri "$href_url" 2>/dev/null); then
-      echo "  ⚠ Failed to compute hash for: $href_url" >&2
+    # Validate URL safety before using in shell commands
+    if ! validate_url_safety "$href_url"; then
       ERROR_URLS+=("$href_url")
       ((++FAILED_HASH_COUNT))
       continue
     fi
+
+    # Compute new hash with stderr capture for diagnostics
+    if ! compute_err=$(compute_sri "$href_url" 2>&1) || [ -z "$compute_err" ]; then
+      echo "  ⚠ Failed to compute hash for: $href_url" >&2
+      if [ -n "$compute_err" ]; then
+        echo "    Error: $compute_err" >&2
+      fi
+      ERROR_URLS+=("$href_url")
+      ((++FAILED_HASH_COUNT))
+      continue
+    fi
+    new_hash="$compute_err"
 
     # Escape regex metacharacters for safe sed patterns
     escaped_url=$(escape_sed_pattern "$href_url")

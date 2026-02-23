@@ -94,7 +94,7 @@ jobs:
             if [ "$last_author" = "github-actions[bot]" ] && echo "$last_subject" | grep -qi "pre-commit fixes"; then
               echo "Pre-commit fixes already applied by the bot; refusing to loop."
               echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
-              exit 0
+              exit 1
             fi
             git add -A
             git commit -m "chore: apply pre-commit fixes [skip ci]"
