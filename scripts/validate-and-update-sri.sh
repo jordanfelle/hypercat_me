@@ -85,7 +85,7 @@ compute_sri() {
   fi
 
   local hash
-  if ! hash=$(curl -fsSL "$url" | openssl dgst -sha384 -binary | base64_no_wrap); then
+  if ! hash=$(curl -fsSL --connect-timeout 5 --max-time 30 --retry 3 "$url" | openssl dgst -sha384 -binary | base64_no_wrap); then
     echo "Error: failed to download or hash '$url'" >&2
     return 1
   fi
@@ -185,7 +185,7 @@ for file in "${TARGETS[@]}"; do
 
       # 3. Ensure crossorigin is present on tags with this URL and an integrity attribute
       if [[ "$has_integrity" == true || "$has_missing_integrity" == true ]]; then
-        sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
+        sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
         ((++UPDATE_COUNT))
       fi
     fi
@@ -241,7 +241,7 @@ for file in "${TARGETS[@]}"; do
 
       # 3. Ensure crossorigin is present on tags with this URL and an integrity attribute
       if [[ "$has_integrity" == true || "$has_missing_integrity" == true ]]; then
-        sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
+        sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
         ((++UPDATE_COUNT))
       fi
     fi

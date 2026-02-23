@@ -139,16 +139,12 @@ for file in "${TARGETS[@]}"; do
 
     # Update or add integrity attribute
     if grep -Fq "src=\"$src_url\"" "$file"; then
-      # Check if integrity already exists for this URL
-      if grep -Eq "src=\"$escaped_url\"[^>]*integrity" "$file"; then
-        # Replace existing integrity hash
-        sed_in_place "s|src=\"$escaped_url\"\\([^>]*\\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\\1integrity=\"sha384-$replacement_hash\"|g" "$file"
-      else
-        # Add integrity attribute after src
-        sed_in_place "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|g" "$file"
-      fi
-      # Ensure crossorigin is present when integrity is set
-      sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
+      # 1) Replace existing integrity hashes for this URL
+      sed_in_place "s|src=\"$escaped_url\"\\([^>]*\\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\\1integrity=\"sha384-$replacement_hash\"|g" "$file"
+      # 2) Add integrity attribute after src for this URL where missing
+      sed_in_place "/src=\"$escaped_url\"/ {/integrity=/! s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|;}" "$file"
+      # 3) Ensure crossorigin is present when integrity is set
+      sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
       ((++UPDATE_COUNT))
     fi
   done < <(
