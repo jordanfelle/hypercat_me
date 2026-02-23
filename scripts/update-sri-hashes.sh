@@ -172,7 +172,7 @@ for file in "${TARGETS[@]}"; do
     # Update or add integrity attribute
     if grep -Fq "href=\"$href_url\"" "$file"; then
       # Check if integrity already exists for this URL
-      if grep -Eq "href=\"$escaped_url\"[^>]*integrity" "$file"; then
+      if grep -F "href=\"$href_url\"" "$file" | grep -Fq 'integrity='; then
         # Replace existing integrity hash
         sed_in_place "s|href=\"$escaped_url\"\\([^>]*\\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\\1integrity=\"sha384-$replacement_hash\"|g" "$file"
       else

@@ -173,7 +173,7 @@ for file in "${TARGETS[@]}"; do
 
       # 1. Update existing integrity hashes for this URL (on any matching tag lines)
       if [[ "$has_integrity" == true ]]; then
-        sed_in_place "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
+        sed_in_place "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha[^-]*-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Updated hash for script (existing integrity): $src_url" >&2
       fi
 
@@ -186,7 +186,7 @@ for file in "${TARGETS[@]}"; do
 
       # 3. Ensure crossorigin is present on tags with this URL and an integrity attribute
       if [[ "$has_integrity" == true || "$has_missing_integrity" == true ]]; then
-        sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
+        sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha[^-]*-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
         ((++UPDATE_COUNT))
       fi
     fi
@@ -229,7 +229,7 @@ for file in "${TARGETS[@]}"; do
 
       # 1. Update existing integrity hashes for this URL (on any matching tag lines)
       if [[ "$has_integrity" == true ]]; then
-        sed_in_place "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
+        sed_in_place "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha[^-]*-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
         echo "  ✓ Updated hash for link (existing integrity): $href_url" >&2
       fi
 
@@ -340,10 +340,11 @@ fi
 if [ $MISSING_COUNT -gt 0 ]; then
   echo "⚠ Failed to generate hashes for $MISSING_COUNT URLs:" >&2
   printf '%s\n' "${ERROR_URLS[@]}" | sort -u >&2
+  VALIDATION_FAILED=1
 fi
 
 if [ $VALIDATION_FAILED -eq 1 ]; then
-  echo "❌ Validation failed: Some CDN resources are missing SRI attributes" >&2
+  echo "❌ Validation failed: Some CDN resources are missing SRI attributes or SRI hashes could not be generated" >&2
   exit 1
 fi
 
