@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "hypercat.me static site",
   "scripts": {
-    "build": "hugo",
+    "build": "bash ../build.sh",
     "dev": "hugo server --disableFastRender"
   }
 }

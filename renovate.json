@@ -13,7 +13,7 @@
     {
       "customType": "regex",
       "fileMatch": ["^\\.github/workflows/pre-commit\\.yml$"],
-      "matchStrings": ["hugo-version: \\\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\\""],
+      "matchStrings": ["hugo-version: \"?(?<currentValue>\\d+\\.\\d+\\.\\d+)\"?"],
       "depNameTemplate": "gohugoio/hugo",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.*)$"

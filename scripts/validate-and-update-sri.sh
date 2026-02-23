@@ -125,7 +125,7 @@ else
 fi
 
 UPDATE_COUNT=0
-MISSING_COUNT=0
+FAILED_HASH_COUNT=0
 ERROR_URLS=()
 
 for file in "${TARGETS[@]}"; do
@@ -151,7 +151,7 @@ for file in "${TARGETS[@]}"; do
     if ! new_hash=$(compute_sri "$src_url" 2>/dev/null); then
       echo "  ⚠ Failed to compute hash for: $src_url" >&2
       ERROR_URLS+=("$src_url")
-      ((++MISSING_COUNT))
+      ((++FAILED_HASH_COUNT))
       continue
     fi
 
@@ -207,7 +207,7 @@ for file in "${TARGETS[@]}"; do
     if ! new_hash=$(compute_sri "$href_url" 2>/dev/null); then
       echo "  ⚠ Failed to compute hash for: $href_url" >&2
       ERROR_URLS+=("$href_url")
-      ((++MISSING_COUNT))
+      ((++FAILED_HASH_COUNT))
       continue
     fi
 
@@ -248,6 +248,7 @@ for file in "${TARGETS[@]}"; do
     fi
   done < <(
     grep -E '<link[^>]*href="[^"]+"' "$file" 2>/dev/null |
+      grep -iE 'rel=[^>]*stylesheet|rel=[^>]*preload[^>]*as=[^>]*style|as=[^>]*style[^>]*rel=[^>]*preload' |
       grep -oE 'href="[^"]+"' | sed -e 's/^href="//' -e 's/"$//' || true
   ) || true
 done
@@ -258,8 +259,8 @@ if [ "$UPDATE_ONLY" = "true" ]; then
   if [ $UPDATE_COUNT -gt 0 ]; then
     echo "✓ Updated/added $UPDATE_COUNT SRI integrity hashes" >&2
   fi
-  if [ $MISSING_COUNT -gt 0 ]; then
-    echo "⚠ Failed to generate hashes for $MISSING_COUNT URLs:" >&2
+  if [ $FAILED_HASH_COUNT -gt 0 ]; then
+    echo "⚠ Failed to generate hashes for $FAILED_HASH_COUNT URLs:" >&2
     printf '%s\n' "${ERROR_URLS[@]}" | sort -u >&2
     exit 1
   fi
@@ -337,8 +338,8 @@ if [ $UPDATE_COUNT -gt 0 ]; then
   echo "✓ Updated/added $UPDATE_COUNT SRI integrity hashes" >&2
 fi
 
-if [ $MISSING_COUNT -gt 0 ]; then
-  echo "⚠ Failed to generate hashes for $MISSING_COUNT URLs:" >&2
+if [ $FAILED_HASH_COUNT -gt 0 ]; then
+  echo "⚠ Failed to generate hashes for $FAILED_HASH_COUNT URLs:" >&2
   printf '%s\n' "${ERROR_URLS[@]}" | sort -u >&2
   VALIDATION_FAILED=1
 fi
