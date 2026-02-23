@@ -116,7 +116,7 @@ When the hook detects oversized images:
 
 1. Images are resized proportionally to fit within 2000px on the longest dimension
 2. The resized images are automatically staged for commit
-3. You'll see messages like: `⚙️  Cropping solo/001.jpg: 3000x2000 → max long edge 2000`
+3. You'll see messages like: `⚙️  Resizing solo/001.jpg: 3000x2000 → max long edge 2000`
 
 Simply review the changes and proceed with your commit. The resized images will be included in the commit automatically.
 

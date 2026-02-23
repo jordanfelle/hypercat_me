@@ -145,16 +145,16 @@ repos:
         # Disabled - Hugo now handles webp conversion directly
         files: ^$
         stages: [pre-commit]
-      - id: rename-poses-images
-        name: Rename pose images
-        entry: ./scripts/rename-poses-images.sh
+      - id: validate-poses-images
+        name: Validate and crop poses images to ≤2000px
+        entry: ./scripts/validate-poses-images.sh --crop
         language: script
         pass_filenames: false
         files: ^(content/content/poses/)
         stages: [pre-commit]
-      - id: validate-poses-images
-        name: Validate and crop poses images to ≤2000px
-        entry: ./scripts/validate-poses-images.sh --crop
+      - id: rename-poses-images
+        name: Rename pose images
+        entry: ./scripts/rename-poses-images.sh
         language: script
         pass_filenames: false
         files: ^(content/content/poses/)

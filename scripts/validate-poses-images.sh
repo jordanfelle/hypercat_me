@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Validate and optionally crop poses images to 2000px max on long edge.
-# This script is primarily used by the pre-commit hook to auto-crop images
+# Validate and optionally resize poses images to 2000px max on long edge.
+# This script is primarily used by the pre-commit hook to auto-resize images
 # during local commits, preventing oversized images from being committed.
 #
 # This script can run in two modes:
 # 1. Validation mode (default): Checks that images don't exceed 2000px on long edge
-# 2. Auto-crop mode (with --crop flag): Automatically crops images to 2000px max
+# 2. Auto-resize mode (with --crop flag): Automatically resizes images to 2000px max
 
 MAX_DIMENSION=2000
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 POSES_DIR="${SCRIPT_DIR}/../content/content/poses"
 AUTO_CROP=${1:-}
+TMP_FILES=()
+
+# Cleanup trap to remove temporary files on exit
+cleanup() {
+    for tmp_file in "${TMP_FILES[@]}"; do
+        [ -f "$tmp_file" ] && rm -f "$tmp_file"
+    done
+}
+trap cleanup EXIT INT TERM
 
 # Check if ffprobe is available
 if ! command -v ffprobe &> /dev/null; then
@@ -76,9 +85,16 @@ for image_path in "${image_files[@]}"; do
             echo "⚙️  Resizing $pose_path: ${width}x${height} → max long edge $MAX_DIMENSION"
 
             # Use ffmpeg to resize the image while maintaining aspect ratio
-            # scale filter scales to fit both dimensions under 2000px while maintaining aspect ratio
-            if ffmpeg -i "$image_path" -vf "scale=min($MAX_DIMENSION\,iw):min($MAX_DIMENSION\,ih):force_original_aspect_ratio=decrease" -q:v 5 "$image_path" -y 2>/dev/null; then
+            # scale filter constrains both dimensions to MAX_DIMENSION while maintaining aspect ratio
+            image_dir="$(dirname "$image_path")"
+            image_base="$(basename "$image_path")"
+            tmp_image="$(mktemp "${image_dir}/.tmp-${image_base}.XXXXXX")"
+            TMP_FILES+=("$tmp_image")
+
+            if ffmpeg -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" -q:v 5 "$tmp_image" -y 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
                 cropped_files+=("$pose_path")
+                # Remove from cleanup list since it was successfully moved
+                TMP_FILES=("${TMP_FILES[@]/$tmp_image}")
             else
                 failures+=("$pose_path: failed to resize image")
             fi
@@ -91,7 +107,7 @@ done
 echo ""
 if [ "$AUTO_CROP" = "--crop" ]; then
     if (( ${#cropped_files[@]} > 0 )); then
-        echo "✅ Cropped ${#cropped_files[@]} image(s):"
+        echo "✅ Resized ${#cropped_files[@]} image(s):"
         printf '  - %s\n' "${cropped_files[@]}"
     fi
 fi
