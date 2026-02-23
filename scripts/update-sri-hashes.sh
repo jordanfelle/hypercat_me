@@ -144,7 +144,7 @@ for file in "${TARGETS[@]}"; do
       # 2) Add integrity attribute after src for this URL where missing
       sed_in_place "/src=\"$escaped_url\"/ {/integrity=/! s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|;}" "$file"
       # 3) Ensure crossorigin is present when integrity is set
-      sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
+      sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
       ((++UPDATE_COUNT))
     fi
   done < <(
@@ -179,7 +179,7 @@ for file in "${TARGETS[@]}"; do
         sed_in_place "/href=\"$escaped_url\"/{/integrity=/! s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|;}" "$file"
       fi
       # Ensure crossorigin is present when integrity is set
-      sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
+      sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
       ((++UPDATE_COUNT))
     fi
   done < <(
