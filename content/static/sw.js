@@ -8,7 +8,7 @@ var CACHE_VERSION = 'v1';
 var STATIC_CACHE = 'hypercat-static-' + CACHE_VERSION;
 var RUNTIME_CACHE = 'hypercat-runtime-' + CACHE_VERSION;
 
-var IMAGE_PATTERN = /\.(avif|webp|jpg|jpeg|png|gif|svg)(\?.*)?$/;
+var IMAGE_PATTERN = /\.(webp|jpg|jpeg|png|gif|svg)(\?.*)?$/;
 var ASSET_PATTERN = /\.(css|js)(\?.*)?$/;
 
 // CDN libraries required by the poses page - pre-cache on install

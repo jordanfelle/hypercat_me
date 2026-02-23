@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Update SRI (Subresource Integrity) hashes for CDN scripts
 # When a CDN script tag's src is updated (e.g., by Renovate), this script
 # regenerates the corresponding integrity hash to keep them in sync.
@@ -13,7 +13,7 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # Cache directory for downloads to avoid redundant requests
 if [ -n "${XDG_CACHE_HOME-}" ]; then
-  CACHE_DIR="$XDG_CACHE_HOME/sri-hashes"
+  CACHE_DIR="${XDG_CACHE_HOME%/}/sri-hashes"
 else
   CACHE_DIR="$REPO_ROOT/.cache/sri-hashes"
 fi
@@ -80,6 +80,16 @@ escape_sed_replacement() {
   printf '%s' "$1" | sed -e 's/[|&\\]/\\&/g'
 }
 
+sed_in_place() {
+  local expr="$1"
+  local file="$2"
+  if sed --version >/dev/null 2>&1; then
+    sed -i "$expr" "$file"
+  else
+    sed -i '' "$expr" "$file"
+  fi
+}
+
 # Get files to process
 TARGETS=()
 if [ $# -eq 0 ]; then
@@ -122,10 +132,10 @@ for file in "${TARGETS[@]}"; do
       # Check if integrity already exists for this URL
       if grep -Eq "src=\"$escaped_url\"[^>]*integrity" "$file"; then
         # Replace existing integrity hash
-        sed -i "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
+        sed_in_place "s|src=\"$escaped_url\"\\([^>]*\\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\\1integrity=\"sha384-$replacement_hash\"|g" "$file"
       else
         # Add integrity attribute after src
-        sed -i "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|g" "$file"
+        sed_in_place "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|g" "$file"
       fi
       ((UPDATE_COUNT++))
     fi
