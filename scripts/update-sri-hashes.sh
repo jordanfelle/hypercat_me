@@ -5,6 +5,7 @@
 #
 # Usage: scripts/update-sri-hashes.sh [files...]
 # Or as pre-commit hook: passes all changed HTML files automatically
+# Note: pre-commit uses scripts/validate-and-update-sri.sh; this script is intended for manual runs.
 
 set -euo pipefail
 
@@ -17,7 +18,10 @@ if [ -n "${XDG_CACHE_HOME-}" ]; then
 else
   CACHE_DIR="$REPO_ROOT/.cache/sri-hashes"
 fi
-mkdir -p "$CACHE_DIR"
+if ! mkdir -p "$CACHE_DIR"; then
+  echo "Error: failed to create cache directory '$CACHE_DIR'" >&2
+  exit 1
+fi
 
 sha256_key() {
   if command -v sha256sum >/dev/null 2>&1; then
