@@ -190,8 +190,8 @@ for file in "${TARGETS[@]}"; do
 
 done
 
-# Clean up stale cache entries (older than 7 days)
-find "$CACHE_DIR" -mtime +7 -delete 2>/dev/null || true
+# Clean up stale cache entries (older than 7 days) using portable find syntax
+find "$CACHE_DIR" -mtime +7 -type f -exec rm -f {} + 2>/dev/null || true
 
 if [ $UPDATE_COUNT -gt 0 ]; then
   echo "Updated $UPDATE_COUNT SRI integrity hashes"

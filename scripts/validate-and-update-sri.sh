@@ -358,8 +358,8 @@ for file in "${TARGETS[@]}"; do
   fi
 done
 
-# Clean up stale cache entries (older than 7 days)
-find "$CACHE_DIR" -mtime +7 -delete 2>/dev/null || true
+# Clean up stale cache entries (older than 7 days) using portable find syntax
+find "$CACHE_DIR" -mtime +7 -type f -exec rm -f {} + 2>/dev/null || true
 
 # Report results
 echo "" >&2
