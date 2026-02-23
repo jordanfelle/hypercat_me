@@ -11,6 +11,11 @@
 - Languages: Hugo templates (.html), Markdown (.md), YAML configuration
 - No backend, no Node.js, no Python - pure Hugo site
 
+## Consistency Note
+
+Keep build tooling, SRI scripts, and CI workflow patterns aligned across the
+`hypercat_me`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
+
 ## Critical Setup Requirements
 
 ### 1. Theme (INCLUDED)
@@ -124,7 +129,19 @@ Two workflows automatically optimize images:
 
 These use `cadamsdev/image-optimizer-action` to compress image files (PNG, JPG, JPEG, GIF, SVG, WEBP, AVIF). Check `.github/workflows/` for current action versions.
 
-**No other CI/CD checks** - no tests, no linting, no build validation in CI.
+### Pre-commit Auto-Fix
+
+The pre-commit workflow runs on PRs and main branch pushes. For same-repo PRs,
+CI is allowed to commit and push auto-fixes (including SRI hash updates). Forked
+PRs are read-only and will fail with guidance instead of pushing changes.
+
+When pre-commit auto-fixes are pushed to a PR branch, the workflow should leave
+a PR comment summarizing the commit and files changed.
+
+### Other CI Checks
+
+The repo also runs pre-commit, Hugo build validation, and link/config checks in
+CI. If CI fails after auto-fixes, push a new commit to retrigger the workflow.
 
 ## Common Operations
 

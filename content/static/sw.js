@@ -93,6 +93,12 @@ self.addEventListener('fetch', function (event) {
                         );
                     }
                     return response;
+                }).catch(function (error) {
+                    console.warn('[SW] Image fetch failed:', request.url, error);
+                    return new Response('', {
+                        status: 503,
+                        statusText: 'Service Unavailable'
+                    });
                 });
             })
         );
@@ -114,6 +120,12 @@ self.addEventListener('fetch', function (event) {
                         );
                     }
                     return response;
+                }).catch(function (error) {
+                    console.warn('[SW] Fetch failed:', request.url, error);
+                    return new Response('', {
+                        status: 503,
+                        statusText: 'Service Unavailable'
+                    });
                 });
             })
         );
