@@ -18,14 +18,5 @@
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.*)$"
     }
-  ],
-  "packageRules": [
-    {
-      "matchManagers": ["regex"],
-      "matchPackageNames": ["gohugoio/hugo"],
-      "prBodyNotes": [
-        "Note: When Renovate updates the Hugo version, you must manually update `.hugo-archive-checksum` with the SHA256 checksum of the corresponding Hugo archive. See the `build.sh` script for how to compute this checksum."
-      ]
-    }
   ]
 }
