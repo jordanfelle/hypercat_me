@@ -25,12 +25,31 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Check if images exist
+        id: check-images
+        run: |
+          image_count=$(find content/assets/images/poses -type f \
+            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \
+               -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
+            | wc -l)
+          if [ "$image_count" -gt 0 ]; then
+            echo "has_images=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_images=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Cache apt packages
+        if: steps.check-images.outputs.has_images == 'true'
+        uses: aglitchman/apt-cache-action@v1
+
       - name: Install ImageMagick
+        if: steps.check-images.outputs.has_images == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y imagemagick
 
       - name: Check and crop poses images
+        if: steps.check-images.outputs.has_images == 'true'
         id: crop
         run: |
           set +e
