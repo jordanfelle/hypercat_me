@@ -110,13 +110,15 @@ Some hooks (like `trailing-whitespace` and `end-of-file-fixer`) automatically fi
 
 ### Poses Image Auto-Cropping
 
-The poses image validation hook automatically resizes any images in `content/content/poses/` that exceed 2000px on the long edge. When this happens:
+The poses image hook automatically resizes any images in `content/content/poses/` that exceed 2000px on the long edge. This is the primary validation point - images get fixed locally before being committed.
+
+When the hook detects oversized images:
 
 1. Images are resized proportionally to fit within 2000px on the longest dimension
 2. The resized images are automatically staged for commit
 3. You'll see messages like: `⚙️  Cropping solo/001.jpg: 3000x2000 → max long edge 2000`
 
-If images were modified by this hook, they'll be staged and ready to commit. Just review the changes and proceed with your commit.
+Simply review the changes and proceed with your commit. The resized images will be included in the commit automatically.
 
 ### Hugo Build Failures
 

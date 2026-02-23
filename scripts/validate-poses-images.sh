@@ -2,6 +2,9 @@
 set -euo pipefail
 
 # Validate and optionally crop poses images to 2000px max on long edge.
+# This script is primarily used by the pre-commit hook to auto-crop images
+# during local commits, preventing oversized images from being committed.
+#
 # This script can run in two modes:
 # 1. Validation mode (default): Checks that images don't exceed 2000px on long edge
 # 2. Auto-crop mode (with --crop flag): Automatically crops images to 2000px max
