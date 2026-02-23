@@ -134,15 +134,15 @@ for file in "${TARGETS[@]}"; do
   [[ "$file" == */public/* ]] && continue
 
   # Check if file has CDN script or link tags
-  grep -Eq '<script[^>]*src="https://(cdnjs|code\.jquery|cdn)\.|<link[^>]*href="https://(cdnjs|code\.jquery|cdn)\.' "$file" 2>/dev/null || continue
+  grep -Eq '<script[^>]*src="https://cdnjs\.|<link[^>]*href="https://cdnjs\.' "$file" 2>/dev/null || continue
 
   echo "Processing: $file" >&2
 
   # Extract src="URL" patterns for scripts
   while IFS= read -r src_url; do
     [ -z "$src_url" ] && continue
-    # Skip if not from an allowed CDN
-    [[ "$src_url" =~ ^https://(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)/ ]] || continue
+    # Skip if not from an allowed CDN (policy: only cdnjs.cloudflare.com)
+    [[ "$src_url" =~ ^https://(cdnjs\.cloudflare\.com)/ ]] || continue
 
     echo "  Checking script: $src_url" >&2
 
@@ -197,8 +197,8 @@ for file in "${TARGETS[@]}"; do
   # Extract href="URL" patterns for links
   while IFS= read -r href_url; do
     [ -z "$href_url" ] && continue
-    # Skip if not from an allowed CDN
-    [[ "$href_url" =~ ^https://(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)/ ]] || continue
+    # Skip if not from an allowed CDN (policy: only cdnjs.cloudflare.com)
+    [[ "$href_url" =~ ^https://(cdnjs\.cloudflare\.com)/ ]] || continue
 
     echo "  Checking link: $href_url" >&2
 
@@ -277,7 +277,7 @@ for file in "${TARGETS[@]}"; do
     if ! echo "$line" | grep -Fq 'integrity='; then
       echo "$line" | sed -n 's/.*src="\([^"]*\)".*/\1/p'
     fi
-  done | grep -E '(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)' || true)
+  done | grep -E '(cdnjs\.cloudflare\.com)' || true)
   if [ -n "$missing_src" ]; then
     echo "❌ Missing SRI on script in $file:" >&2
     echo "$missing_src" | while read -r url; do
@@ -290,7 +290,7 @@ for file in "${TARGETS[@]}"; do
     if echo "$line" | grep -Fq 'integrity=' && ! echo "$line" | grep -Fq 'crossorigin='; then
       echo "$line" | sed -n 's/.*src="\([^"]*\)".*/\1/p'
     fi
-  done | grep -E '(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)' || true)
+  done | grep -E '(cdnjs\.cloudflare\.com)' || true)
   if [ -n "$missing_src_crossorigin" ]; then
     echo "❌ Missing crossorigin on script in $file:" >&2
     echo "$missing_src_crossorigin" | while read -r url; do
@@ -304,7 +304,7 @@ for file in "${TARGETS[@]}"; do
     if ! echo "$line" | grep -Fq 'integrity='; then
       echo "$line" | sed -n 's/.*href="\([^"]*\)".*/\1/p'
     fi
-  done | grep -E '(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)' || true)
+  done | grep -E '(cdnjs\.cloudflare\.com)' || true)
   if [ -n "$missing_href" ]; then
     echo "❌ Missing SRI on link in $file:" >&2
     echo "$missing_href" | while read -r url; do
@@ -317,7 +317,7 @@ for file in "${TARGETS[@]}"; do
     if echo "$line" | grep -Fq 'integrity=' && ! echo "$line" | grep -Fq 'crossorigin='; then
       echo "$line" | sed -n 's/.*href="\([^"]*\)".*/\1/p'
     fi
-  done | grep -E '(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)' || true)
+  done | grep -E '(cdnjs\.cloudflare\.com)' || true)
   if [ -n "$missing_href_crossorigin" ]; then
     echo "❌ Missing crossorigin on link in $file:" >&2
     echo "$missing_href_crossorigin" | while read -r url; do

@@ -119,15 +119,15 @@ for file in "${TARGETS[@]}"; do
   [[ "$file" == */public/* ]] && continue
 
   # Check if file has CDN script or link tags
-  grep -Eq 'src="https://(cdnjs|code\.jquery|cdn)\.|href="https://(cdnjs|code\.jquery|cdn)\.' "$file" 2>/dev/null || continue
+  grep -Eq 'src="https://cdnjs\.|href="https://cdnjs\.' "$file" 2>/dev/null || continue
 
   # Extract src="URL" patterns and update corresponding integrity attributes
   # Pattern: <script src="https://..." integrity="sha384-OLD_HASH"...>
   while IFS= read -r src_url; do
     # Skip if not a CDN URL
     [[ "$src_url" =~ ^https:// ]] || continue
-    # Only allow specific CDN domains
-    [[ "$src_url" =~ ^https://(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)/ ]] || continue
+    # Only allow specific CDN domains (policy: only cdnjs.cloudflare.com)
+    [[ "$src_url" =~ ^https://(cdnjs\.cloudflare\.com)/ ]] || continue
 
     # Compute new hash
     new_hash=$(compute_sri "$src_url") || continue
@@ -144,7 +144,7 @@ for file in "${TARGETS[@]}"; do
       # 2) Add integrity attribute after src for this URL where missing
       sed_in_place "/src=\"$escaped_url\"/ {/integrity=/! s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|;}" "$file"
       # 3) Ensure crossorigin is present when integrity is set
-      sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
+      sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
       ((++UPDATE_COUNT))
     fi
   done < <(
@@ -157,8 +157,8 @@ for file in "${TARGETS[@]}"; do
   while IFS= read -r href_url; do
     # Skip if not a CDN URL
     [[ "$href_url" =~ ^https:// ]] || continue
-    # Only allow specific CDN domains
-    [[ "$href_url" =~ ^https://(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)/ ]] || continue
+    # Only allow specific CDN domains (policy: only cdnjs.cloudflare.com)
+    [[ "$href_url" =~ ^https://(cdnjs\.cloudflare\.com)/ ]] || continue
 
     # Compute new hash
     new_hash=$(compute_sri "$href_url") || continue
