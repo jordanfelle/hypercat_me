@@ -114,7 +114,8 @@ repos:
         language: script
         pass_filenames: true
         files: ^content/.*\.html$
-        stages: [manual]
+        # NOTE: This hook automatically updates SRI hashes on commit. This is intentional.
+        # SRI hashes must be kept up-to-date for security. Do not remove this automation.
       - id: hugo-build
         name: Hugo build check
         entry: bash -c 'cd content && npm run build'
