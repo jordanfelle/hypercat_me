@@ -119,7 +119,7 @@ jobs:
         with:
           script: |
             const sha = '${{ steps.commit-fixes.outputs.commit_sha }}';
-            const files = '${{ steps.commit-fixes.outputs.changed_files }}';
+            const files = ${{ toJson(steps.commit-fixes.outputs.changed_files) }};
             const body = [
               "Pre-commit auto-fix applied and pushed by GitHub Actions.",
               "",

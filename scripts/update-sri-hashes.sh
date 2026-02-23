@@ -136,10 +136,10 @@ for file in "${TARGETS[@]}"; do
         # Replace existing integrity hash
         sed_in_place "s|src=\"$escaped_url\"\\([^>]*\\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\\1integrity=\"sha384-$replacement_hash\"|g" "$file"
       else
-        # Add integrity attribute after src
-        sed_in_place "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|g" "$file"
+        # Add integrity and crossorigin attributes after src
+        sed_in_place "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|g" "$file"
       fi
-      ((UPDATE_COUNT++))
+      ((++UPDATE_COUNT))
     fi
   done < <(grep -oE 'src="[^"]+"' "$file" | sed -e 's/^src="//' -e 's/"$//' || true)
 

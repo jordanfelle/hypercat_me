@@ -150,7 +150,7 @@ for file in "${TARGETS[@]}"; do
     if ! new_hash=$(compute_sri "$src_url" 2>/dev/null); then
       echo "  ⚠ Failed to compute hash for: $src_url" >&2
       ERROR_URLS+=("$src_url")
-      ((MISSING_COUNT++))
+      ((++MISSING_COUNT))
       continue
     fi
 
@@ -175,7 +175,7 @@ for file in "${TARGETS[@]}"; do
         sed_in_place "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|g" "$file"
         echo "  ✓ Ensured crossorigin for script: $src_url" >&2
       fi
-      ((UPDATE_COUNT++))
+      ((++UPDATE_COUNT))
     fi
   done < <(
     grep -E '<script[^>]*src="[^"]+"' "$file" 2>/dev/null |
@@ -194,7 +194,7 @@ for file in "${TARGETS[@]}"; do
     if ! new_hash=$(compute_sri "$href_url" 2>/dev/null); then
       echo "  ⚠ Failed to compute hash for: $href_url" >&2
       ERROR_URLS+=("$href_url")
-      ((MISSING_COUNT++))
+      ((++MISSING_COUNT))
       continue
     fi
 
@@ -219,7 +219,7 @@ for file in "${TARGETS[@]}"; do
         sed_in_place "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|g" "$file"
         echo "  ✓ Ensured crossorigin for link: $href_url" >&2
       fi
-      ((UPDATE_COUNT++))
+      ((++UPDATE_COUNT))
     fi
   done < <(
     grep -E '<link[^>]*href="[^"]+"' "$file" 2>/dev/null |
