@@ -7,7 +7,6 @@ on:
       - ".github/workflows/validate-poses-dimensions.yml"
 
 permissions:
-  contents: write
   pull-requests: write
 
 jobs:
@@ -19,11 +18,6 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Check if images exist
         id: check-images
@@ -48,53 +42,32 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y imagemagick
 
-      - name: Check and crop poses images
+      - name: Validate poses image dimensions
         if: steps.check-images.outputs.has_images == 'true'
-        id: crop
+        id: validate
         run: |
           set +e
-          ./scripts/validate-poses-images.sh --crop
+          ./scripts/validate-poses-images.sh
           exit_code=$?
           set -e
 
-          # 0 = validation passed (no changes needed)
-          # 1 = validation failed (changes were made or errors found during validation-only mode)
-
           if [ "$exit_code" -eq 0 ]; then
-            # Check if any files were actually modified
-            if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
-              echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "has_changes=false" >> "$GITHUB_OUTPUT"
-            fi
+            echo "status=pass" >> "$GITHUB_OUTPUT"
           else
-            # Script made changes in crop mode
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "status=fail" >> "$GITHUB_OUTPUT"
           fi
+          exit 0
 
-      - name: Commit and push changes
-        if: steps.crop.outputs.has_changes == 'true'
-        id: commit
-        run: |
-          if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
-            git add content/content/poses/
-            git commit -m "Automated poses image dimension validation - crop to ≤2000px max edge"
-            git push
-            echo "committed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "committed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Comment on PR
-        if: steps.commit.outputs.committed == 'true'
+      - name: Comment validation result
+        if: steps.validate.outputs.status == 'fail'
         uses: actions/github-script@v7
         with:
           script: |
-            const msg = '✅ **Poses Image Validation**: Images cropped ' +
-              'to ≤2000px max dimension. Changes committed to this PR.';
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: msg
+              body: '⚠️ **Poses Image Validation**: Some images exceed 2000px on ' +
+                'the long edge. Pre-commit auto-cropping should have fixed this locally. ' +
+                'Please run `pre-commit run --all-files` locally, commit, and push.'
             })

@@ -152,8 +152,8 @@ repos:
         files: ^(content/content/poses/)
         stages: [pre-commit]
       - id: validate-poses-images
-        name: Validate poses images are ≤2000px max dimension
-        entry: ./scripts/validate-poses-images.sh
+        name: Validate and crop poses images to ≤2000px
+        entry: ./scripts/validate-poses-images.sh --crop
         language: script
         pass_filenames: false
         files: ^(content/content/poses/)
