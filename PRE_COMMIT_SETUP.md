@@ -52,8 +52,6 @@ Before installing pre-commit hooks, ensure you have:
 - **Hugo build check**: Verifies the site builds successfully
 - **Photo links validation**: Validates all photo.felle.me links follow the correct format (runs after Hugo build)
 
-## CI/CD and Dependency Updates
-
 ## Consistency Note
 
 Keep build tooling, SRI scripts, and CI workflow patterns aligned across the

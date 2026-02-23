@@ -118,6 +118,8 @@ for file in "${TARGETS[@]}"; do
   while IFS= read -r src_url; do
     # Skip if not a CDN URL
     [[ "$src_url" =~ ^https:// ]] || continue
+    # Only allow specific CDN domains
+    [[ "$src_url" =~ ^https://(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)/ ]] || continue
 
     # Compute new hash
     new_hash=$(compute_sri "$src_url") || continue

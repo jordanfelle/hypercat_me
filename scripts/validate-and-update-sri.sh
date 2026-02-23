@@ -141,8 +141,8 @@ for file in "${TARGETS[@]}"; do
   # Extract src="URL" patterns for scripts
   while IFS= read -r src_url; do
     [ -z "$src_url" ] && continue
-    # Skip if not a CDN URL
-    [[ "$src_url" =~ ^https://.*(cdnjs|code\.jquery|cdn) ]] || continue
+    # Skip if not from an allowed CDN
+    [[ "$src_url" =~ ^https://(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)/ ]] || continue
 
     echo "  Checking script: $src_url" >&2
 
@@ -185,8 +185,8 @@ for file in "${TARGETS[@]}"; do
   # Extract href="URL" patterns for links
   while IFS= read -r href_url; do
     [ -z "$href_url" ] && continue
-    # Skip if not a CDN URL
-    [[ "$href_url" =~ ^https://.*(cdnjs|code\.jquery|cdn) ]] || continue
+    # Skip if not from an allowed CDN
+    [[ "$href_url" =~ ^https://(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)/ ]] || continue
 
     echo "  Checking link: $href_url" >&2
 
