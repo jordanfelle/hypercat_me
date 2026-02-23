@@ -58,13 +58,7 @@ Before installing pre-commit hooks, ensure you have:
 Keep build tooling, SRI scripts, and CI workflow patterns aligned across the
 `hypercat_me`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
 
-The GitHub Actions workflow (`.github/workflows/pre-commit.yml`) pins specific versions for reproducibility:
-
-- **Hugo**: Pinned to a specific version (e.g., 0.154.5)
-- **Node.js**: Pinned to v18
-- **Python**: Pinned to 3.11
-
-**Version updates are handled automatically by Renovate**, which is configured in `renovate.json`. Renovate will:
+The GitHub Actions workflow (`.github/workflows/pre-commit.yml`) pins specific versions for reproducibility. **Version updates are handled automatically by Renovate**, which is configured in `renovate.json`. Renovate will:
 
 - Monitor for new Hugo, Node.js, and other dependency releases
 - Create PRs automatically when updates are available

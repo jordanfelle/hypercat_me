@@ -66,6 +66,10 @@ compute_sri() {
     echo "Error: openssl not found" >&2
     return 1
   fi
+  if ! command -v base64 &> /dev/null; then
+    echo "Error: base64 not found" >&2
+    return 1
+  fi
 
   local hash
   if ! hash=$(curl -fsSL "$url" | openssl dgst -sha384 -binary | base64_no_wrap); then
