@@ -95,7 +95,7 @@ compute_sri() {
 
 escape_sed_pattern() {
   # Escape characters that are special in POSIX basic regex plus the delimiter and '&'
-  printf '%s' "$1" | sed -e 's/[][\\.\.^$*]/\\&/g' -e 's/[\/&]/\\&/g'
+  printf '%s' "$1" | sed -e 's/[][\\.^$*]/\\&/g' -e 's/[\/&|]/\\&/g'
 }
 
 escape_sed_replacement() {
