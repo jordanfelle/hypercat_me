@@ -159,22 +159,19 @@ for file in "${TARGETS[@]}"; do
     replacement_url=$(escape_sed_replacement "$src_url")
     replacement_hash=$(escape_sed_replacement "$new_hash")
 
-    # Check if the line has this src attribute
+    # Check if the file has this src attribute at all
     if grep -Fq "src=\"$src_url\"" "$file"; then
-      # Check if integrity already exists for this URL on the tag line
-      if grep -F "src=\"$src_url\"" "$file" | grep -Fq 'integrity='; then
-        # Replace existing integrity hash
-        sed_in_place "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
-        echo "  ✓ Updated hash for script: $src_url" >&2
-      else
-        # Add integrity attribute after src (before closing > or space)
-        sed_in_place "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|g" "$file"
-        echo "  ✓ Added integrity to script: $src_url" >&2
-      fi
-      if ! grep -F "src=\"$src_url\"" "$file" | grep -Fq 'crossorigin='; then
-        sed_in_place "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|g" "$file"
-        echo "  ✓ Ensured crossorigin for script: $src_url" >&2
-      fi
+      # 1. Update existing integrity hashes for this URL (on any matching tag lines)
+      sed_in_place "s|src=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
+      echo "  ✓ Updated hash for script (existing integrity): $src_url" >&2
+
+      # 2. Add integrity attribute to any matching tag lines that lack integrity
+      #    This only affects lines that contain this src URL and do NOT already contain integrity=
+      sed_in_place "/src=\"$escaped_url\"/{/integrity=/! s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|;}" "$file"
+      echo "  ✓ Added integrity to script (previously missing): $src_url" >&2
+
+      # 3. Ensure crossorigin is present on tags with this URL and an integrity attribute
+      sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
       ((++UPDATE_COUNT))
     fi
   done < <(
@@ -203,22 +200,19 @@ for file in "${TARGETS[@]}"; do
     replacement_url=$(escape_sed_replacement "$href_url")
     replacement_hash=$(escape_sed_replacement "$new_hash")
 
-    # Check if the line has this href attribute
+    # Check if the file has this href attribute at all
     if grep -Fq "href=\"$href_url\"" "$file"; then
-      # Check if integrity already exists for this URL on the tag line
-      if grep -F "href=\"$href_url\"" "$file" | grep -Fq 'integrity='; then
-        # Replace existing integrity hash
-        sed_in_place "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
-        echo "  ✓ Updated hash for link: $href_url" >&2
-      else
-        # Add integrity attribute after href (before closing > or space)
-        sed_in_place "s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|g" "$file"
-        echo "  ✓ Added integrity to link: $href_url" >&2
-      fi
-      if ! grep -F "href=\"$href_url\"" "$file" | grep -Fq 'crossorigin='; then
-        sed_in_place "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|g" "$file"
-        echo "  ✓ Ensured crossorigin for link: $href_url" >&2
-      fi
+      # 1. Update existing integrity hashes for this URL (on any matching tag lines)
+      sed_in_place "s|href=\"$escaped_url\"\([^>]*\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\1integrity=\"sha384-$replacement_hash\"|g" "$file"
+      echo "  ✓ Updated hash for link (existing integrity): $href_url" >&2
+
+      # 2. Add integrity attribute to any matching tag lines that lack integrity
+      #    This only affects lines that contain this href URL and do NOT already contain integrity=
+      sed_in_place "/href=\"$escaped_url\"/{/integrity=/! s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|;}" "$file"
+      echo "  ✓ Added integrity to link (previously missing): $href_url" >&2
+
+      # 3. Ensure crossorigin is present on tags with this URL and an integrity attribute
+      sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
       ((++UPDATE_COUNT))
     fi
   done < <(
