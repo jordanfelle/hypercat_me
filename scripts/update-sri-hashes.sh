@@ -185,6 +185,7 @@ for file in "${TARGETS[@]}"; do
     fi
   done < <(
     grep -E '<link[^>]*href="[^"]+"' "$file" 2>/dev/null |
+      grep -iE 'rel=[^>]*stylesheet|rel=[^>]*preload[^>]*as=[^>]*style|as=[^>]*style[^>]*rel=[^>]*preload' |
       grep -oE 'href="[^"]+"' | sed -e 's/^href="//' -e 's/"$//' || true
   )
 
