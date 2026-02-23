@@ -73,14 +73,14 @@ for image_path in "${image_files[@]}"; do
 
     if (( long_edge > MAX_DIMENSION )); then
         if [ "$AUTO_CROP" = "--crop" ]; then
-            echo "⚙️  Cropping $pose_path: ${width}x${height} → max long edge $MAX_DIMENSION"
+            echo "⚙️  Resizing $pose_path: ${width}x${height} → max long edge $MAX_DIMENSION"
 
-            # Use ffmpeg to resize the image
+            # Use ffmpeg to resize the image while maintaining aspect ratio
             # scale filter scales to fit both dimensions under 2000px while maintaining aspect ratio
             if ffmpeg -i "$image_path" -vf "scale=min($MAX_DIMENSION\,iw):min($MAX_DIMENSION\,ih):force_original_aspect_ratio=decrease" -q:v 5 "$image_path" -y 2>/dev/null; then
                 cropped_files+=("$pose_path")
             else
-                failures+=("$pose_path: failed to crop image")
+                failures+=("$pose_path: failed to resize image")
             fi
         else
             failures+=("$pose_path: ${width}x${height} exceeds maximum ${MAX_DIMENSION}px on long edge")
@@ -97,7 +97,7 @@ if [ "$AUTO_CROP" = "--crop" ]; then
 fi
 
 if (( ${#failures[@]} == 0 )); then
-    echo "✅ All poses images are within ${MAX_DIMENSION}px max dimension!"
+    echo "✅ All poses images are within ${MAX_DIMENSION}px max dimension (${#image_files[@]} images checked)"
     exit 0
 else
     echo "❌ Found ${#failures[@]} validation error(s):"
