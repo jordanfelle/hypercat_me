@@ -72,7 +72,7 @@ compute_sri() {
   fi
 
   local hash
-  if ! hash=$(curl -fsSL "$url" | openssl dgst -sha384 -binary | base64_no_wrap); then
+  if ! hash=$(curl --connect-timeout 5 --max-time 30 --retry 3 -fsSL "$url" | openssl dgst -sha384 -binary | base64_no_wrap); then
     echo "Error: failed to download or hash '$url'" >&2
     return 1
   fi
