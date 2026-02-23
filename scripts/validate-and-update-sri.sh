@@ -271,7 +271,7 @@ for file in "${TARGETS[@]}"; do
 
       # 3. Ensure crossorigin is present on tags with this URL and an integrity attribute
       if [[ "$has_integrity" == true || "$has_missing_integrity" == true ]]; then
-        sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|& crossorigin=\"anonymous\"|;}" "$file"
+        sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha[^-]*-[^\"]*\"|& crossorigin=\"anonymous\"|;;}" "$file"
         ((++UPDATE_COUNT))
       fi
     fi
@@ -283,7 +283,7 @@ for file in "${TARGETS[@]}"; do
 done
 
 if [ "$UPDATE_ONLY" = "true" ]; then
-  find "$CACHE_DIR" -mtime +7 -delete 2>/dev/null || true
+  find "$CACHE_DIR" -mtime +7 -type f -exec rm -f {} + 2>/dev/null || true
   echo "" >&2
   if [ $UPDATE_COUNT -gt 0 ]; then
     echo "✓ Updated/added $UPDATE_COUNT SRI integrity hashes" >&2
