@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Update SRI (Subresource Integrity) hashes for CDN scripts
-# When a CDN script tag's src is updated (e.g., by Renovate), this script
+# Update SRI (Subresource Integrity) hashes for CDN scripts and stylesheets
+# When a CDN script or stylesheet tag's src/href is updated (e.g., by Renovate), this script
 # regenerates the corresponding integrity hash to keep them in sync.
 #
 # Usage: scripts/update-sri-hashes.sh [files...]
@@ -110,8 +110,8 @@ for file in "${TARGETS[@]}"; do
   # Skip generated files
   [[ "$file" == */public/* ]] && continue
 
-  # Check if file has CDN script tags
-  grep -Eq 'src="https://(cdnjs|code\.jquery|cdn)\.' "$file" 2>/dev/null || continue
+  # Check if file has CDN script or link tags
+  grep -Eq 'src="https://(cdnjs|code\.jquery|cdn)\.|href="https://(cdnjs|code\.jquery|cdn)\.' "$file" 2>/dev/null || continue
 
   # Extract src="URL" patterns and update corresponding integrity attributes
   # Pattern: <script src="https://..." integrity="sha384-OLD_HASH"...>
@@ -142,6 +142,38 @@ for file in "${TARGETS[@]}"; do
       ((++UPDATE_COUNT))
     fi
   done < <(grep -oE 'src="[^"]+"' "$file" | sed -e 's/^src="//' -e 's/"$//' || true)
+
+  # Extract href="URL" patterns and update corresponding integrity attributes
+  # Pattern: <link href="https://..." integrity="sha384-OLD_HASH"...>
+  while IFS= read -r href_url; do
+    # Skip if not a CDN URL
+    [[ "$href_url" =~ ^https:// ]] || continue
+    # Only allow specific CDN domains
+    [[ "$href_url" =~ ^https://(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)/ ]] || continue
+
+    # Compute new hash
+    new_hash=$(compute_sri "$href_url") || continue
+
+    # Escape URL for use in sed
+    escaped_url=$(escape_sed_pattern "$href_url")
+    replacement_url=$(escape_sed_replacement "$href_url")
+    replacement_hash=$(escape_sed_replacement "$new_hash")
+
+    # Update or add integrity attribute
+    if grep -Fq "href=\"$href_url\"" "$file"; then
+      # Check if integrity already exists for this URL
+      if grep -Eq "href=\"$escaped_url\"[^>]*integrity" "$file"; then
+        # Replace existing integrity hash
+        sed_in_place "s|href=\"$escaped_url\"\\([^>]*\\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\\1integrity=\"sha384-$replacement_hash\"|g" "$file"
+      else
+        # Add integrity and crossorigin attributes after href
+        sed_in_place "/href=\"$escaped_url\"/{/integrity=/! s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|;}" "$file"
+      fi
+      # Ensure crossorigin is present when integrity is set
+      sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
+      ((++UPDATE_COUNT))
+    fi
+  done < <(grep -oE 'href="[^"]+"' "$file" | sed -e 's/^href="//' -e 's/"$//' || true)
 
 done
 
