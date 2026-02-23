@@ -8,9 +8,9 @@ Before installing pre-commit hooks, ensure you have:
 
 - **Python 3.8+** - Required for pre-commit itself
 - **Node.js 16+** - Required for markdownlint and Prettier
-- **ImageMagick** - Required for poses image dimension validation
-  - macOS: `brew install imagemagick`
-  - Ubuntu/Debian: `sudo apt install imagemagick`
+- **FFmpeg** - Required for poses image dimension validation
+  - macOS: `brew install ffmpeg`
+  - Ubuntu/Debian: `sudo apt install ffmpeg`
 - **Hugo extended** - Required for the Hugo build check hook (see [Hugo installation](https://gohugo.io/installation/))
   - Minimum version: v0.146.0 (as specified in the theme)
   - Must be available on your PATH (verify with `hugo version`)

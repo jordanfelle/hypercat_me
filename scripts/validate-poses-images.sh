@@ -14,16 +14,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 POSES_DIR="${SCRIPT_DIR}/../content/content/poses"
 AUTO_CROP=${1:-}
 
-# Check if identify is available
-if ! command -v identify &> /dev/null; then
-    echo "Error: ImageMagick (identify) is required for image dimension validation."
-    echo "Please install ImageMagick: brew install imagemagick (macOS) or apt install imagemagick (Ubuntu/Debian)"
+# Check if ffprobe is available
+if ! command -v ffprobe &> /dev/null; then
+    echo "Error: FFmpeg (ffprobe) is required for image dimension validation."
+    echo "Please install FFmpeg: brew install ffmpeg (macOS) or apt install ffmpeg (Ubuntu/Debian)"
     exit 1
 fi
 
-if ! command -v convert &> /dev/null && [ "$AUTO_CROP" = "--crop" ]; then
-    echo "Error: ImageMagick (convert) is required for auto-cropping."
-    echo "Please install ImageMagick: brew install imagemagick (macOS) or apt install imagemagick (Ubuntu/Debian)"
+if ! command -v ffmpeg &> /dev/null && [ "$AUTO_CROP" = "--crop" ]; then
+    echo "Error: FFmpeg is required for auto-cropping."
+    echo "Please install FFmpeg: brew install ffmpeg (macOS) or apt install ffmpeg (Ubuntu/Debian)"
     exit 1
 fi
 
@@ -49,14 +49,20 @@ fi
 for image_path in "${image_files[@]}"; do
     pose_path=$(echo "$image_path" | sed "s|$POSES_DIR/||")
 
-    # Get image dimensions
-    if ! dimensions=$(identify -format "%wx%h" "$image_path" 2>/dev/null); then
+    # Get image dimensions using ffprobe
+    if ! dimensions=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$image_path" 2>/dev/null); then
         failures+=("$pose_path: unable to read image dimensions")
         continue
     fi
 
     width="${dimensions%x*}"
     height="${dimensions#*x}"
+
+    # Skip if we couldn't parse dimensions
+    if [[ -z "$width" ]] || [[ -z "$height" ]]; then
+        failures+=("$pose_path: unable to parse image dimensions")
+        continue
+    fi
 
     # Calculate long edge
     if (( width > height )); then
@@ -69,17 +75,9 @@ for image_path in "${image_files[@]}"; do
         if [ "$AUTO_CROP" = "--crop" ]; then
             echo "⚙️  Cropping $pose_path: ${width}x${height} → max long edge $MAX_DIMENSION"
 
-            # Calculate new dimensions maintaining aspect ratio
-            if (( width > height )); then
-                new_width=$MAX_DIMENSION
-                new_height=$(( height * MAX_DIMENSION / width ))
-            else
-                new_height=$MAX_DIMENSION
-                new_width=$(( width * MAX_DIMENSION / height ))
-            fi
-
-            # Use convert to resize the image
-            if convert "$image_path" -resize "${new_width}x${new_height}" "$image_path" 2>/dev/null; then
+            # Use ffmpeg to resize the image
+            # scale filter scales to fit both dimensions under 2000px while maintaining aspect ratio
+            if ffmpeg -i "$image_path" -vf "scale=min($MAX_DIMENSION\,iw):min($MAX_DIMENSION\,ih):force_original_aspect_ratio=decrease" -q:v 5 "$image_path" -y 2>/dev/null; then
                 cropped_files+=("$pose_path")
             else
                 failures+=("$pose_path: failed to crop image")
