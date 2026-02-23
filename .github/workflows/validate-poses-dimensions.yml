@@ -3,7 +3,7 @@ name: Validate Poses Image Dimensions
 on:
   pull_request:
     paths:
-      - "content/assets/images/poses/**"
+      - "content/content/poses/**"
       - ".github/workflows/validate-poses-dimensions.yml"
 
 permissions:
@@ -28,10 +28,10 @@ jobs:
       - name: Check if images exist
         id: check-images
         run: |
-          image_count=$(find content/assets/images/poses -type f \
+          image_count=$(find content/content/poses -type f \
             \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \
                -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) \
-            | wc -l)
+            2>/dev/null | wc -l)
           if [ "$image_count" -gt 0 ]; then
             echo "has_images=true" >> "$GITHUB_OUTPUT"
           else
@@ -77,7 +77,7 @@ jobs:
         id: commit
         run: |
           if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
-            git add content/assets/images/poses/
+            git add content/content/poses/
             git commit -m "Automated poses image dimension validation - crop to ≤2000px max edge"
             git push
             echo "committed=true" >> "$GITHUB_OUTPUT"

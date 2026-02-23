@@ -156,7 +156,7 @@ repos:
         entry: ./scripts/validate-poses-images.sh
         language: script
         pass_filenames: false
-        files: ^(content/assets/images/poses/)
+        files: ^(content/content/poses/)
         stages: [pre-commit]
 
 ci:

@@ -8,7 +8,7 @@ set -euo pipefail
 
 MAX_DIMENSION=2000
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-POSES_DIR="${SCRIPT_DIR}/../content/assets/images/poses"
+POSES_DIR="${SCRIPT_DIR}/../content/content/poses"
 AUTO_CROP=${1:-}
 
 # Check if identify is available
