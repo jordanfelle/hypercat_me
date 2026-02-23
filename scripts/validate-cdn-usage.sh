@@ -32,8 +32,10 @@ DISALLOWED_CDNS=(
 
 echo "Checking for disallowed CDN usage in HTML files..."
 
+files_checked=0
 # Find all HTML files (excluding generated/vendored directories)
 while IFS= read -r -d '' file; do
+  ((++files_checked))
   for cdn_pattern in "${DISALLOWED_CDNS[@]}"; do
     if grep -HnEi "(src|href)[[:space:]]*=[[:space:]]*[\"'](https?:)?//${cdn_pattern}" "$file" 2>/dev/null; then
       failures+=("$file: uses disallowed CDN: $cdn_pattern")
@@ -61,5 +63,5 @@ if (( ${#failures[@]} > 0 )); then
   exit 1
 fi
 
-echo "✅ No disallowed CDN patterns detected"
+echo "✅ No disallowed CDN patterns detected ($files_checked files checked)"
 exit 0
