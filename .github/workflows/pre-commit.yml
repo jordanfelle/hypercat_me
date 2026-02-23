@@ -104,7 +104,7 @@ jobs:
             {
               echo "fixes_committed=true"
               echo "commit_sha=$commit_sha"
-              echo "changed_files<<'EOF'"
+              echo "changed_files<<EOF"
               echo "$files"
               echo "EOF"
             } >> "$GITHUB_OUTPUT"

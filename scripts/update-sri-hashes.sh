@@ -140,12 +140,17 @@ for file in "${TARGETS[@]}"; do
         # Replace existing integrity hash
         sed_in_place "s|src=\"$escaped_url\"\\([^>]*\\)integrity=\"sha384-[^\"]*\"|src=\"$replacement_url\"\\1integrity=\"sha384-$replacement_hash\"|g" "$file"
       else
-        # Add integrity and crossorigin attributes after src
-        sed_in_place "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|g" "$file"
+        # Add integrity attribute after src
+        sed_in_place "s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|g" "$file"
       fi
+      # Ensure crossorigin is present when integrity is set
+      sed_in_place "/src=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
       ((++UPDATE_COUNT))
     fi
-  done < <(grep -oE 'src="[^"]+"' "$file" | sed -e 's/^src="//' -e 's/"$//' || true)
+  done < <(
+    grep -E '<script[^>]*src="[^"]+"' "$file" 2>/dev/null |
+      grep -oE 'src="[^"]+"' | sed -e 's/^src="//' -e 's/"$//' || true
+  )
 
   # Extract href="URL" patterns and update corresponding integrity attributes
   # Pattern: <link href="https://..." integrity="sha384-OLD_HASH"...>
@@ -170,14 +175,17 @@ for file in "${TARGETS[@]}"; do
         # Replace existing integrity hash
         sed_in_place "s|href=\"$escaped_url\"\\([^>]*\\)integrity=\"sha384-[^\"]*\"|href=\"$replacement_url\"\\1integrity=\"sha384-$replacement_hash\"|g" "$file"
       else
-        # Add integrity and crossorigin attributes after href
-        sed_in_place "/href=\"$escaped_url\"/{/integrity=/! s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|;}" "$file"
+        # Add integrity attribute after href
+        sed_in_place "/href=\"$escaped_url\"/{/integrity=/! s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|;}" "$file"
       fi
       # Ensure crossorigin is present when integrity is set
       sed_in_place "/href=\"$escaped_url\".*integrity=/{/crossorigin=/! s|integrity=\"sha384-[^\"]*\"|&  crossorigin=\"anonymous\"|;}" "$file"
       ((++UPDATE_COUNT))
     fi
-  done < <(grep -oE 'href="[^"]+"' "$file" | sed -e 's/^href="//' -e 's/"$//' || true)
+  done < <(
+    grep -E '<link[^>]*href="[^"]+"' "$file" 2>/dev/null |
+      grep -oE 'href="[^"]+"' | sed -e 's/^href="//' -e 's/"$//' || true
+  )
 
 done
 

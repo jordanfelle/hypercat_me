@@ -179,7 +179,7 @@ for file in "${TARGETS[@]}"; do
       # 2. Add integrity attribute to any matching tag lines that lack integrity
       #    This only affects lines that contain this src URL and do NOT already contain integrity=
       if [[ "$has_missing_integrity" == true ]]; then
-        sed_in_place "/src=\"$escaped_url\"/{/integrity=/! s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|;}" "$file"
+        sed_in_place "/src=\"$escaped_url\"/{/integrity=/! s|src=\"$escaped_url\"|src=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|;}" "$file"
         echo "  ✓ Added integrity to script (previously missing): $src_url" >&2
       fi
 
@@ -235,7 +235,7 @@ for file in "${TARGETS[@]}"; do
       # 2. Add integrity attribute to any matching tag lines that lack integrity
       #    This only affects lines that contain this href URL and do NOT already contain integrity=
       if [[ "$has_missing_integrity" == true ]]; then
-        sed_in_place "/href=\"$escaped_url\"/{/integrity=/! s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\" crossorigin=\"anonymous\"|;}" "$file"
+        sed_in_place "/href=\"$escaped_url\"/{/integrity=/! s|href=\"$escaped_url\"|href=\"$replacement_url\" integrity=\"sha384-$replacement_hash\"|;}" "$file"
         echo "  ✓ Added integrity to link (previously missing): $href_url" >&2
       fi
 
@@ -277,7 +277,7 @@ for file in "${TARGETS[@]}"; do
     if ! echo "$line" | grep -Fq 'integrity='; then
       echo "$line" | sed -n 's/.*src="\([^"]*\)".*/\1/p'
     fi
-  done | grep -E '(cdnjs|code\.jquery|cdn)' || true)
+  done | grep -E '(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)' || true)
   if [ -n "$missing_src" ]; then
     echo "❌ Missing SRI on script in $file:" >&2
     echo "$missing_src" | while read -r url; do
@@ -290,7 +290,7 @@ for file in "${TARGETS[@]}"; do
     if echo "$line" | grep -Fq 'integrity=' && ! echo "$line" | grep -Fq 'crossorigin='; then
       echo "$line" | sed -n 's/.*src="\([^"]*\)".*/\1/p'
     fi
-  done | grep -E '(cdnjs|code\.jquery|cdn)' || true)
+  done | grep -E '(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)' || true)
   if [ -n "$missing_src_crossorigin" ]; then
     echo "❌ Missing crossorigin on script in $file:" >&2
     echo "$missing_src_crossorigin" | while read -r url; do
@@ -304,7 +304,7 @@ for file in "${TARGETS[@]}"; do
     if ! echo "$line" | grep -Fq 'integrity='; then
       echo "$line" | sed -n 's/.*href="\([^"]*\)".*/\1/p'
     fi
-  done | grep -E '(cdnjs|code\.jquery|cdn)' || true)
+  done | grep -E '(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)' || true)
   if [ -n "$missing_href" ]; then
     echo "❌ Missing SRI on link in $file:" >&2
     echo "$missing_href" | while read -r url; do
@@ -317,7 +317,7 @@ for file in "${TARGETS[@]}"; do
     if echo "$line" | grep -Fq 'integrity=' && ! echo "$line" | grep -Fq 'crossorigin='; then
       echo "$line" | sed -n 's/.*href="\([^"]*\)".*/\1/p'
     fi
-  done | grep -E '(cdnjs|code\.jquery|cdn)' || true)
+  done | grep -E '(cdnjs\.cloudflare\.com|code\.jquery\.com|cdn\.jsdelivr\.net)' || true)
   if [ -n "$missing_href_crossorigin" ]; then
     echo "❌ Missing crossorigin on link in $file:" >&2
     echo "$missing_href_crossorigin" | while read -r url; do
