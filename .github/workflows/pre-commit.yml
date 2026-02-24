@@ -32,13 +32,6 @@ jobs:
               - 'content/**'
               - 'scripts/**'
               - 'wrangler.jsonc'
-              - 'content/hugo.yaml'
-              - 'content/package.json'
-              - 'content/package-lock.json'
-              - 'content/assets/**'
-              - 'content/layouts/**'
-              - 'content/themes/**'
-              - 'content/static/**'
 
       - name: Set up Git
         run: |
