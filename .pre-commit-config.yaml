@@ -150,7 +150,7 @@ repos:
         entry: ./scripts/validate-poses-images.sh --resize
         language: script
         pass_filenames: false
-        files: ^content/content/poses/.*\.(png|jpe?g|gif|webp|avif)$
+        files: (?i)^content/content/poses/.*\.(png|jpe?g|gif|webp|avif)$
         stages: [pre-commit]
       - id: rename-poses-images
         name: Rename pose images
