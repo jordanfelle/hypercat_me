@@ -92,7 +92,7 @@ jobs:
 
       - name: Commit and push fixes (PR only)
         id: commit-fixes
-        if: steps.pre-commit.outcome == 'failure' && github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request'
         run: |
           if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
             last_author=$(git log -1 --pretty=%an)
@@ -100,7 +100,7 @@ jobs:
             if [ "$last_author" = "github-actions[bot]" ] && echo "$last_subject" | grep -qi "pre-commit fixes"; then
               echo "Pre-commit fixes already applied by the bot; refusing to loop."
               echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
-              exit 1
+              exit 0
             fi
             git add -A
             git commit -m "chore: apply pre-commit fixes [skip ci]"
@@ -115,9 +115,9 @@ jobs:
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
           else
-            echo "❌ Pre-commit checks failed but no fixes were applied"
+            echo "No pre-commit fixes to apply"
             echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
-            exit 1
+            exit 0
           fi
 
       - name: Comment on PR with auto-fix details

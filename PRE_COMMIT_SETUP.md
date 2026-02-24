@@ -14,6 +14,9 @@ Before installing pre-commit hooks, ensure you have:
 - **Hugo extended** - Required for the Hugo build check hook (see [Hugo installation](https://gohugo.io/installation/))
   - Minimum version: v0.146.0 (as specified in the theme)
   - Must be available on your PATH (verify with `hugo version`)
+- **Stylelint** - Required for CSS linting
+  - Install: `brew install stylelint`
+  - Config dependencies: `npm install --save-dev stylelint-config-standard`
 
 ## Installation
 
@@ -52,6 +55,7 @@ Before installing pre-commit hooks, ensure you have:
 - **Codespell**: Checks for common spelling mistakes
 - **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
 - **Shell script linting**: Validates bash/shell scripts with shellcheck
+- **Stylelint**: Lints CSS files for syntax errors and best practices
 - **SRI integrity validation**: Validates and automatically adds/updates Subresource Integrity hashes for CDN-hosted scripts and stylesheets
 - **Poses image auto-resizing**: Automatically resizes images in `content/content/poses/` to ≤2000px on long edge while preserving aspect ratio
 - **Hugo build check**: Verifies the site builds successfully
