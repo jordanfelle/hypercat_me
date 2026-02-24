@@ -8,6 +8,9 @@ Before installing pre-commit hooks, ensure you have:
 
 - **Python 3.8+** - Required for pre-commit itself
 - **Node.js 16+** - Required for markdownlint and Prettier
+- **FFmpeg** - Required for poses image dimension validation
+  - macOS: `brew install ffmpeg`
+  - Ubuntu/Debian: `sudo apt install ffmpeg`
 - **Hugo extended** - Required for the Hugo build check hook (see [Hugo installation](https://gohugo.io/installation/))
   - Minimum version: v0.146.0 (as specified in the theme)
   - Must be available on your PATH (verify with `hugo version`)
@@ -50,6 +53,7 @@ Before installing pre-commit hooks, ensure you have:
 - **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
 - **Shell script linting**: Validates bash/shell scripts with shellcheck
 - **SRI integrity validation**: Validates and automatically adds/updates Subresource Integrity hashes for CDN-hosted scripts and stylesheets
+- **Poses image auto-resizing**: Automatically resizes images in `content/content/poses/` to ≤2000px on long edge while preserving aspect ratio
 - **Hugo build check**: Verifies the site builds successfully
 - **Photo links validation**: Validates all photo.felle.me links follow the correct format (runs after Hugo build)
 
@@ -103,6 +107,22 @@ If a hook fails:
 4. Commit again
 
 Some hooks (like `trailing-whitespace` and `end-of-file-fixer`) automatically fix issues, while others (like `markdownlint` and `hugo-build`) require manual intervention.
+
+### Poses Image Auto-Resizing
+
+The poses image hook automatically resizes any images in `content/content/poses/` that exceed 2000px on the long edge. This is the primary validation point - images get fixed locally before being committed.
+
+When the hook detects oversized images:
+
+1. Images are resized proportionally to fit within 2000px on the longest dimension
+2. The hook writes the resized images back to disk (but does not stage them)
+3. You'll see messages like: `⚙️  Resizing solo/001.jpg: 3000x2000 → max long edge 2000`
+
+After the hook runs, the commit will be stopped so you can review the changes. To continue:
+
+1. Review the resized images with `git diff`
+2. Stage them with `git add`
+3. Re-run `git commit` (which will re-run `pre-commit` and complete if everything passes)
 
 ### Hugo Build Failures
 
