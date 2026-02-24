@@ -104,6 +104,10 @@ jobs:
             sudo apt-get install -y ffmpeg
           fi
 
+      - name: Install root npm dependencies
+        if: steps.npm-lockfiles.outputs.has_lockfiles == 'true'
+        run: npm ci
+
       - name: Install pre-commit
         run: pip install pre-commit
 
