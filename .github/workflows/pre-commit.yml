@@ -94,12 +94,17 @@ jobs:
         id: commit-fixes
         if: github.event_name == 'pull_request'
         run: |
+          PRE_COMMIT_OUTCOME="${{ steps.pre-commit.outcome }}"
+
           if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
             last_author=$(git log -1 --pretty=%an)
             last_subject=$(git log -1 --pretty=%s)
             if [ "$last_author" = "github-actions[bot]" ] && echo "$last_subject" | grep -qi "pre-commit fixes"; then
               echo "Pre-commit fixes already applied by the bot; refusing to loop."
               echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
+              if [ "$PRE_COMMIT_OUTCOME" = "failure" ]; then
+                exit 1
+              fi
               exit 0
             fi
             git add -A
@@ -117,6 +122,9 @@ jobs:
           else
             echo "No pre-commit fixes to apply"
             echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
+            if [ "$PRE_COMMIT_OUTCOME" = "failure" ]; then
+              exit 1
+            fi
             exit 0
           fi
 
