@@ -99,6 +99,19 @@ repos:
         types: [shell]
         args: ['--severity=warning']
 
+  # CSS linting
+  - repo: https://github.com/thibaudcolas/pre-commit-stylelint
+    rev: v17.3.0
+    hooks:
+      - id: stylelint
+        name: Lint CSS
+        files: \.css$
+        exclude: ^(content/resources/|content/public/|content/themes/)
+        args: ['--fix']
+        additional_dependencies:
+          - stylelint@17.3.0
+          - stylelint-config-standard@40.0.0
+
   # Hugo build check
   - repo: local
     hooks:

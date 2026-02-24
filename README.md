@@ -13,7 +13,7 @@ Personal website built with Hugo and the Hypercat theme.
 ### Prerequisites
 
 - Hugo (extended version)
-- Node.js (for Wrangler)
+- Node.js >=20.19.0 (for Wrangler and Stylelint tooling)
 
 ### Local Development
 

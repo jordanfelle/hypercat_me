@@ -2,7 +2,6 @@ name: Pre-commit checks
 
 on:
   pull_request:
-    branches: [main]
   push:
     branches: [main]
 
@@ -23,6 +22,21 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Detect site changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            site:
+              - 'content/**'
+              - 'scripts/**'
+              - 'wrangler.jsonc'
+              - 'build.sh'
+              - '.hugo-version'
+              - '.hugo-archive-checksum'
+            images:
+              - 'content/content/poses/**'
+
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
@@ -41,7 +55,31 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pre-commit-
 
+      - name: Detect npm lockfiles
+        id: npm-lockfiles
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "has_root_lockfile=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_root_lockfile=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -f package-lock.json ] || [ -f content/package-lock.json ]; then
+            echo "has_lockfiles=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_lockfiles=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js (cached)
+        if: steps.npm-lockfiles.outputs.has_root_lockfile == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: |
+            package-lock.json
+
       - name: Set up Node.js
+        if: steps.npm-lockfiles.outputs.has_root_lockfile != 'true'
         uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -64,18 +102,33 @@ jobs:
             ${{ runner.os }}-hugo-resources-
 
       - name: Install system dependencies
+        if: steps.changes.outputs.images == 'true'
         run: |
           if ! command -v ffmpeg &> /dev/null; then
-            sudo apt-get install -y ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+            sudo apt-get update -y
+            sudo apt-get install -y ffmpeg
           fi
+
+      - name: Install root npm dependencies
+        if: steps.npm-lockfiles.outputs.has_root_lockfile == 'true'
+        run: npm ci
 
       - name: Install pre-commit
         run: pip install pre-commit
 
+      - name: Fetch base ref for diff (PR only)
+        if: github.event_name == 'pull_request'
+        run: git fetch origin ${{ github.base_ref }}
+
       - name: Run pre-commit checks
         id: pre-commit
         continue-on-error: true
-        run: pre-commit run --all-files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pre-commit run --from-ref origin/${{ github.base_ref }} --to-ref HEAD
+          else
+            pre-commit run --all-files
+          fi
 
       - name: Show diff if pre-commit made changes
         if: steps.pre-commit.outcome == 'failure'
@@ -164,8 +217,9 @@ jobs:
 
       - name: Build Hugo site
         if: >-
-          steps.pre-commit.outcome != 'failure' ||
-          (steps.pre-commit.outcome == 'failure' && github.event_name == 'push')
+          steps.changes.outputs.site == 'true' &&
+          (steps.pre-commit.outcome != 'failure' ||
+          (steps.pre-commit.outcome == 'failure' && github.event_name == 'push'))
         run: |
           echo "Building Hugo site..."
           cd content
@@ -180,12 +234,13 @@ jobs:
 
       - name: Validate photo links
         if: >-
-          steps.pre-commit.outcome != 'failure' ||
-          (steps.pre-commit.outcome == 'failure' && github.event_name == 'push')
+          steps.changes.outputs.site == 'true' &&
+          (steps.pre-commit.outcome != 'failure' ||
+          (steps.pre-commit.outcome == 'failure' && github.event_name == 'push'))
         run: bash scripts/validate-photo-links.sh
 
       - name: Validate HTML structure
-        if: steps.pre-commit.outcome != 'failure'
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
         run: |
           if ! command -v tidy &> /dev/null; then
             sudo apt-get install -y tidy || (sudo apt-get update && sudo apt-get install -y tidy)
@@ -196,15 +251,15 @@ jobs:
           echo "HTML validation completed"
 
       - name: Validate project configuration
-        if: steps.pre-commit.outcome != 'failure'
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
         run: bash scripts/validate-config.sh
 
       - name: Validate internal links
-        if: steps.pre-commit.outcome != 'failure'
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
         run: bash scripts/validate-links.sh
 
       - name: Run BATS tests
-        if: steps.pre-commit.outcome != 'failure'
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
         run: |
           npm install -g bats
           bats tests/validate-photo-links.bats

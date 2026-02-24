@@ -7,13 +7,15 @@ This repository uses pre-commit hooks to maintain code quality and consistency.
 Before installing pre-commit hooks, ensure you have:
 
 - **Python 3.8+** - Required for pre-commit itself
-- **Node.js 16+** - Required for markdownlint and Prettier
+- **Node.js 20.19+** - Required for markdownlint, Prettier, and stylelint tooling
 - **FFmpeg** - Required for poses image dimension validation
   - macOS: `brew install ffmpeg`
   - Ubuntu/Debian: `sudo apt install ffmpeg`
 - **Hugo extended** - Required for the Hugo build check hook (see [Hugo installation](https://gohugo.io/installation/))
   - Minimum version: v0.146.0 (as specified in the theme)
   - Must be available on your PATH (verify with `hugo version`)
+- **Stylelint** - Automatically installed by pre-commit via `additional_dependencies`; no manual npm install required. Install npm dependencies only for editor integration:
+  - `npm install` (from the repo root)
 
 ## Installation
 
@@ -23,14 +25,20 @@ Before installing pre-commit hooks, ensure you have:
    pip install pre-commit
    ```
 
-2. Install the git hooks:
+2. (Optional) Install npm dependencies for editor integration (e.g., VS Code stylelint extension):
+
+   ```bash
+   npm install
+   ```
+
+3. Install the git hooks:
 
    ```bash
    pre-commit install
    pre-commit install --hook-type pre-push
    ```
 
-3. (Optional) Run all hooks on all files to check the current state:
+4. (Optional) Run all hooks on all files to check the current state:
    ```bash
    pre-commit run --all-files
    ```
@@ -52,6 +60,7 @@ Before installing pre-commit hooks, ensure you have:
 - **Codespell**: Checks for common spelling mistakes
 - **GitHub Actions workflow validation**: Validates workflow YAML syntax and configurations
 - **Shell script linting**: Validates bash/shell scripts with shellcheck
+- **Stylelint**: Lints CSS files for syntax errors and best practices
 - **SRI integrity validation**: Validates and automatically adds/updates Subresource Integrity hashes for CDN-hosted scripts and stylesheets
 - **Poses image auto-resizing**: Automatically resizes images in `content/content/poses/` to ≤2000px on long edge while preserving aspect ratio
 - **Hugo build check**: Verifies the site builds successfully

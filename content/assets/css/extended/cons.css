@@ -26,10 +26,6 @@
     border-bottom: none;
 }
 
-.con-entry.past .con-icon {
-    display: none;
-}
-
 .con-main-content {
     min-width: 0;
     flex: 1;
@@ -107,6 +103,10 @@
     font-size: 1.2rem;
 }
 
+.con-entry.past .con-icon {
+    display: none;
+}
+
 .con-separator {
     border: none;
     border-top: 1px solid var(--tertiary);
@@ -129,7 +129,7 @@
 
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .con-entry {
         grid-template-columns: 1fr auto;
         gap: 1rem;
@@ -156,7 +156,7 @@
     }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
     .con-title {
         font-size: 1.2rem;
     }
