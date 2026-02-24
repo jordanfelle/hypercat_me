@@ -106,27 +106,25 @@ for image_path in "${image_files[@]}"; do
             tmp_image="$(mktemp "${image_dir}/.tmp-${image_stem}.XXXXXX.${image_ext}")"
             TMP_FILES+=("$tmp_image")
 
-            # Format-aware encoding: use lossless for WebP/AVIF to prevent quality degradation
+            # Format-aware encoding: use lossless for formats that support it, high quality for JPEG
             if [[ "${image_ext,,}" == "webp" ]]; then
-                encoder_opts="-lossless 1"
+                encoder_opts=(-lossless 1)
             elif [[ "${image_ext,,}" == "avif" ]]; then
-                encoder_opts="-crf 0"
+                encoder_opts=(-crf 0)
+            elif [[ "${image_ext,,}" == "png" ]]; then
+                # PNG is lossless; adjust compression level rather than quality
+                encoder_opts=(-compression_level 6)
+            elif [[ "${image_ext,,}" =~ ^(jpg|jpeg|jpe)$ ]]; then
+                # For JPEG, use a high-quality setting (lower is better for mjpeg encoder)
+                encoder_opts=(-q:v 2)
             else
-                # For JPEG/PNG, use quality setting
-                encoder_opts="-q:v 5"
+                # Default: no extra encoder options
+                encoder_opts=()
             fi
 
-            if ffmpeg -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" $encoder_opts "$tmp_image" -y 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
+            if ffmpeg -y -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" "${encoder_opts[@]}" "$tmp_image" 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
                 resized_files+=("$pose_path")
-                # Remove from cleanup list since it was successfully moved
-                new_tmp_files=()
-                for f in "${TMP_FILES[@]}"; do
-                    if [[ "$f" != "$tmp_image" ]]; then
-                        new_tmp_files+=("$f")
-                    fi
-                done
-                TMP_FILES=("${new_tmp_files[@]}")
-                unset new_tmp_files
+                # tmp_image was moved; cleanup trap checks existence so no array update needed
             else
                 failures+=("$pose_path: failed to resize image")
             fi
@@ -136,7 +134,6 @@ for image_path in "${image_files[@]}"; do
     fi
 done
 
-echo ""
 if [ "$AUTO_RESIZE" = "--resize" ]; then
     if (( ${#resized_files[@]} > 0 )); then
         echo "✅ Resized ${#resized_files[@]} image(s):"
