@@ -102,7 +102,8 @@ for image_path in "${image_files[@]}"; do
             image_dir="$(dirname "$image_path")"
             image_base="$(basename "$image_path")"
             image_ext="${image_base##*.}"
-            tmp_image="$(mktemp "${image_dir}/.tmp-${image_base}.XXXXXX")"
+            image_stem="${image_base%.*}"
+            tmp_image="$(mktemp "${image_dir}/.tmp-${image_stem}.XXXXXX.${image_ext}")"
             TMP_FILES+=("$tmp_image")
 
             # Format-aware encoding: use lossless for WebP/AVIF to prevent quality degradation
