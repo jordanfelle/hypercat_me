@@ -44,11 +44,22 @@ fi
 failures=()
 resized_files=()
 
-# Find all images in poses subdirectories
+# Find all images in poses subdirectories using -print0 for safe path handling
 image_files=()
-while IFS= read -r img; do
+invalid_name=false
+while IFS= read -r -d '' img; do
+    # Validate full path for tabs/newlines/CR to prevent path injection
+    if [[ "$img" == *$'\t'* || "$img" == *$'\n'* || "$img" == *$'\r'* ]]; then
+        echo "Error: pose image paths cannot contain tabs, newlines, or carriage returns: $img"
+        invalid_name=true
+        break
+    fi
     image_files+=("$img")
-done < <(find "$POSES_DIR" -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \))
+done < <(find "$POSES_DIR" -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.avif" \) -print0)
+
+if [ "$invalid_name" = true ]; then
+    exit 1
+fi
 
 if (( ${#image_files[@]} == 0 )); then
     echo "✅ No images found in poses directory"
@@ -56,7 +67,8 @@ if (( ${#image_files[@]} == 0 )); then
 fi
 
 for image_path in "${image_files[@]}"; do
-    pose_path=$(echo "$image_path" | sed "s|$POSES_DIR/||")
+    # Use bash path stripping instead of echo|sed for safer handling
+    pose_path="${image_path#$POSES_DIR/}"
 
     # Get image dimensions using ffprobe
     if ! dimensions=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$image_path" 2>/dev/null); then
@@ -89,10 +101,21 @@ for image_path in "${image_files[@]}"; do
             # scale filter constrains both dimensions to MAX_DIMENSION while maintaining aspect ratio
             image_dir="$(dirname "$image_path")"
             image_base="$(basename "$image_path")"
+            image_ext="${image_base##*.}"
             tmp_image="$(mktemp "${image_dir}/.tmp-${image_base}.XXXXXX")"
             TMP_FILES+=("$tmp_image")
 
-            if ffmpeg -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" -q:v 5 "$tmp_image" -y 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
+            # Format-aware encoding: use lossless for WebP/AVIF to prevent quality degradation
+            if [[ "${image_ext,,}" == "webp" ]]; then
+                encoder_opts="-lossless 1"
+            elif [[ "${image_ext,,}" == "avif" ]]; then
+                encoder_opts="-crf 0"
+            else
+                # For JPEG/PNG, use quality setting
+                encoder_opts="-q:v 5"
+            fi
+
+            if ffmpeg -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" $encoder_opts "$tmp_image" -y 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
                 resized_files+=("$pose_path")
                 # Remove from cleanup list since it was successfully moved
                 TMP_FILES=("${TMP_FILES[@]/$tmp_image}")
