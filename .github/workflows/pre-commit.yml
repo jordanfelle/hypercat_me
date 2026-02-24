@@ -31,6 +31,8 @@ jobs:
               - 'content/**'
               - 'scripts/**'
               - 'wrangler.jsonc'
+            images:
+              - 'content/content/poses/**'
 
       - name: Set up Git
         run: |
@@ -93,9 +95,11 @@ jobs:
             ${{ runner.os }}-hugo-resources-
 
       - name: Install system dependencies
+        if: steps.changes.outputs.images == 'true'
         run: |
           if ! command -v ffmpeg &> /dev/null; then
-            sudo apt-get install -y ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+            sudo apt-get update -y
+            sudo apt-get install -y ffmpeg
           fi
 
       - name: Install pre-commit
