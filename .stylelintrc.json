@@ -1,37 +1,12 @@
 {
   "extends": ["stylelint-config-standard"],
   "rules": {
-    "property-no-vendor-prefix": null,
-    "declaration-property-value-keyword-no-deprecated": null,
-    "selector-attribute-quotes": null,
-    "declaration-block-single-line-max-declarations": null,
-    "block-no-empty": null,
-    "no-duplicate-selectors": null,
-    "value-keyword-case": null,
-    "selector-class-pattern": null,
-    "selector-id-pattern": null,
-    "custom-property-pattern": null,
-    "keyframes-name-pattern": null,
-    "comment-empty-line-before": null,
-    "declaration-empty-line-before": null,
-    "rule-empty-line-before": null,
-    "font-family-name-quotes": null,
-    "comment-whitespace-inside": null,
-    "length-zero-no-unit": null,
-    "color-function-notation": null,
-    "alpha-value-notation": null,
-    "color-function-alias-notation": null,
-    "color-hex-length": null,
-    "declaration-block-no-redundant-longhand-properties": null,
-    "shorthand-property-no-redundant-values": null,
-    "media-feature-range-notation": null,
     "font-family-no-missing-generic-family-keyword": [
       true,
       {
         "ignoreFontFamilies": ["Avenir", "AvenirBold"]
       }
     ],
-    "no-descending-specificity": null,
     "selector-type-no-unknown": [
       true,
       {

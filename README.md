@@ -14,7 +14,7 @@ Personal website built with Hugo and the Hypercat theme.
 
 - Hugo (extended version)
 - Node.js (for Wrangler)
-- Stylelint (for CSS linting in pre-commit)
+- npm dev dependencies (Stylelint is installed via `npm install`)
 
 ### Local Development
 

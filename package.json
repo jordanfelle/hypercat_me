@@ -1,5 +1,9 @@
 {
+  "name": "hypercat_me",
+  "version": "1.0.0",
+  "private": true,
   "devDependencies": {
+    "stylelint": "^17.3.0",
     "stylelint-config-standard": "^40.0.0"
   }
 }

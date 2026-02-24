@@ -101,12 +101,12 @@ repos:
 
   # CSS linting
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v16.14.0
+    rev: v17.3.0
     hooks:
       - id: stylelint
         name: Lint CSS
         files: \.css$
-        exclude: ^(content/resources/|content/public/)
+        exclude: ^(content/resources/|content/public/|content/themes/)
         args: ['--fix']
         additional_dependencies:
           - stylelint@17.3.0
