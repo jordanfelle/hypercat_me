@@ -15,7 +15,7 @@ Before installing pre-commit hooks, ensure you have:
   - Minimum version: v0.146.0 (as specified in the theme)
   - Must be available on your PATH (verify with `hugo version`)
 - **Stylelint** - Optional local install if you want to run it directly
-  - Install (local dev dependencies): `npm install --save-dev stylelint stylelint-config-standard`
+  - Install (local dev dependency): `npm install --save-dev stylelint`
 
 ## Installation
 
