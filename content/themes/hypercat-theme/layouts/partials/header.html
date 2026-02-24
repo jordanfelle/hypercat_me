@@ -72,16 +72,18 @@
             {{- end }}
             {{- $page_url:= $currentPage.RelPermalink }}
             {{- $is_search := eq (site.GetPage .KeyName).Layout `search` }}
+            {{- $is_external := findRE "://" .URL }}
             <li>
                 <a href="{{ $menu_item_url }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" |
-                    safeHTMLAttr) ("" | safeHTMLAttr ) }}{{- if (findRE "://" .URL) }} (opens in new tab){{- end }}" {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" |
-                    safeHTMLAttr ) }}{{- if (findRE "://" .URL) }} target="_blank" rel="noopener noreferrer"{{- end }}>
+                    safeHTMLAttr) ("" | safeHTMLAttr ) }}{{- if $is_external }} (opens in new tab){{- end }}"
+                    {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}
+                    {{- if $is_external }} target="_blank" rel="noopener noreferrer" aria-label="{{ .Title | default .Name }} (opens in new tab)"{{- end }}>
                     <span {{- if eq $menu_item_url $page_url }} class="active" {{- end }}>
                         {{- .Pre }}
                         {{- .Name -}}
                         {{ .Post -}}
                     </span>
-                    {{- if (findRE "://" .URL) }}&nbsp;
+                    {{- if $is_external }}&nbsp;
                     <svg aria-hidden="true" fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
                         <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
