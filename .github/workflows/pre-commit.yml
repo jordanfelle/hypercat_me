@@ -102,6 +102,7 @@ jobs:
             ${{ runner.os }}-hugo-resources-
 
       - name: Install system dependencies
+        if: steps.changes.outputs.images == 'true'
         run: |
           if ! command -v ffmpeg &> /dev/null; then
             sudo apt-get update -y
