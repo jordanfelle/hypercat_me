@@ -14,8 +14,8 @@ Before installing pre-commit hooks, ensure you have:
 - **Hugo extended** - Required for the Hugo build check hook (see [Hugo installation](https://gohugo.io/installation/))
   - Minimum version: v0.146.0 (as specified in the theme)
   - Must be available on your PATH (verify with `hugo version`)
-- **Stylelint** - Required for CSS linting (installed via npm)
-  - Install: `npm install` (from the repo root)
+- **Stylelint** - Automatically installed by pre-commit via `additional_dependencies`; no manual npm install required. Install npm dependencies only for editor integration:
+  - `npm install` (from the repo root)
 
 ## Installation
 
@@ -25,7 +25,7 @@ Before installing pre-commit hooks, ensure you have:
    pip install pre-commit
    ```
 
-2. Install npm dependencies (required for stylelint):
+2. (Optional) Install npm dependencies for editor integration (e.g., VS Code stylelint extension):
 
    ```bash
    npm install
