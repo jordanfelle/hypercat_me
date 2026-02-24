@@ -7,12 +7,12 @@ set -euo pipefail
 #
 # This script can run in two modes:
 # 1. Validation mode (default): Checks that images don't exceed 2000px on long edge
-# 2. Auto-resize mode (with --crop flag): Automatically resizes images to 2000px max
+# 2. Auto-resize mode (with --resize flag): Automatically resizes images to 2000px max
 
 MAX_DIMENSION=2000
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 POSES_DIR="${SCRIPT_DIR}/../content/content/poses"
-AUTO_CROP=${1:-}
+AUTO_RESIZE=${1:-}
 TMP_FILES=()
 
 # Cleanup trap to remove temporary files on exit
@@ -30,7 +30,7 @@ if ! command -v ffprobe &> /dev/null; then
     exit 1
 fi
 
-if ! command -v ffmpeg &> /dev/null && [ "$AUTO_CROP" = "--crop" ]; then
+if ! command -v ffmpeg &> /dev/null && [ "$AUTO_RESIZE" = "--resize" ]; then
     echo "Error: FFmpeg is required for auto-resizing."
     echo "Please install FFmpeg: brew install ffmpeg (macOS) or apt install ffmpeg (Ubuntu/Debian)"
     exit 1
@@ -94,7 +94,7 @@ for image_path in "${image_files[@]}"; do
 
     # Skip if image is exactly at or under max dimension
     if (( long_edge > MAX_DIMENSION )); then
-        if [ "$AUTO_CROP" = "--crop" ]; then
+        if [ "$AUTO_RESIZE" = "--resize" ]; then
             echo "⚙️  Resizing $pose_path: ${width}x${height} → max long edge $MAX_DIMENSION"
 
             # Use ffmpeg to resize the image while maintaining aspect ratio
@@ -130,7 +130,7 @@ for image_path in "${image_files[@]}"; do
 done
 
 echo ""
-if [ "$AUTO_CROP" = "--crop" ]; then
+if [ "$AUTO_RESIZE" = "--resize" ]; then
     if (( ${#resized_files[@]} > 0 )); then
         echo "✅ Resized ${#resized_files[@]} image(s):"
         printf '  - %s\n' "${resized_files[@]}"

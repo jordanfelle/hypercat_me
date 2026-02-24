@@ -147,7 +147,7 @@ repos:
         stages: [pre-commit]
       - id: validate-poses-images
         name: Validate and resize poses images to ≤2000px
-        entry: ./scripts/validate-poses-images.sh --crop
+        entry: ./scripts/validate-poses-images.sh --resize
         language: script
         pass_filenames: false
         files: ^content/content/poses/.*\.(png|jpe?g|gif|webp|avif)$
