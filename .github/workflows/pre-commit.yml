@@ -105,6 +105,10 @@ jobs:
       - name: Install pre-commit
         run: pip install pre-commit
 
+      - name: Install npm dependencies
+        if: steps.npm-lockfiles.outputs.has_lockfiles == 'true'
+        run: npm ci
+
       - name: Fetch base ref for diff (PR only)
         if: github.event_name == 'pull_request'
         run: git fetch origin ${{ github.base_ref }}
