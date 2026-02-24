@@ -58,6 +58,11 @@ jobs:
       - name: Detect npm lockfiles
         id: npm-lockfiles
         run: |
+          if [ -f package-lock.json ]; then
+            echo "has_root_lockfile=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_root_lockfile=false" >> "$GITHUB_OUTPUT"
+          fi
           if [ -f package-lock.json ] || [ -f content/package-lock.json ]; then
             echo "has_lockfiles=true" >> "$GITHUB_OUTPUT"
           else
@@ -65,7 +70,7 @@ jobs:
           fi
 
       - name: Set up Node.js (cached)
-        if: steps.npm-lockfiles.outputs.has_lockfiles == 'true'
+        if: steps.npm-lockfiles.outputs.has_root_lockfile == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -74,7 +79,7 @@ jobs:
             package-lock.json
 
       - name: Set up Node.js
-        if: steps.npm-lockfiles.outputs.has_lockfiles != 'true'
+        if: steps.npm-lockfiles.outputs.has_root_lockfile != 'true'
         uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -105,7 +110,7 @@ jobs:
           fi
 
       - name: Install root npm dependencies
-        if: steps.npm-lockfiles.outputs.has_lockfiles == 'true'
+        if: steps.npm-lockfiles.outputs.has_root_lockfile == 'true'
         run: npm ci
 
       - name: Install pre-commit
