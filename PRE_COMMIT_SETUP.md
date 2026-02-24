@@ -115,10 +115,14 @@ The poses image hook automatically resizes any images in `content/content/poses/
 When the hook detects oversized images:
 
 1. Images are resized proportionally to fit within 2000px on the longest dimension
-2. The resized images are automatically staged for commit
+2. The hook writes the resized images back to disk (but does not stage them)
 3. You'll see messages like: `⚙️  Resizing solo/001.jpg: 3000x2000 → max long edge 2000`
 
-Simply review the changes and proceed with your commit. The resized images will be included in the commit automatically.
+After the hook runs, the commit will be stopped so you can review the changes. To continue:
+
+1. Review the resized images with `git diff`
+2. Stage them with `git add`
+3. Re-run `git commit` (which will re-run `pre-commit` and complete if everything passes)
 
 ### Hugo Build Failures
 

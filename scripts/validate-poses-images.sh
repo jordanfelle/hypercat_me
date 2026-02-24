@@ -119,7 +119,14 @@ for image_path in "${image_files[@]}"; do
             if ffmpeg -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" $encoder_opts "$tmp_image" -y 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
                 resized_files+=("$pose_path")
                 # Remove from cleanup list since it was successfully moved
-                TMP_FILES=("${TMP_FILES[@]/$tmp_image}")
+                new_tmp_files=()
+                for f in "${TMP_FILES[@]}"; do
+                    if [[ "$f" != "$tmp_image" ]]; then
+                        new_tmp_files+=("$f")
+                    fi
+                done
+                TMP_FILES=("${new_tmp_files[@]}")
+                unset new_tmp_files
             else
                 failures+=("$pose_path: failed to resize image")
             fi
