@@ -1,0 +1,94 @@
+name: Validate Poses Image Dimensions
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/content/poses/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate-poses:
+    # Only run on same-repo PRs; forked PRs can't push changes back
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 10
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check for CI loop
+        id: loop-check
+        run: |
+          if git log -n 10 --pretty='%an:%s' | grep -q '^github-actions\[bot\]:.*\[skip ci\]'; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "⏭️  Skipping: recent automated commit detected"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install FFmpeg
+        if: steps.loop-check.outputs.skip == 'false'
+        run: |
+          if ! command -v ffmpeg &> /dev/null; then
+            sudo apt-get install -y ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          fi
+
+      - name: Resize oversized poses images
+        if: steps.loop-check.outputs.skip == 'false'
+        id: resize
+        run: ./scripts/validate-poses-images.sh --resize
+
+      - name: Commit resized images
+        if: steps.loop-check.outputs.skip == 'false'
+        id: commit
+        run: |
+          if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
+            git add content/content/poses/
+            git commit -m "chore: auto-resize oversized poses images [skip ci]"
+            git push
+            commit_sha=$(git rev-parse HEAD)
+            files=$(git diff --name-only HEAD~1 HEAD)
+            {
+              echo "has_changes=true"
+              echo "commit_sha=$commit_sha"
+              echo "changed_files<<EOF"
+              echo "$files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on PR with resize summary
+        if: steps.commit.outputs.has_changes == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const sha = '${{ steps.commit.outputs.commit_sha }}';
+            const files = ${{ toJson(steps.commit.outputs.changed_files) }};
+            const body = [
+              "**Poses image dimension validation**: oversized images were automatically resized to ≤2000px on the long edge.",
+              "",
+              `Commit: ${sha}`,
+              "",
+              "Resized files:",
+              "```",
+              files,
+              "```",
+              "Pull the latest changes to get the resized images locally."
+            ].join("\n");
+            await github.rest.issues.createComment({
+              ...context.issue,
+              body
+            });
