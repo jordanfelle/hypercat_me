@@ -122,7 +122,7 @@ for image_path in "${image_files[@]}"; do
                 encoder_opts=()
             fi
 
-            if ffmpeg -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" "${encoder_opts[@]}" "$tmp_image" -y 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
+            if ffmpeg -y -i "$image_path" -vf "scale=${MAX_DIMENSION}:${MAX_DIMENSION}:force_original_aspect_ratio=decrease" "${encoder_opts[@]}" "$tmp_image" 2>/dev/null && mv -f "$tmp_image" "$image_path"; then
                 resized_files+=("$pose_path")
                 # tmp_image was moved; cleanup trap checks existence so no array update needed
             else
