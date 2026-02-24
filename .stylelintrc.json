@@ -10,8 +10,7 @@
     "selector-type-no-unknown": [
       true,
       {
-        "ignore": ["custom-elements"],
-        "ignoreTypes": ["bio"]
+        "ignore": ["custom-elements"]
       }
     ]
   }
