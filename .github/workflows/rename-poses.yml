@@ -29,7 +29,7 @@ jobs:
         run: |
           if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
             git add -A
-            git commit -m "Automated pose image renumbering [skip ci]"
+            git commit -m "Automated pose image renumbering"
             git push
             echo "✅ Pose images renumbered and pushed"
           else

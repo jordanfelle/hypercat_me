@@ -155,7 +155,7 @@ jobs:
               exit 1
             fi
             git add -A
-            git commit -m "chore: apply pre-commit fixes [skip ci]"
+            git commit -m "chore: apply pre-commit fixes"
             git push
             commit_sha=$(git rev-parse HEAD)
             files=$(git show --name-status --no-patch --pretty=format: -1)
@@ -206,7 +206,7 @@ jobs:
               exit 0
             fi
             git add -A
-            git commit -m "chore: apply pre-commit fixes [skip ci]"
+            git commit -m "chore: apply pre-commit fixes"
             git push
             echo "✅ Pre-commit fixes committed and pushed to main"
           else
