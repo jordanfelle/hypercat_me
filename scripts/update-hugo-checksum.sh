@@ -30,11 +30,19 @@ fi
 HUGO_RELEASE="hugo_extended_${HUGO_VERSION}_linux-amd64"
 HUGO_ARCHIVE="${HUGO_RELEASE}.tar.gz"
 
-# Check if checksum file exists and is up-to-date
+# Check if checksum file exists and has a valid-looking checksum
 if [ -f "${CHECKSUM_FILE}" ]; then
-  if grep -q "${HUGO_ARCHIVE}" "${CHECKSUM_FILE}"; then
-    echo "✓ Hugo archive checksum already up-to-date for version ${HUGO_VERSION}"
-    exit 0
+  EXISTING_CHECKSUM_LINE=$(grep "${HUGO_ARCHIVE}" "${CHECKSUM_FILE}" || true)
+  if [ -n "${EXISTING_CHECKSUM_LINE}" ]; then
+    # Extract the checksum part (first field)
+    EXISTING_CHECKSUM=$(echo "${EXISTING_CHECKSUM_LINE}" | awk '{print $1}')
+    # Check if it looks like a valid SHA256 (64 hex characters)
+    if echo "${EXISTING_CHECKSUM}" | grep -Eq '^[0-9a-f]{64}$'; then
+      echo "✓ Hugo archive checksum already up-to-date for version ${HUGO_VERSION}"
+      exit 0
+    else
+      echo "Warning: Existing checksum appears invalid, will re-download and update"
+    fi
   fi
 fi
 
