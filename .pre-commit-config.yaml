@@ -115,6 +115,12 @@ repos:
   # Hugo build check
   - repo: local
     hooks:
+      - id: update-hugo-checksum
+        name: Update Hugo archive checksum
+        entry: ./scripts/update-hugo-checksum.sh
+        language: script
+        pass_filenames: false
+        files: ^\.hugo-version$
       - id: validate-cdn-usage
         name: Validate CDN usage
         entry: ./scripts/validate-cdn-usage.sh
