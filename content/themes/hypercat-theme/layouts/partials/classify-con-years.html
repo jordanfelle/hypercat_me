@@ -10,7 +10,7 @@
 {{- $future := slice }}
 {{- $past := slice }}
 
-{{- range split (default "" .years) ", " }}
+{{- range split (default "" .years) "," }}
 {{- $year := strings.TrimSpace . }}
 {{- if and $year (in "0123456789" (substr $year 0 1)) }}
 {{- $yearInt := $year | int }}

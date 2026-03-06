@@ -17,11 +17,12 @@
         {{- $volunteer := partial "classify-con-years.html" (dict "years" (default "" $con.Params.volunteerYears) "con" $con "now" $now) }}
         {{- $hasFuture := or (gt (len $attendee.future) 0) (gt (len $staff.future) 0) (gt (len $volunteer.future) 0) }}
         {{- $hasPast := or (gt (len $attendee.past) 0) (gt (len $staff.past) 0) (gt (len $volunteer.past) 0) }}
+        {{- $entry := dict "page" $con "attendee" $attendee "staff" $staff "volunteer" $volunteer }}
         {{- if $hasFuture }}
-          {{- $upcoming = $upcoming | append $con }}
+          {{- $upcoming = $upcoming | append $entry }}
         {{- end }}
         {{- if $hasPast }}
-          {{- $past = $past | append $con }}
+          {{- $past = $past | append $entry }}
         {{- end }}
         {{- end }}
         {{- end }}
@@ -30,42 +31,42 @@
         {{- /* Create a list with month values for sorting */}}
         {{- $upcomingWithMonth := slice }}
         {{- range $upcoming }}
-        {{- $monthStr := partial "get-con-month.html" (dict "con" . "now" $now) }}
-        {{- $upcomingWithMonth = $upcomingWithMonth | append (dict "page" . "month" $monthStr) }}
+        {{- $monthStr := partial "get-con-month.html" (dict "con" .page "now" $now) }}
+        {{- $upcomingWithMonth = $upcomingWithMonth | append (merge . (dict "month" $monthStr)) }}
         {{- end }}
 
         {{- /* Sort by month string */}}
         {{- $upcoming = slice }}
         {{- range (sort $upcomingWithMonth "month") }}
-        {{- $upcoming = $upcoming | append .page }}
+        {{- $upcoming = $upcoming | append . }}
         {{- end }}
 
         {{- $pastWithMonth := slice }}
         {{- range $past }}
         {{- /* For past conventions, sort by month only */}}
-        {{- $month := .Params.month }}
-        {{- $monthNum := partial "month-name-to-num.html" $month }}
-        {{- $pastWithMonth = $pastWithMonth | append (dict "page" . "monthNum" ($monthNum | int)) }}
+        {{- $monthNum := partial "month-name-to-num.html" .page.Params.month }}
+        {{- $pastWithMonth = $pastWithMonth | append (merge . (dict "monthNum" ($monthNum | int))) }}
         {{- end }}
 
         {{- /* Sort past conventions in ascending order by month */}}
         {{- $past = slice }}
         {{- range (sort $pastWithMonth "monthNum") }}
-        {{- $past = $past | append .page }}
+        {{- $past = $past | append . }}
         {{- end }}
 
         {{- if $upcoming }}
         <section class="upcoming-cons-section">
             <h2>Upcoming Conventions</h2>
-            {{- range $index, $con := $upcoming }}
+            {{- range $index, $entry := $upcoming }}
+            {{- $con := $entry.page }}
             <div class="con-entry">
                 <div class="con-main-content">
                     <h2 class="con-title">{{ $con.Title }}</h2>
                     <p class="con-dates">
                         {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
-                        {{- $staff := partial "classify-con-years.html" (dict "years" (default "" $con.Params.staffYears) "con" $con "now" $now) }}
-                        {{- $volunteer := partial "classify-con-years.html" (dict "years" (default "" $con.Params.volunteerYears) "con" $con "now" $now) }}
-                        {{- $attendee := partial "classify-con-years.html" (dict "years" (default "" $con.Params.attendeeYears) "con" $con "now" $now) }}
+                        {{- $staff := $entry.staff }}
+                        {{- $volunteer := $entry.volunteer }}
+                        {{- $attendee := $entry.attendee }}
                         {{- if gt (len $staff.future) 0 }}
                         <span class="staff-badge">Staff: {{ delimit $staff.future ", " }}</span>
                         {{- else if gt (len $volunteer.future) 0 }}
@@ -92,27 +93,23 @@
         </section>
         {{- end }}
 
-        {{- /* Check if we have past conventions or upcoming with years */}}
-        {{- $hasPast := false }}
-        {{- if $past }}{{ $hasPast = true }}{{- end }}
-        {{- range $upcoming }}{{ if or .Params.attendeeYears .Params.volunteerYears .Params.staffYears }}{{ $hasPast = true }}{{- end }}{{- end }}
+        {{- /* Check if we have past conventions to display */}}
+        {{- $hasPast := gt (len $past) 0 }}
 
         {{- if $hasPast }}
         <section class="past-cons-section">
             <h2>Past Conventions</h2>
-            {{- range $index, $con := $past }}
+            {{- range $index, $entry := $past }}
+            {{- $con := $entry.page }}
             <div class="con-entry past">
                 <div class="con-main-content">
                     {{- $normalizedName := partial "normalize-con-name.html" $con.Title }}
                     <h2 class="con-title"><a href="https://photo.felle.me/Furries/Cons/{{ $normalizedName }}" title="View all photos (opens in new tab)" aria-label="View all photos from {{ $con.Title }} (opens in new tab)" target="_blank" rel="noopener noreferrer">{{ $con.Title }}</a></h2>
                     <p class="con-dates">
                         {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
-                        {{- $attendee := partial "classify-con-years.html" (dict "years" (default "" $con.Params.attendeeYears) "con" $con "now" $now) }}
-                        {{- $staff := partial "classify-con-years.html" (dict "years" (default "" $con.Params.staffYears) "con" $con "now" $now) }}
-                        {{- $volunteer := partial "classify-con-years.html" (dict "years" (default "" $con.Params.volunteerYears) "con" $con "now" $now) }}
-                        {{- $pastYears := $attendee.past }}
-                        {{- $pastStaff := $staff.past }}
-                        {{- $pastVolunteer := $volunteer.past }}
+                        {{- $pastYears := $entry.attendee.past }}
+                        {{- $pastStaff := $entry.staff.past }}
+                        {{- $pastVolunteer := $entry.volunteer.past }}
 
                         {{- /* Display past attendee years with links */}}
                         {{- if gt (len $pastYears) 0 }}
