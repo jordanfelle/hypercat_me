@@ -69,6 +69,32 @@
           {{- end }}
         {{- end }}
 
+        {{- /* Check volunteer years */}}
+        {{- if $con.Params.volunteerYears }}
+          {{- range split $con.Params.volunteerYears ", " }}
+            {{- $yearStr := trim . " " }}
+            {{- $year := 0 }}
+            {{- if and $yearStr (in "0123456789" (substr $yearStr 0 1)) }}
+              {{- $year = $yearStr | int }}
+              {{- if gt $year $nowYear }}
+                {{- $hasFuture = true }}
+              {{- else if eq $year $nowYear }}
+                {{- /* For current year, check if month is upcoming */}}
+                {{- $conMonth := $con.Params.month }}
+                {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
+                {{- $nowMonth := $now.Format "01" | int }}
+                {{- if ge $monthNum $nowMonth }}
+                  {{- $hasFuture = true }}
+                {{- else }}
+                  {{- $hasPast = true }}
+                {{- end }}
+              {{- else }}
+                {{- $hasPast = true }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+
         {{- /* Add to appropriate sections */}}
         {{- if $hasFuture }}
           {{- $upcoming = $upcoming | append $con }}
@@ -136,6 +162,25 @@
                         {{- if gt (len $futureStaffYears) 0 }}
                         <span class="staff-badge">Staff: {{ delimit $futureStaffYears ", " }}</span>
                         {{- end }}
+                        {{- else if $con.Params.volunteerYears }}
+                        {{- /* Filter volunteer years to only future years */}}
+                        {{- $futureVolunteerYears := slice }}
+                        {{- $conMonth := $con.Params.month }}
+                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
+                        {{- $nowMonth := $now.Format "01" | int }}
+                        {{- range split $con.Params.volunteerYears ", " }}
+                        {{- $year := strings.TrimSpace . }}
+                        {{- $yearInt := 0 }}
+                        {{- if and $year (in "0123456789" (substr $year 0 1)) }}
+                        {{- $yearInt = $year | int }}
+                        {{- if or (gt $yearInt $nowYear) (and (eq $yearInt $nowYear) (ge $monthNum $nowMonth)) }}
+                        {{- $futureVolunteerYears = $futureVolunteerYears | append $year }}
+                        {{- end }}
+                        {{- end }}
+                        {{- end }}
+                        {{- if gt (len $futureVolunteerYears) 0 }}
+                        <span class="volunteer-badge">Volunteer: {{ delimit $futureVolunteerYears ", " }}</span>
+                        {{- end }}
                         {{- else if $con.Params.attendeeYears }}
                         {{- /* Filter attendee years to only future years */}}
                         {{- $futureAttendeeYears := slice }}
@@ -178,7 +223,7 @@
         {{- /* Check if we have past conventions or upcoming with years */}}
         {{- $hasPast := false }}
         {{- if $past }}{{ $hasPast = true }}{{- end }}
-        {{- range $upcoming }}{{ if .Params.attendeeYears }}{{ $hasPast = true }}{{- end }}{{- end }}
+        {{- range $upcoming }}{{ if or .Params.attendeeYears .Params.volunteerYears .Params.staffYears }}{{ $hasPast = true }}{{- end }}{{- end }}
 
         {{- if $hasPast }}
         <section class="past-cons-section">
@@ -193,6 +238,7 @@
                         {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
                         {{- $pastYears := slice }}
                         {{- $pastStaff := slice }}
+                        {{- $pastVolunteer := slice }}
 
                         {{- /* Collect past attendee years */}}
                         {{- if $con.Params.attendeeYears }}
@@ -228,6 +274,23 @@
                         {{- end }}
                         {{- end }}
 
+                        {{- /* Collect past volunteer years */}}
+                        {{- if $con.Params.volunteerYears }}
+                        {{- $conMonth := $con.Params.month }}
+                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
+                        {{- $nowMonth := $now.Format "01" | int }}
+                        {{- range split $con.Params.volunteerYears ", " }}
+                        {{- $year := strings.TrimSpace . }}
+                        {{- $yearInt := 0 }}
+                        {{- if and $year (in "0123456789" (substr $year 0 1)) }}
+                        {{- $yearInt = $year | int }}
+                        {{- if or (lt $yearInt $nowYear) (and (eq $yearInt $nowYear) (lt $monthNum $nowMonth)) }}
+                        {{- $pastVolunteer = $pastVolunteer | append $year }}
+                        {{- end }}
+                        {{- end }}
+                        {{- end }}
+                        {{- end }}
+
                         {{- /* Display past attendee years with links */}}
                         {{- if gt (len $pastYears) 0 }}
                         {{- range $i, $year := $pastYears }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ $normalizedName }}/{{ $year }}" title="View photos (opens in new tab)" target="_blank" rel="noopener noreferrer">{{ $year }}</a>{{- end }}
@@ -238,8 +301,13 @@
                         {{- if gt (len $pastYears) 0 }} • {{ end }}<span class="staff-badge">Staff: {{- range $i, $year := $pastStaff }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ $normalizedName }}/{{ $year }}" title="View photos (opens in new tab)" aria-label="View staff photos from {{ $con.Title }} in {{ $year }} (opens in new tab)" class="staff-badge-link" target="_blank" rel="noopener noreferrer">{{ $year }}</a>{{- end }}</span>
                         {{- end }}
 
+                        {{- /* Display past volunteer years with links */}}
+                        {{- if gt (len $pastVolunteer) 0 }}
+                        {{- if or (gt (len $pastYears) 0) (gt (len $pastStaff) 0) }} • {{ end }}<span class="volunteer-badge">Volunteer: {{- range $i, $year := $pastVolunteer }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ $normalizedName }}/{{ $year }}" title="View photos (opens in new tab)" aria-label="View volunteer photos from {{ $con.Title }} in {{ $year }} (opens in new tab)" class="volunteer-badge-link" target="_blank" rel="noopener noreferrer">{{ $year }}</a>{{- end }}</span>
+                        {{- end }}
+
                         {{- /* Fallback if no years found */}}
-                        {{- if and (eq (len $pastYears) 0) (eq (len $pastStaff) 0) }}
+                        {{- if and (eq (len $pastYears) 0) (eq (len $pastStaff) 0) (eq (len $pastVolunteer) 0) }}
                         {{- if $con.Params.pastYears }}
                         {{- range $i, $year := split $con.Params.pastYears ", " }}{{- if $i }}, {{ end }}<a href="https://photo.felle.me/Furries/Cons/{{ $normalizedName }}/{{ trim $year " " }}" title="View photos (opens in new tab)" aria-label="View photos from {{ $con.Title }} in {{ trim $year " " }} (opens in new tab)" target="_blank" rel="noopener noreferrer">{{ trim $year " " }}</a>{{- end }}
                         {{- else }}
