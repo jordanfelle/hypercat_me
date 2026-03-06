@@ -1,0 +1,25 @@
+{{- /* Classify a comma-separated years string as future or past relative to now */}}
+{{- /* Input: dict "years" (string) "con" (page) "now" (time) */}}
+{{- /* Returns: dict "future" (slice of year strings) "past" (slice of year strings) */}}
+
+{{- $now := .now }}
+{{- $nowYear := $now.Format "2006" | int }}
+{{- $nowMonth := $now.Format "01" | int }}
+{{- $monthNum := partial "month-name-to-num.html" .con.Params.month }}
+
+{{- $future := slice }}
+{{- $past := slice }}
+
+{{- range split (default "" .years) "," }}
+{{- $year := strings.TrimSpace . }}
+{{- if and $year (in "0123456789" (substr $year 0 1)) }}
+{{- $yearInt := $year | int }}
+{{- if or (gt $yearInt $nowYear) (and (eq $yearInt $nowYear) (ge $monthNum $nowMonth)) }}
+{{- $future = $future | append $year }}
+{{- else }}
+{{- $past = $past | append $year }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- return (dict "future" $future "past" $past) }}

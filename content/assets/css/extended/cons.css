@@ -70,6 +70,15 @@
     color: inherit;
 }
 
+.volunteer-badge {
+    font-weight: 500;
+    color: #4ade80;
+}
+
+.volunteer-badge-link {
+    color: inherit;
+}
+
 .con-location {
     text-align: right;
     font-size: 0.9rem;
