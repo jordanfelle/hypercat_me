@@ -6,96 +6,17 @@
 
     <div class="cons-container">
         {{- $now := now }}
-        {{- $nowYear := $now.Format "2006" | int }}
         {{- $upcoming := slice }}
         {{- $past := slice }}
 
         {{- range .Site.RegularPages }}
         {{- if eq .Type "cons" }}
-        {{- /* Check if convention has any future years or staff positions */}}
-        {{- $hasFuture := false }}
-        {{- $hasPast := false }}
         {{- $con := . }}
-
-        {{- /* Check attendee years */}}
-        {{- if $con.Params.attendeeYears }}
-          {{- range split $con.Params.attendeeYears ", " }}
-            {{- $yearStr := trim . " " }}
-            {{- $year := 0 }}
-            {{- if and $yearStr (in "0123456789" (substr $yearStr 0 1)) }}
-              {{- $year = $yearStr | int }}
-              {{- if gt $year $nowYear }}
-                {{- $hasFuture = true }}
-              {{- else if eq $year $nowYear }}
-                {{- /* For current year, check if month is upcoming */}}
-                {{- $conMonth := $con.Params.month }}
-                {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
-                {{- $nowMonth := $now.Format "01" | int }}
-                {{- if ge $monthNum $nowMonth }}
-                  {{- $hasFuture = true }}
-                {{- else }}
-                  {{- $hasPast = true }}
-                {{- end }}
-              {{- else }}
-                {{- $hasPast = true }}
-              {{- end }}
-            {{- end }}
-          {{- end }}
-        {{- end }}
-
-        {{- /* Check staff years */}}
-        {{- if $con.Params.staffYears }}
-          {{- range split $con.Params.staffYears ", " }}
-            {{- $yearStr := trim . " " }}
-            {{- $year := 0 }}
-            {{- if and $yearStr (in "0123456789" (substr $yearStr 0 1)) }}
-              {{- $year = $yearStr | int }}
-              {{- if gt $year $nowYear }}
-                {{- $hasFuture = true }}
-              {{- else if eq $year $nowYear }}
-                {{- /* For current year, check if month is upcoming */}}
-                {{- $conMonth := $con.Params.month }}
-                {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
-                {{- $nowMonth := $now.Format "01" | int }}
-                {{- if ge $monthNum $nowMonth }}
-                  {{- $hasFuture = true }}
-                {{- else }}
-                  {{- $hasPast = true }}
-                {{- end }}
-              {{- else }}
-                {{- $hasPast = true }}
-              {{- end }}
-            {{- end }}
-          {{- end }}
-        {{- end }}
-
-        {{- /* Check volunteer years */}}
-        {{- if $con.Params.volunteerYears }}
-          {{- range split $con.Params.volunteerYears ", " }}
-            {{- $yearStr := trim . " " }}
-            {{- $year := 0 }}
-            {{- if and $yearStr (in "0123456789" (substr $yearStr 0 1)) }}
-              {{- $year = $yearStr | int }}
-              {{- if gt $year $nowYear }}
-                {{- $hasFuture = true }}
-              {{- else if eq $year $nowYear }}
-                {{- /* For current year, check if month is upcoming */}}
-                {{- $conMonth := $con.Params.month }}
-                {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
-                {{- $nowMonth := $now.Format "01" | int }}
-                {{- if ge $monthNum $nowMonth }}
-                  {{- $hasFuture = true }}
-                {{- else }}
-                  {{- $hasPast = true }}
-                {{- end }}
-              {{- else }}
-                {{- $hasPast = true }}
-              {{- end }}
-            {{- end }}
-          {{- end }}
-        {{- end }}
-
-        {{- /* Add to appropriate sections */}}
+        {{- $attendee := partial "classify-con-years.html" (dict "years" (default "" $con.Params.attendeeYears) "con" $con "now" $now) }}
+        {{- $staff := partial "classify-con-years.html" (dict "years" (default "" $con.Params.staffYears) "con" $con "now" $now) }}
+        {{- $volunteer := partial "classify-con-years.html" (dict "years" (default "" $con.Params.volunteerYears) "con" $con "now" $now) }}
+        {{- $hasFuture := or (gt (len $attendee.future) 0) (gt (len $staff.future) 0) (gt (len $volunteer.future) 0) }}
+        {{- $hasPast := or (gt (len $attendee.past) 0) (gt (len $staff.past) 0) (gt (len $volunteer.past) 0) }}
         {{- if $hasFuture }}
           {{- $upcoming = $upcoming | append $con }}
         {{- end }}
@@ -141,52 +62,16 @@
                 <div class="con-main-content">
                     <h2 class="con-title">{{ $con.Title }}</h2>
                     <p class="con-dates">
-                        {{- $nowYear := $now.Format "2006" | int }}
                         {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
-                        {{- $conMonth := $con.Params.month }}
-                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
-                        {{- $nowMonth := $now.Format "01" | int }}
-                        {{- /* Compute future years for each role */}}
-                        {{- $futureStaffYears := slice }}
-                        {{- range split (default "" $con.Params.staffYears) ", " }}
-                        {{- $year := strings.TrimSpace . }}
-                        {{- $yearInt := 0 }}
-                        {{- if and $year (in "0123456789" (substr $year 0 1)) }}
-                        {{- $yearInt = $year | int }}
-                        {{- if or (gt $yearInt $nowYear) (and (eq $yearInt $nowYear) (ge $monthNum $nowMonth)) }}
-                        {{- $futureStaffYears = $futureStaffYears | append $year }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
-                        {{- $futureVolunteerYears := slice }}
-                        {{- range split (default "" $con.Params.volunteerYears) ", " }}
-                        {{- $year := strings.TrimSpace . }}
-                        {{- $yearInt := 0 }}
-                        {{- if and $year (in "0123456789" (substr $year 0 1)) }}
-                        {{- $yearInt = $year | int }}
-                        {{- if or (gt $yearInt $nowYear) (and (eq $yearInt $nowYear) (ge $monthNum $nowMonth)) }}
-                        {{- $futureVolunteerYears = $futureVolunteerYears | append $year }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
-                        {{- $futureAttendeeYears := slice }}
-                        {{- range split (default "" $con.Params.attendeeYears) ", " }}
-                        {{- $year := strings.TrimSpace . }}
-                        {{- $yearInt := 0 }}
-                        {{- if and $year (in "0123456789" (substr $year 0 1)) }}
-                        {{- $yearInt = $year | int }}
-                        {{- if or (gt $yearInt $nowYear) (and (eq $yearInt $nowYear) (ge $monthNum $nowMonth)) }}
-                        {{- $futureAttendeeYears = $futureAttendeeYears | append $year }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
-                        {{- /* Display in priority order: staff > volunteer > attendee */}}
-                        {{- if gt (len $futureStaffYears) 0 }}
-                        <span class="staff-badge">Staff: {{ delimit $futureStaffYears ", " }}</span>
-                        {{- else if gt (len $futureVolunteerYears) 0 }}
-                        <span class="volunteer-badge">Volunteer: {{ delimit $futureVolunteerYears ", " }}</span>
-                        {{- else if gt (len $futureAttendeeYears) 0 }}
-                        {{- delimit $futureAttendeeYears ", " }}
+                        {{- $staff := partial "classify-con-years.html" (dict "years" (default "" $con.Params.staffYears) "con" $con "now" $now) }}
+                        {{- $volunteer := partial "classify-con-years.html" (dict "years" (default "" $con.Params.volunteerYears) "con" $con "now" $now) }}
+                        {{- $attendee := partial "classify-con-years.html" (dict "years" (default "" $con.Params.attendeeYears) "con" $con "now" $now) }}
+                        {{- if gt (len $staff.future) 0 }}
+                        <span class="staff-badge">Staff: {{ delimit $staff.future ", " }}</span>
+                        {{- else if gt (len $volunteer.future) 0 }}
+                        <span class="volunteer-badge">Volunteer: {{ delimit $volunteer.future ", " }}</span>
+                        {{- else if gt (len $attendee.future) 0 }}
+                        {{- delimit $attendee.future ", " }}
                         {{- else }}
                         {{ $conYear }}
                         {{- end }}
@@ -221,62 +106,13 @@
                     {{- $normalizedName := partial "normalize-con-name.html" $con.Title }}
                     <h2 class="con-title"><a href="https://photo.felle.me/Furries/Cons/{{ $normalizedName }}" title="View all photos (opens in new tab)" aria-label="View all photos from {{ $con.Title }} (opens in new tab)" target="_blank" rel="noopener noreferrer">{{ $con.Title }}</a></h2>
                     <p class="con-dates">
-                        {{- $nowYear := $now.Format "2006" | int }}
                         {{- $conYear := partial "extract-year.html" (dict "con" $con "now" $now) }}
-                        {{- $pastYears := slice }}
-                        {{- $pastStaff := slice }}
-                        {{- $pastVolunteer := slice }}
-
-                        {{- /* Collect past attendee years */}}
-                        {{- if $con.Params.attendeeYears }}
-                        {{- $conMonth := $con.Params.month }}
-                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
-                        {{- $nowMonth := $now.Format "01" | int }}
-                        {{- range split $con.Params.attendeeYears ", " }}
-                        {{- $year := strings.TrimSpace . }}
-                        {{- $yearInt := 0 }}
-                        {{- if and $year (in "0123456789" (substr $year 0 1)) }}
-                        {{- $yearInt = $year | int }}
-                        {{- if or (lt $yearInt $nowYear) (and (eq $yearInt $nowYear) (lt $monthNum $nowMonth)) }}
-                        {{- $pastYears = $pastYears | append $year }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
-
-                        {{- /* Collect past staff years */}}
-                        {{- if $con.Params.staffYears }}
-                        {{- $conMonth := $con.Params.month }}
-                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
-                        {{- $nowMonth := $now.Format "01" | int }}
-                        {{- range split $con.Params.staffYears ", " }}
-                        {{- $year := strings.TrimSpace . }}
-                        {{- $yearInt := 0 }}
-                        {{- if and $year (in "0123456789" (substr $year 0 1)) }}
-                        {{- $yearInt = $year | int }}
-                        {{- if or (lt $yearInt $nowYear) (and (eq $yearInt $nowYear) (lt $monthNum $nowMonth)) }}
-                        {{- $pastStaff = $pastStaff | append $year }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
-
-                        {{- /* Collect past volunteer years */}}
-                        {{- if $con.Params.volunteerYears }}
-                        {{- $conMonth := $con.Params.month }}
-                        {{- $monthNum := partial "month-name-to-num.html" $conMonth }}
-                        {{- $nowMonth := $now.Format "01" | int }}
-                        {{- range split $con.Params.volunteerYears ", " }}
-                        {{- $year := strings.TrimSpace . }}
-                        {{- $yearInt := 0 }}
-                        {{- if and $year (in "0123456789" (substr $year 0 1)) }}
-                        {{- $yearInt = $year | int }}
-                        {{- if or (lt $yearInt $nowYear) (and (eq $yearInt $nowYear) (lt $monthNum $nowMonth)) }}
-                        {{- $pastVolunteer = $pastVolunteer | append $year }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
-                        {{- end }}
+                        {{- $attendee := partial "classify-con-years.html" (dict "years" (default "" $con.Params.attendeeYears) "con" $con "now" $now) }}
+                        {{- $staff := partial "classify-con-years.html" (dict "years" (default "" $con.Params.staffYears) "con" $con "now" $now) }}
+                        {{- $volunteer := partial "classify-con-years.html" (dict "years" (default "" $con.Params.volunteerYears) "con" $con "now" $now) }}
+                        {{- $pastYears := $attendee.past }}
+                        {{- $pastStaff := $staff.past }}
+                        {{- $pastVolunteer := $volunteer.past }}
 
                         {{- /* Display past attendee years with links */}}
                         {{- if gt (len $pastYears) 0 }}

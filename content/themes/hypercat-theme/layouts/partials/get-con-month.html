@@ -87,6 +87,40 @@
 {{- end }}
 {{- end }}
 
+{{- /* Extract year from volunteerYears if available */}}
+{{- if $con.Params.volunteerYears }}
+{{- $volunteerYears := $con.Params.volunteerYears }}
+{{- if (reflect.IsSlice $volunteerYears) }}
+{{- range $volunteerYears }}
+{{- $yearStr := (printf "%v" .) }}
+{{- $yearInt := ($yearStr | replaceRE "[^0-9]" "") | int }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- else }}
+{{- /* Handle comma-separated string or single value */}}
+{{- $yearStr := (printf "%v" $volunteerYears) }}
+{{- if (in $yearStr ",") }}
+{{- $yearList := split $yearStr "," }}
+{{- range $yearList }}
+{{- $trimmed := (. | replaceRE "[^0-9]" "") }}
+{{- if $trimmed }}
+{{- $yearInt := ($trimmed | int) }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- else }}
+{{- $yearInt := ($yearStr | replaceRE "[^0-9]" "") | int }}
+{{- if gt $yearInt $maxYear }}
+{{- $maxYear = $yearInt }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
 {{- if gt $maxYear 0 }}
 {{- $year = $maxYear }}
 {{- end }}
