@@ -24,7 +24,7 @@ jobs:
 
       - name: Detect site changes
         id: changes
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             site:
